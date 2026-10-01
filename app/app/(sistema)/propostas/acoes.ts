@@ -39,6 +39,9 @@ const esquema = z.object({
   parcelas: z
     .array(z.object({ descricao: z.string().trim().min(2, "Descreva a parcela.").max(120), valor: z.number().positive("Valor da parcela.") }))
     .max(24),
+  modo_pagamento: z.enum(["manual", "parcelado"]),
+  entrada_pct: z.number("Informe a entrada.").min(0, "Mínimo de 0%.").max(90, "Máximo de 90%.").nullable(),
+  parcelas_max: z.number().int().min(1).max(24).nullable(),
   forma_pagamento: textoOpcional(1000),
   prazo: textoOpcional(300),
   revisoes_incluidas: z.number().int().min(0).max(50),
@@ -51,6 +54,9 @@ const esquema = z.object({
   validade_dias: z.number().int().min(1, "Mínimo de 1 dia.").max(90, "Máximo de 90 dias."),
 })
   .superRefine((d, ctx) => {
+    if (d.modo_pagamento === "parcelado" && (d.entrada_pct === null || !d.parcelas_max)) {
+      ctx.addIssue({ code: "custom", path: ["entrada_pct"], message: "Informe a entrada e o máximo de parcelas." });
+    }
     if ((d.deslocamento_tipo === "fixo" || d.deslocamento_tipo === "km") && !d.deslocamento_valor) {
       ctx.addIssue({ code: "custom", path: ["deslocamento_valor"], message: "Informe o valor do deslocamento." });
     }
@@ -87,6 +93,9 @@ export async function criarProposta(clienteId: string) {
       cliente_id: clienteId,
       itens: (doCliente.length ? doCliente : [{ nome: "" }]).map((s) => ({ servico: s.nome, escopo: "", entregaveis: [] })),
       forma_pagamento: "Pagamento por Pix ou transferência bancária.",
+      modo_pagamento: "parcelado",
+      entrada_pct: ctx.sessao.escritorio.parcelamento_entrada_pct,
+      parcelas_max: ctx.sessao.escritorio.parcelamento_max,
     })
     .select("id")
     .single();
@@ -111,7 +120,14 @@ export async function salvarProposta(id: string, dados: DadosProposta): Promise<
 
   const { error, count } = await ctx.supabase
     .from("propostas")
-    .update({ ...resultado.data, atualizado_em: new Date().toISOString() }, { count: "exact" })
+    .update(
+      {
+        ...resultado.data,
+        parcelas: resultado.data.modo_pagamento === "parcelado" ? [] : resultado.data.parcelas,
+        atualizado_em: new Date().toISOString(),
+      },
+      { count: "exact" },
+    )
     .eq("id", id)
     .eq("status", "rascunho");
   if (error || !count) {
@@ -128,8 +144,8 @@ export async function enviarProposta(id: string): Promise<{ link: string } | { e
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
   if (!UUID.test(id)) return { erro: "Proposta não encontrada." };
 
-  const { data: p } = await ctx.supabase.from("propostas").select("valor_total, parcelas").eq("id", id).maybeSingle();
-  if (p?.parcelas?.length && Math.abs(somaParcelas(p.parcelas) - Number(p.valor_total)) >= 0.01) {
+  const { data: p } = await ctx.supabase.from("propostas").select("valor_total, parcelas, modo_pagamento").eq("id", id).maybeSingle();
+  if (p?.modo_pagamento === "manual" && p?.parcelas?.length && Math.abs(somaParcelas(p.parcelas) - Number(p.valor_total)) >= 0.01) {
     return { erro: "A soma das parcelas está diferente do valor total. Ajuste antes de enviar." };
   }
 
@@ -138,6 +154,7 @@ export async function enviarProposta(id: string): Promise<{ link: string } | { e
     console.error("[propostas] enviar", error?.message);
     if (error?.message.includes("proposta_incompleta")) return { erro: "Preencha o valor total e pelo menos um serviço." };
     if (error?.message.includes("proposta_respondida")) return { erro: "O cliente já respondeu esta proposta." };
+    if (error?.message.includes("parcelamento_invalido")) return { erro: "Confira a entrada (0 a 90%) e o máximo de parcelas." };
     return { erro: "Não foi possível enviar. Tente de novo." };
   }
   revalidatePath("/app", "layout");

@@ -6,7 +6,16 @@ import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
 import { DESTINOS_LINK } from "@/lib/clientes";
 import { linkWhatsapp } from "@/lib/contatos";
-import { TIPOS_DESLOCAMENTO, lerReais, reais, textoDeslocamento, type Proposta, type TipoDeslocamento } from "@/lib/propostas";
+import {
+  TIPOS_DESLOCAMENTO,
+  lerReais,
+  opcoesParcelamento,
+  reais,
+  textoDeslocamento,
+  type ModoPagamento,
+  type Proposta,
+  type TipoDeslocamento,
+} from "@/lib/propostas";
 
 // Valores de dinheiro ficam como texto enquanto o arquiteto digita ("15.000,00").
 type ItemForm = { servico: string; escopo: string; entregaveis: string };
@@ -32,6 +41,9 @@ export function FormProposta({
     proposta.itens.map((i) => ({ servico: i.servico, escopo: i.escopo, entregaveis: i.entregaveis.join("\n") })),
   );
   const [total, setTotal] = useState(paraTexto(proposta.valor_total));
+  const [modo, setModo] = useState<ModoPagamento>(proposta.modo_pagamento);
+  const [entradaPct, setEntradaPct] = useState(String(proposta.entrada_pct ?? 30));
+  const [parcelasMax, setParcelasMax] = useState(String(proposta.parcelas_max ?? 12));
   const [parcelas, setParcelas] = useState<ParcelaForm[]>(
     proposta.parcelas.map((p) => ({ descricao: p.descricao, valor: paraTexto(p.valor) })),
   );
@@ -54,7 +66,10 @@ export function FormProposta({
 
   const valorTotal = lerReais(total);
   const soma = parcelas.reduce((s, p) => s + (lerReais(p.valor) ?? 0), 0);
-  const diferenca = valorTotal !== null && parcelas.length ? Math.round((valorTotal - soma) * 100) / 100 : 0;
+  const diferenca =
+    modo === "manual" && valorTotal !== null && parcelas.length ? Math.round((valorTotal - soma) * 100) / 100 : 0;
+  const pctNumero = Number(entradaPct.replace(",", "."));
+  const previaParcelado = valorTotal && Number.isFinite(pctNumero) ? opcoesParcelamento(valorTotal, pctNumero, Number(parcelasMax) || 1) : [];
   const primeiroNome = cliente.nome.split(" ")[0];
 
   function dados(): DadosProposta {
@@ -70,7 +85,10 @@ export function FormProposta({
           .filter(Boolean),
       })),
       valor_total: valorTotal ?? Number.NaN,
-      parcelas: parcelas.map((p) => ({ descricao: p.descricao, valor: lerReais(p.valor) ?? Number.NaN })),
+      parcelas: modo === "parcelado" ? [] : parcelas.map((p) => ({ descricao: p.descricao, valor: lerReais(p.valor) ?? Number.NaN })),
+      modo_pagamento: modo,
+      entrada_pct: modo === "parcelado" ? (Number.isFinite(pctNumero) && entradaPct.trim() !== "" ? pctNumero : null) : null,
+      parcelas_max: modo === "parcelado" ? Number(parcelasMax) || null : null,
       forma_pagamento: formaPagamento,
       prazo,
       revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
@@ -244,6 +262,52 @@ export function FormProposta({
         </Campo>
 
         <div className="campo">
+          <span className="campo-rotulo" id="modo-pagamento">
+            Parcelamento
+          </span>
+          <div className="lista-marcar" role="radiogroup" aria-labelledby="modo-pagamento">
+            <label className="checagem">
+              <input type="radio" name="modo_pagamento" checked={modo === "parcelado"} onChange={() => setModo("parcelado")} />
+              <span>O cliente escolhe as parcelas</span>
+            </label>
+            <label className="checagem">
+              <input type="radio" name="modo_pagamento" checked={modo === "manual"} onChange={() => setModo("manual")} />
+              <span>Parcelas manuais (por etapa, datas específicas…)</span>
+            </label>
+          </div>
+        </div>
+
+        {modo === "parcelado" ? (
+          <>
+            <div className="form-linha">
+              <Campo id="entrada_pct" rotulo="Entrada (%)" ajuda="Use 0 para sem entrada." erro={erros.entrada_pct}>
+                <input id="entrada_pct" inputMode="decimal" value={entradaPct} onChange={(e) => setEntradaPct(e.target.value)} />
+              </Campo>
+              <Campo id="parcelas_max" rotulo="Saldo em até">
+                <select id="parcelas_max" value={parcelasMax} onChange={(e) => setParcelasMax(e.target.value)}>
+                  {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
+                    <option key={n} value={n}>
+                      {n === 1 ? "1x (à vista)" : `${n}x`}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
+            </div>
+            {previaParcelado.length > 0 ? (
+              <div className="proposta-deslocamento-previa campo-ajuda">
+                <strong>O cliente vai escolher entre:</strong>{" "}
+                {previaParcelado[0].entrada > 0 && `entrada de ${reais(previaParcelado[0].entrada)} + `}
+                {previaParcelado
+                  .map((o) => (o.n === 1 ? `à vista ${reais(Math.round((valorTotal! - o.entrada) * 100) / 100)}` : `${o.n}x de ${reais(o.parcela)}`))
+                  .join(" · ")}
+                . As parcelas são geradas sozinhas quando ele aprovar.
+              </div>
+            ) : (
+              <p className="campo-ajuda">Informe o valor total para ver as opções do cliente.</p>
+            )}
+          </>
+        ) : (
+        <div className="campo">
           <span className="campo-rotulo">Parcelas</span>
           <p className="campo-ajuda">Entrada, parcelas por etapa e saldo. Pode deixar sem parcelas se for à vista.</p>
           {parcelas.map((p, i) => (
@@ -290,6 +354,7 @@ export function FormProposta({
             )}
           </div>
         </div>
+        )}
 
         <Campo id="forma_pagamento" rotulo="Observações de pagamento" opcional erro={erros.forma_pagamento}>
           <textarea id="forma_pagamento" rows={2} value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)} />

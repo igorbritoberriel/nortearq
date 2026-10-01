@@ -7,6 +7,7 @@ import {
   FormServicos,
   LinkDoEscritorio,
 } from "@/components/escritorio/FormulariosEscritorio";
+import { FormParcelamento } from "@/components/escritorio/FormParcelamento";
 import { linkDoEscritorio, listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 
 export const metadata: Metadata = { title: "Configurações" };
@@ -58,6 +59,15 @@ export default async function ConfiguracoesPage() {
       <section className="cartao secao-config" id="preco">
         <h2>Faixa de preço e agenda</h2>
         <FormPrecoAgenda escritorio={escritorio} />
+      </section>
+
+      <section className="cartao secao-config" id="parcelamento">
+        <h2>Parcelamento</h2>
+        <p className="muted">
+          Na proposta, o cliente escolhe em quantas vezes quer pagar o saldo, até o máximo que você aceita. As parcelas são
+          calculadas sozinhas.
+        </p>
+        <FormParcelamento entradaPct={escritorio.parcelamento_entrada_pct} maximo={escritorio.parcelamento_max} />
       </section>
 
       <section className="cartao secao-config" id="briefing">

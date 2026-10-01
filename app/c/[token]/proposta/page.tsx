@@ -89,7 +89,15 @@ export default async function PropostaClientePage({ params }: { params: Promise<
 
       {proposta.status === "enviada" && !proposta.expirada && (
         <div className="publico-form">
-          <RespostaProposta token={token} escritorio={escritorio.nome} />
+          <RespostaProposta
+            token={token}
+            escritorio={escritorio.nome}
+            parcelamento={
+              proposta.modo_pagamento === "parcelado" && proposta.valor_total
+                ? { total: proposta.valor_total, entradaPct: proposta.entrada_pct ?? 0, maximo: proposta.parcelas_max ?? 1 }
+                : null
+            }
+          />
         </div>
       )}
     </>

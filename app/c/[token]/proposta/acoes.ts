@@ -14,6 +14,7 @@ const MENSAGENS: Record<string, string> = {
   proposta_expirada: "A validade desta proposta acabou. Fale com o escritório.",
   comentario_obrigatorio: "Conte o que você quer ajustar.",
   motivo_obrigatorio: "Escolha o motivo.",
+  parcelas_invalidas: "Escolha em quantas vezes quer pagar.",
   link_invalido: "Este link não vale mais. Peça um link novo ao escritório.",
 };
 
@@ -22,6 +23,7 @@ export async function responderProposta(
   acao: AcaoResposta,
   comentario: string,
   motivo: string | null,
+  parcelas: number | null = null,
 ): Promise<{ ok: true } | { erro: string }> {
   if (!/^[0-9a-f]{32,128}$/.test(token)) return { erro: MENSAGENS.link_invalido };
   if (acao === "ajuste" && !comentario.trim()) return { erro: MENSAGENS.comentario_obrigatorio };
@@ -39,6 +41,7 @@ export async function responderProposta(
     p_comentario: comentario,
     p_motivo: motivo,
     p_ip: ip,
+    p_parcelas: parcelas,
   });
   if (error || !data) {
     console.error("[proposta] responder", error?.message);

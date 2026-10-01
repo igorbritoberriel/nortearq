@@ -24,6 +24,9 @@ export type Escritorio = {
   endereco: string | null;
   responsavel: string | null;
   registro_profissional: string | null;
+  // Parcelamento padrão das propostas (0012)
+  parcelamento_entrada_pct: number;
+  parcelamento_max: number;
 };
 
 export type Servico = {

@@ -109,6 +109,13 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
                 ? "O cliente pediu ajustes"
                 : "O cliente recusou"}
           </h2>
+          {proposta.parcelas_escolhidas && (
+            <p>
+              <strong>Pagamento escolhido:</strong>{" "}
+              {proposta.parcelas_escolhidas === 1 ? "saldo em parcela única" : `saldo em ${proposta.parcelas_escolhidas}x`}
+              {proposta.entrada_pct ? `, com entrada de ${proposta.entrada_pct}%` : ""}.
+            </p>
+          )}
           {proposta.motivo_recusa && (
             <p>
               <strong>Motivo:</strong> {MOTIVOS_RECUSA[proposta.motivo_recusa]}

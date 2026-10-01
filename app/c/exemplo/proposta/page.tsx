@@ -28,11 +28,11 @@ const proposta: ConteudoProposta = {
     },
   ],
   valor_total: 18000,
-  parcelas: [
-    { descricao: "Entrada, na assinatura do contrato", valor: 5400 },
-    { descricao: "Na aprovação do 3D", valor: 6300 },
-    { descricao: "Saldo, na entrega do detalhamento", valor: 6300 },
-  ],
+  parcelas: [],
+  modo_pagamento: "parcelado",
+  entrada_pct: 30,
+  parcelas_max: 12,
+  parcelas_escolhidas: null,
   forma_pagamento: "Pagamento por Pix ou transferência bancária.",
   prazo: "60 dias úteis após a validação do briefing.",
   revisoes_incluidas: 3,
@@ -67,7 +67,12 @@ export default function PropostaExemploPage() {
           <VisualizacaoProposta proposta={proposta} />
         </div>
         <div className="publico-form">
-          <RespostaProposta token="exemplo" escritorio="Studio Ana Arquitetura" demonstracao />
+          <RespostaProposta
+            token="exemplo"
+            escritorio="Studio Ana Arquitetura"
+            parcelamento={{ total: 18000, entradaPct: 30, maximo: 12 }}
+            demonstracao
+          />
         </div>
       </main>
       <footer className="publico-rodape">Link seguro e pessoal · NorteArq</footer>

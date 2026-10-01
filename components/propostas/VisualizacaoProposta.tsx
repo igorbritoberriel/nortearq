@@ -1,10 +1,13 @@
 import { CalendarClock, Car, Eye, PencilRuler, Wallet } from "lucide-react";
-import { type ConteudoProposta, dataCurta, reais, somaParcelas, textoDeslocamento } from "@/lib/propostas";
+import { type ConteudoProposta, dataCurta, opcoesParcelamento, reais, somaParcelas, textoDeslocamento } from "@/lib/propostas";
 
 // A proposta como o cliente lê (RN-01.6). Usada no link do cliente e na pré-visualização do arquiteto.
 export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta }) {
   const p = proposta;
   const diferenca = p.parcelas.length && p.valor_total ? p.valor_total - somaParcelas(p.parcelas) : 0;
+  // Parcelado e o cliente ainda não escolheu: mostra as opções.
+  const aEscolher = p.modo_pagamento === "parcelado" && !p.parcelas.length && !!p.valor_total;
+  const opcoes = aEscolher ? opcoesParcelamento(p.valor_total!, p.entrada_pct ?? 0, p.parcelas_max ?? 1) : [];
 
   return (
     <article className="proposta">
@@ -37,6 +40,31 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
       <section className="proposta-bloco">
         <h2>Investimento</h2>
         <p className="proposta-total">{reais(p.valor_total)}</p>
+        {aEscolher && (
+          <>
+            <p className="proposta-texto">
+              {opcoes[0].entrada > 0
+                ? `Entrada de ${reais(opcoes[0].entrada)} (${p.entrada_pct}%) na assinatura do contrato e o saldo `
+                : "Pagamento "}
+              {(p.parcelas_max ?? 1) > 1 ? `em até ${p.parcelas_max}x mensais, à sua escolha:` : "à vista."}
+            </p>
+            {(p.parcelas_max ?? 1) > 1 && (
+              <ul className="parcelamento-lista">
+                {opcoes.map((o) => (
+                  <li key={o.n}>
+                    <strong>{o.n === 1 ? "À vista" : `${o.n}x`}</strong>{" "}
+                    {o.n === 1 ? reais(Math.round((p.valor_total! - o.entrada) * 100) / 100) : `de ${reais(o.parcela)}`}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+        {p.parcelas_escolhidas && (
+          <p className="proposta-texto">
+            <strong>Forma escolhida:</strong> {p.parcelas_escolhidas === 1 ? "saldo em parcela única" : `saldo em ${p.parcelas_escolhidas}x`}.
+          </p>
+        )}
         {p.parcelas.length > 0 && (
           <table className="proposta-parcelas">
             <tbody>

@@ -106,7 +106,7 @@ export async function avisarPropostaRespondida(propostaId: string) {
 
   const { data: p } = await admin
     .from("propostas")
-    .select("escritorio_id, status, versao, valor_total, comentario_cliente, motivo_recusa, cliente:clientes(nome)")
+    .select("escritorio_id, status, versao, valor_total, comentario_cliente, motivo_recusa, parcelas_escolhidas, entrada_pct, cliente:clientes(nome)")
     .eq("id", propostaId)
     .maybeSingle();
   if (!p) return;
@@ -126,6 +126,9 @@ export async function avisarPropostaRespondida(propostaId: string) {
       titulo: assunto,
       linhas: [
         `Proposta de ${escaparHtml(reais(p.valor_total))}${p.versao > 1 ? ` (versão ${p.versao})` : ""}.`,
+        ...(p.parcelas_escolhidas
+          ? [`<strong>Pagamento escolhido:</strong> ${p.entrada_pct ? `entrada de ${p.entrada_pct}% e ` : ""}saldo em ${p.parcelas_escolhidas === 1 ? "parcela única" : `${p.parcelas_escolhidas}x`}.`]
+          : []),
         ...(motivo ? [`<strong>Motivo:</strong> ${escaparHtml(motivo)}`] : []),
         ...(p.comentario_cliente ? [`<em>“${escaparHtml(p.comentario_cliente)}”</em>`] : []),
         ...(p.status === "ajuste_pedido" ? ["Crie uma nova versão com os ajustes: o mesmo link mostra a versão nova."] : []),

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { CircleCheck, MessageSquareText, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { responderProposta, type AcaoResposta } from "@/app/c/[token]/proposta/acoes";
-import { MOTIVOS_RECUSA, type MotivoRecusa } from "@/lib/propostas";
+import { MOTIVOS_RECUSA, opcoesParcelamento, reais, type MotivoRecusa } from "@/lib/propostas";
 
 const CONFIRMACOES: Record<AcaoResposta, { titulo: string; texto: (e: string) => string }> = {
   aprovar: { titulo: "Proposta aprovada!", texto: (e) => `O ${e} vai preparar o contrato e enviar para você.` },
@@ -16,15 +16,19 @@ const CONFIRMACOES: Record<AcaoResposta, { titulo: string; texto: (e: string) =>
 export function RespostaProposta({
   token,
   escritorio,
+  parcelamento = null,
   demonstracao = false,
 }: {
   token: string;
   escritorio: string;
+  parcelamento?: { total: number; entradaPct: number; maximo: number } | null;
   demonstracao?: boolean; // pré-visualização: nada é gravado
 }) {
   const [acao, setAcao] = useState<AcaoResposta | null>(null);
   const [comentario, setComentario] = useState("");
   const [motivo, setMotivo] = useState<MotivoRecusa | "">("");
+  const [vezes, setVezes] = useState<number | null>(parcelamento?.maximo === 1 ? 1 : null);
+  const opcoes = parcelamento ? opcoesParcelamento(parcelamento.total, parcelamento.entradaPct, parcelamento.maximo) : [];
   const [erro, setErro] = useState<string | null>(null);
   const [feito, setFeito] = useState<AcaoResposta | null>(null);
   const [pendente, iniciar] = useTransition();
@@ -44,7 +48,7 @@ export function RespostaProposta({
     iniciar(async () => {
       const resultado = demonstracao
         ? ({ ok: true } as const)
-        : await responderProposta(token, escolhida, comentario, motivo || null);
+        : await responderProposta(token, escolhida, comentario, motivo || null, escolhida === "aprovar" ? vezes : null);
       if ("erro" in resultado) setErro(resultado.erro);
       else {
         setFeito(escolhida);
@@ -74,12 +78,37 @@ export function RespostaProposta({
 
       {acao === "aprovar" && (
         <div className="resposta-etapa">
+          {parcelamento && (
+            <fieldset className="parcelamento-escolha">
+              <legend>Como você quer pagar?</legend>
+              {opcoes[0].entrada > 0 && (
+                <p className="campo-ajuda">
+                  Entrada de {reais(opcoes[0].entrada)} ({parcelamento.entradaPct}%) na assinatura do contrato, e o saldo em:
+                </p>
+              )}
+              <div className="parcelamento-opcoes">
+                {opcoes.map((o) => (
+                  <label key={o.n} className={`parcelamento-opcao ${vezes === o.n ? "escolhida" : ""}`}>
+                    <input type="radio" name="parcelas" value={o.n} checked={vezes === o.n} onChange={() => setVezes(o.n)} />
+                    <strong>{o.n === 1 ? "À vista" : `${o.n}x`}</strong>
+                    <span>{o.n === 1 ? reais(Math.round((parcelamento.total - o.entrada) * 100) / 100) : `de ${reais(o.parcela)}`}</span>
+                  </label>
+                ))}
+              </div>
+              {parcelamento.maximo > 1 && <p className="campo-ajuda">Parcelas mensais. A última pode ter diferença de centavos.</p>}
+            </fieldset>
+          )}
           <p>
             Ao aprovar, você concorda com o escopo, os valores e os prazos desta proposta. O contrato vem em seguida para
             assinatura. Sua resposta fica registrada com data e hora.
           </p>
           <div className="resposta-botoes">
-            <button type="button" className="botao botao-marca" onClick={() => confirmar("aprovar")} disabled={pendente}>
+            <button
+              type="button"
+              className="botao botao-marca"
+              onClick={() => confirmar("aprovar")}
+              disabled={pendente || (!!parcelamento && !vezes)}
+            >
               {pendente ? "Enviando..." : "Confirmar aprovação"}
             </button>
             <button type="button" className="botao botao-fantasma" onClick={() => setAcao(null)} disabled={pendente}>

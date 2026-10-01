@@ -1,6 +1,7 @@
 // Propostas (módulo 01, RN-01.6 a RN-01.11): tipos, rótulos e cálculos.
 
 export type StatusProposta = "rascunho" | "enviada" | "aprovada" | "ajuste_pedido" | "recusada" | "substituida";
+export type ModoPagamento = "manual" | "parcelado";
 export type TipoDeslocamento = "incluido" | "fixo" | "km" | "reembolso";
 export type MotivoRecusa = "preco" | "prazo" | "escopo" | "outro_profissional" | "desistiu" | "outro";
 
@@ -15,6 +16,10 @@ export type ConteudoProposta = {
   itens: ItemProposta[];
   valor_total: number | null;
   parcelas: Parcela[];
+  modo_pagamento: ModoPagamento;
+  entrada_pct: number | null;
+  parcelas_max: number | null;
+  parcelas_escolhidas: number | null;
   forma_pagamento: string | null;
   prazo: string | null;
   revisoes_incluidas: number;
@@ -98,13 +103,44 @@ export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
 };
 
 export const COLUNAS_PROPOSTA =
-  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
+  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, parcelas_escolhidas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
 
 // RN-01.8: enviada e vencida aparece como expirada (o banco não muda o status sozinho).
 export function statusVisivel(p: { status: StatusProposta; validade_ate: string | null }): StatusProposta | "expirada" {
   if (p.status !== "enviada" || !p.validade_ate) return p.status;
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
   return p.validade_ate < hoje ? "expirada" : "enviada";
+}
+
+// Parcelamento escolhido pelo cliente: entrada de X% + saldo em N parcelas iguais.
+// Mesmo cálculo do banco (função gerar_parcelas, migração 0012): a última absorve os centavos.
+export function gerarParcelas(total: number, pct: number, n: number): Parcela[] {
+  const centavos = Math.round(total * 100);
+  const entrada = Math.round((centavos * pct) / 100);
+  const resto = centavos - entrada;
+  const lista: Parcela[] = [];
+  if (entrada > 0) lista.push({ descricao: "Entrada, na assinatura do contrato", valor: entrada / 100 });
+  if (resto > 0) {
+    if (n === 1) {
+      lista.push({ descricao: entrada > 0 ? "Saldo, em parcela única" : "Pagamento único, na assinatura do contrato", valor: resto / 100 });
+    } else {
+      const base = Math.floor(resto / n);
+      for (let i = 1; i <= n; i++) {
+        lista.push({ descricao: `Parcela ${i} de ${n} (mensal)`, valor: (i === n ? resto - base * (n - 1) : base) / 100 });
+      }
+    }
+  }
+  return lista;
+}
+
+// Opções que o cliente vê: 1x, 2x... até o máximo aceito pelo escritório.
+export function opcoesParcelamento(total: number, pct: number, max: number) {
+  const entrada = Math.round(total * pct) / 100;
+  return Array.from({ length: max }, (_, i) => {
+    const n = i + 1;
+    const saldo = Math.round((total - entrada) * 100) / 100;
+    return { n, entrada, parcela: Math.floor((saldo * 100) / n) / 100 };
+  });
 }
 
 export function somaParcelas(parcelas: Parcela[]) {
