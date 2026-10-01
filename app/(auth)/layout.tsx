@@ -1,20 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { VideoAcesso } from "@/components/auth/VideoAcesso";
 
 // Layout das telas de login, cadastro e recuperação de senha:
-// foto à esquerda (no celular vira uma faixa no topo) e logo + formulário à direita.
+// vídeo à esquerda (no celular vira uma faixa no topo) e logo + formulário à direita.
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="acesso">
       <aside className="acesso-imagem">
-        <Image
-          src="/login/nortearq-login-arquiteta.jpg"
-          alt="Arquiteta revisando um projeto no tablet, no escritório"
-          fill
-          priority
-          sizes="(max-width: 900px) 100vw, 50vw"
-          className="acesso-foto"
-        />
+        <VideoAcesso />
         <div className="acesso-frase">
           <span className="acesso-linha" aria-hidden="true" />
           <p>
