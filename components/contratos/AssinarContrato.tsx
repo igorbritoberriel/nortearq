@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { CircleCheck, FileDown, PenLine } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { assinarContrato } from "@/app/c/[token]/contrato/acoes";
+import { InputMascara } from "@/components/InputMascara";
 
 // O cliente confere/completa os próprios dados (RN-01.13) e aceita o contrato.
 export function AssinarContrato({
@@ -64,7 +65,14 @@ export function AssinarContrato({
         <input id="nome" autoComplete="name" value={nome} onChange={(e) => setNome(e.target.value)} />
       </Campo>
       <Campo id="documento" rotulo="CPF ou CNPJ" erro={erro?.campo === "documento" ? erro.texto : undefined}>
-        <input id="documento" inputMode="numeric" value={documento} onChange={(e) => setDocumento(e.target.value)} />
+        <InputMascara
+          mascara="documento"
+          id="documento"
+          inputMode="numeric"
+          placeholder="000.000.000-00"
+          value={documento}
+          onChange={(e) => setDocumento(e.target.value)}
+        />
       </Campo>
       <Campo id="endereco" rotulo="Endereço do imóvel do projeto" erro={erro?.campo === "endereco" ? erro.texto : undefined}>
         <input id="endereco" autoComplete="street-address" value={endereco} onChange={(e) => setEndereco(e.target.value)} />

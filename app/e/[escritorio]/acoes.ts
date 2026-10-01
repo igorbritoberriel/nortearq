@@ -26,7 +26,7 @@ const esquema = z.object({
   whatsapp: z
     .string()
     .transform((v) => v.replace(/\D/g, ""))
-    .refine((v) => v.length >= 10 && v.length <= 13, "WhatsApp com DDD, só números."),
+    .refine((v) => v.length >= 10 && v.length <= 13, "Informe o WhatsApp com DDD."),
   email: opcional(z.string().trim().toLowerCase().pipe(z.email("Informe um e-mail válido."))),
   area_m2: opcional(numeroBr("Informe a área em m², como 80.")),
   localizacao: opcional(z.string().trim().max(120, "Use até 120 caracteres.")),

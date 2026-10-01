@@ -6,6 +6,7 @@ import { Aviso, Campo } from "@/components/Campo";
 import { salvarBriefing, salvarMarca, salvarPrecoAgenda, salvarServicos } from "@/app/app/acoes";
 import type { EstadoFormulario } from "@/lib/formulario";
 import type { Escritorio, Servico } from "@/lib/escritorio";
+import { InputMascara } from "@/components/InputMascara";
 
 // Formulários de configuração do escritório. No assistente inicial recebem "proximo"
 // (vão para o passo seguinte ao salvar); na tela de Configurações ficam na mesma página.
@@ -66,7 +67,8 @@ export function FormMarca({
         </div>
       </Campo>
       <Campo id="whatsapp" rotulo="WhatsApp do escritório" opcional erro={erro.whatsapp}>
-        <input
+        <InputMascara
+            mascara="telefone"
           id="whatsapp"
           name="whatsapp"
           type="tel"

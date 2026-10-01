@@ -6,6 +6,7 @@ import { CircleCheck, MessageCircle } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { PRAZOS, linkWhatsapp } from "@/lib/contatos";
 import type { EstadoFormulario } from "@/lib/formulario";
+import { InputMascara } from "@/components/InputMascara";
 
 type Acao = (anterior: EstadoFormulario, formData: FormData) => Promise<EstadoFormulario>;
 
@@ -62,7 +63,8 @@ export function FormContato({
         </Campo>
         <div className="form-linha">
           <Campo id="whatsapp" rotulo="WhatsApp" erro={erro.whatsapp}>
-            <input
+            <InputMascara
+            mascara="telefone"
               id="whatsapp"
               name="whatsapp"
               type="tel"

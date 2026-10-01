@@ -7,6 +7,7 @@ import { gerarLink } from "@/app/app/(sistema)/clientes/acoes";
 import { DESTINOS_LINK, ETAPAS_CLIENTE, type Cliente, type DestinoLink } from "@/lib/clientes";
 import { linkWhatsapp } from "@/lib/contatos";
 import type { EstadoFormulario } from "@/lib/formulario";
+import { InputMascara } from "@/components/InputMascara";
 
 type Acao = (anterior: EstadoFormulario, formData: FormData) => Promise<EstadoFormulario>;
 
@@ -40,7 +41,15 @@ export function FormCliente({
       </Campo>
       <div className="form-linha">
         <Campo id="telefone" rotulo="WhatsApp" opcional erro={erro.telefone}>
-          <input id="telefone" name="telefone" type="tel" inputMode="tel" placeholder="(11) 91234-5678" defaultValue={valor("telefone")} />
+          <InputMascara
+            mascara="telefone"
+            id="telefone"
+            name="telefone"
+            type="tel"
+            inputMode="tel"
+            placeholder="(11) 91234-5678"
+            defaultValue={valor("telefone")}
+          />
         </Campo>
         <Campo id="email" rotulo="E-mail" opcional erro={erro.email}>
           <input id="email" name="email" type="email" defaultValue={valor("email")} />
@@ -48,7 +57,14 @@ export function FormCliente({
       </div>
       <div className="form-linha">
         <Campo id="documento" rotulo="CPF ou CNPJ" opcional ajuda="Necessário para o contrato." erro={erro.documento}>
-          <input id="documento" name="documento" inputMode="numeric" defaultValue={valor("documento")} />
+          <InputMascara
+            mascara="documento"
+            id="documento"
+            name="documento"
+            inputMode="numeric"
+            placeholder="000.000.000-00"
+            defaultValue={valor("documento")}
+          />
         </Campo>
         {cliente && (
           <Campo id="etapa" rotulo="Etapa" erro={erro.etapa}>

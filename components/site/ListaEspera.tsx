@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CircleCheck, MessageCircle } from "lucide-react";
 import { entrarNaListaEspera, type EstadoListaEspera } from "@/app/(site)/acoes";
 import { PLANOS } from "@/lib/modulos";
+import { InputMascara } from "@/components/InputMascara";
 
 const PERFIS = [
   { valor: "autonomo", rotulo: "Trabalho sozinho(a)" },
@@ -89,7 +90,8 @@ export function ListaEspera() {
 
       <div className="lista-linha">
         <Campo id="le-whatsapp" rotulo="WhatsApp" opcional erro={erro.whatsapp}>
-          <input
+          <InputMascara
+            mascara="telefone"
             id="le-whatsapp"
             name="whatsapp"
             type="tel"

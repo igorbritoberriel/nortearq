@@ -4,6 +4,7 @@ import { useActionState, useRef, useState, useTransition } from "react";
 import { Aviso, Campo } from "@/components/Campo";
 import { CAMPOS_CONTRATO } from "@/lib/contratos";
 import type { EstadoFormulario } from "@/lib/formulario";
+import { InputMascara } from "@/components/InputMascara";
 
 // Texto do contrato com os {{campos}} automáticos (RN-01.12). Clicar num campo insere no cursor.
 export function EditorContrato({
@@ -108,10 +109,28 @@ export function FormDadosContratado({
       {estado.status === "sucesso" && estado.mensagem && <Aviso tipo="sucesso">{estado.mensagem}</Aviso>}
       <div className="form-linha">
         <Campo id="documento" rotulo="CPF ou CNPJ do escritório" erro={erro.documento}>
-          <input id="documento" name="documento" inputMode="numeric" defaultValue={valor("documento")} />
+          <InputMascara
+            mascara="documento"
+            id="documento"
+            name="documento"
+            inputMode="numeric"
+            placeholder="00.000.000/0000-00"
+            defaultValue={valor("documento")}
+          />
         </Campo>
-        <Campo id="registro_profissional" rotulo="Registro profissional" ajuda="Ex.: CAU A123456-7" erro={erro.registro_profissional}>
-          <input id="registro_profissional" name="registro_profissional" defaultValue={valor("registro_profissional")} />
+        <Campo
+          id="registro_profissional"
+          rotulo="Registro profissional"
+          ajuda="CAU: digite a letra e os números, o traço entra sozinho (A123456-7). CREA: como no seu registro."
+          erro={erro.registro_profissional}
+        >
+          <InputMascara
+            mascara="registro"
+            id="registro_profissional"
+            name="registro_profissional"
+            placeholder="A123456-7"
+            defaultValue={valor("registro_profissional")}
+          />
         </Campo>
       </div>
       <Campo id="responsavel" rotulo="Quem assina pelo escritório" erro={erro.responsavel}>

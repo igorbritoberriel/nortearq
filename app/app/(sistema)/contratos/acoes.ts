@@ -114,7 +114,7 @@ const esquemaDados = z.object({
     z
       .string()
       .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length === 11 || v.length === 14, "CPF (11 números) ou CNPJ (14 números).")
+      .refine((v) => v.length === 11 || v.length === 14, "Informe um CPF (11 números) ou CNPJ (14 números).")
       .nullable(),
   ),
   endereco: opcional(200),

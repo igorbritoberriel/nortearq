@@ -25,14 +25,14 @@ const esquemaCliente = z.object({
     z
       .string()
       .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length >= 10 && v.length <= 13, "WhatsApp com DDD, só números."),
+      .refine((v) => v.length >= 10 && v.length <= 13, "Informe o WhatsApp com DDD."),
   ),
   email: opcional(z.string().trim().toLowerCase().pipe(z.email("Informe um e-mail válido."))),
   documento: opcional(
     z
       .string()
       .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length === 11 || v.length === 14, "CPF (11 números) ou CNPJ (14 números)."),
+      .refine((v) => v.length === 11 || v.length === 14, "Informe um CPF (11 números) ou CNPJ (14 números)."),
   ),
   endereco_imovel: opcional(z.string().trim().max(200, "Use até 200 caracteres.")),
   observacoes: opcional(z.string().trim().max(2000, "Use até 2.000 caracteres.")),

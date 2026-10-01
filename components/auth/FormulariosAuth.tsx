@@ -6,6 +6,7 @@ import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, MailCheck } from "lucide-re
 import { Aviso, Campo } from "@/components/Campo";
 import { cadastrar, entrar, recuperarSenha, redefinirSenha } from "@/app/(auth)/acoes";
 import type { EstadoFormulario } from "@/lib/formulario";
+import { InputMascara } from "@/components/InputMascara";
 
 const inicial: EstadoFormulario = { status: "inicial" };
 
@@ -137,7 +138,8 @@ export function FormCadastro() {
         <input id="escritorio" name="escritorio" required autoComplete="organization" defaultValue={v.escritorio} />
       </Campo>
       <Campo id="whatsapp" rotulo="WhatsApp" erro={erro.whatsapp}>
-        <input
+        <InputMascara
+            mascara="telefone"
           id="whatsapp"
           name="whatsapp"
           type="tel"

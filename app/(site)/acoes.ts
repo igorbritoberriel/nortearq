@@ -24,7 +24,7 @@ const esquema = z.object({
     z
       .string()
       .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length >= 10 && v.length <= 13, "WhatsApp com DDD, só números."),
+      .refine((v) => v.length >= 10 && v.length <= 13, "Informe o WhatsApp com DDD."),
   ),
   cidade: opcional(z.string().trim().max(80, "Use até 80 caracteres.")),
   perfil: z.enum(["autonomo", "escritorio_pequeno", "escritorio_grande", "estudante"], "Escolha uma opção."),
