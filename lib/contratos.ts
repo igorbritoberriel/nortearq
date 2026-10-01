@@ -64,6 +64,7 @@ export const CAMPOS_CONTRATO: { campo: string; descricao: string }[] = [
   { campo: "{{proposta.forma_pagamento}}", descricao: "Observações de pagamento" },
   { campo: "{{proposta.revisoes}}", descricao: "Revisões incluídas" },
   { campo: "{{proposta.visitas}}", descricao: "Visitas incluídas" },
+  { campo: "{{proposta.deslocamento}}", descricao: "Regra de deslocamento das visitas" },
   { campo: "{{proposta.data_aprovacao}}", descricao: "Data em que o cliente aprovou a proposta" },
   { campo: "{{data}}", descricao: "Data do aceite, por extenso" },
 ];

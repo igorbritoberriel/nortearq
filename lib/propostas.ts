@@ -1,6 +1,7 @@
 // Propostas (módulo 01, RN-01.6 a RN-01.11): tipos, rótulos e cálculos.
 
 export type StatusProposta = "rascunho" | "enviada" | "aprovada" | "ajuste_pedido" | "recusada" | "substituida";
+export type TipoDeslocamento = "incluido" | "fixo" | "km" | "reembolso";
 export type MotivoRecusa = "preco" | "prazo" | "escopo" | "outro_profissional" | "desistiu" | "outro";
 
 export type ItemProposta = { servico: string; escopo: string; entregaveis: string[] };
@@ -19,6 +20,10 @@ export type ConteudoProposta = {
   revisoes_incluidas: number;
   visitas_incluidas: number;
   nao_incluido: string | null;
+  deslocamento_tipo: TipoDeslocamento;
+  deslocamento_valor: number | null;
+  deslocamento_cidade: string | null;
+  deslocamento_obs: string | null;
   validade_dias: number;
   validade_ate: string | null;
   enviada_em: string | null;
@@ -55,6 +60,34 @@ export const STATUS_PROPOSTA: Record<StatusProposta | "expirada", string> = {
   expirada: "Expirada",
 };
 
+// Visitas fora da cidade-sede: como o deslocamento é cobrado.
+export const TIPOS_DESLOCAMENTO: Record<TipoDeslocamento, string> = {
+  incluido: "Incluído nos honorários",
+  fixo: "Taxa fixa por visita",
+  km: "Valor por km rodado",
+  reembolso: "Reembolso das despesas",
+};
+
+// Mesma regra da cláusula do contrato (função texto_deslocamento, migração 0011), em palavras para o cliente.
+export function textoDeslocamento(
+  p: Pick<ConteudoProposta, "deslocamento_tipo" | "deslocamento_valor" | "deslocamento_cidade" | "deslocamento_obs">,
+) {
+  const obs = p.deslocamento_obs?.trim() ? ` ${p.deslocamento_obs.trim()}` : "";
+  if (p.deslocamento_tipo === "incluido") return `As despesas de deslocamento para as visitas estão incluídas nos honorários.${obs}`;
+  const cidade = p.deslocamento_cidade?.trim();
+  const inicio = cidade
+    ? `Nas visitas dentro de ${cidade}, o deslocamento está incluído nos honorários. Nas visitas fora de ${cidade}, `
+    : "Em cada visita, ";
+  const valor = p.deslocamento_valor ? reais(p.deslocamento_valor) : "[a preencher]";
+  const regra =
+    p.deslocamento_tipo === "fixo"
+      ? `será cobrada uma taxa de deslocamento de ${valor} por visita.`
+      : p.deslocamento_tipo === "km"
+        ? `será cobrado ${valor} por quilômetro rodado (ida e volta).`
+        : "as despesas de deslocamento (combustível, pedágios, passagens, hospedagem e alimentação) serão reembolsadas mediante comprovante.";
+  return `${inicio}${regra} O custo previsto de cada visita será informado antes da viagem.${obs}`;
+}
+
 export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
   preco: "Preço",
   prazo: "Prazo",
@@ -65,7 +98,7 @@ export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
 };
 
 export const COLUNAS_PROPOSTA =
-  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
+  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
 
 // RN-01.8: enviada e vencida aparece como expirada (o banco não muda o status sozinho).
 export function statusVisivel(p: { status: StatusProposta; validade_ate: string | null }): StatusProposta | "expirada" {

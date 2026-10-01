@@ -6,7 +6,7 @@ import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
 import { DESTINOS_LINK } from "@/lib/clientes";
 import { linkWhatsapp } from "@/lib/contatos";
-import { lerReais, reais, type Proposta } from "@/lib/propostas";
+import { TIPOS_DESLOCAMENTO, lerReais, reais, textoDeslocamento, type Proposta, type TipoDeslocamento } from "@/lib/propostas";
 
 // Valores de dinheiro ficam como texto enquanto o arquiteto digita ("15.000,00").
 type ItemForm = { servico: string; escopo: string; entregaveis: string };
@@ -40,6 +40,10 @@ export function FormProposta({
   const [revisoes, setRevisoes] = useState(String(proposta.revisoes_incluidas));
   const [visitas, setVisitas] = useState(String(proposta.visitas_incluidas));
   const [naoIncluido, setNaoIncluido] = useState(proposta.nao_incluido ?? "");
+  const [deslocamento, setDeslocamento] = useState<TipoDeslocamento>(proposta.deslocamento_tipo);
+  const [deslocValor, setDeslocValor] = useState(paraTexto(proposta.deslocamento_valor));
+  const [deslocCidade, setDeslocCidade] = useState(proposta.deslocamento_cidade ?? "");
+  const [deslocObs, setDeslocObs] = useState(proposta.deslocamento_obs ?? "");
   const [validade, setValidade] = useState(String(proposta.validade_dias));
 
   const [pendente, iniciar] = useTransition();
@@ -72,6 +76,10 @@ export function FormProposta({
       revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
       visitas_incluidas: Number.parseInt(visitas, 10) || 0,
       nao_incluido: naoIncluido,
+      deslocamento_tipo: deslocamento,
+      deslocamento_valor: deslocamento === "fixo" || deslocamento === "km" ? (lerReais(deslocValor) ?? null) : null,
+      deslocamento_cidade: deslocamento === "incluido" ? null : deslocCidade,
+      deslocamento_obs: deslocObs,
       validade_dias: Number.parseInt(validade, 10) || 0,
     };
   }
@@ -301,6 +309,60 @@ export function FormProposta({
             <input id="visitas" type="number" min={0} max={200} value={visitas} onChange={(e) => setVisitas(e.target.value)} />
           </Campo>
         </div>
+        <div className="campo">
+          <span className="campo-rotulo" id="deslocamento-rotulo">
+            Deslocamento para visitas fora da cidade
+          </span>
+          <p className="campo-ajuda">O cliente vê esta regra na proposta e ela vira cláusula do contrato.</p>
+          <div className="lista-marcar" role="radiogroup" aria-labelledby="deslocamento-rotulo">
+            {(Object.keys(TIPOS_DESLOCAMENTO) as TipoDeslocamento[]).map((t) => (
+              <label key={t} className="checagem">
+                <input type="radio" name="deslocamento_tipo" checked={deslocamento === t} onChange={() => setDeslocamento(t)} />
+                <span>{TIPOS_DESLOCAMENTO[t]}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+        {deslocamento !== "incluido" && (
+          <div className="form-linha">
+            <Campo
+              id="deslocamento_cidade"
+              rotulo="Cidade-sede"
+              opcional
+              ajuda="Dentro dela, o deslocamento é incluído."
+              erro={erros.deslocamento_cidade}
+            >
+              <input id="deslocamento_cidade" maxLength={80} placeholder="Niterói" value={deslocCidade} onChange={(e) => setDeslocCidade(e.target.value)} />
+            </Campo>
+            {(deslocamento === "fixo" || deslocamento === "km") && (
+              <Campo
+                id="deslocamento_valor"
+                rotulo={deslocamento === "fixo" ? "Valor por visita (R$)" : "Valor por km rodado (R$)"}
+                erro={erros.deslocamento_valor}
+              >
+                <input
+                  id="deslocamento_valor"
+                  inputMode="decimal"
+                  placeholder={deslocamento === "fixo" ? "150,00" : "1,50"}
+                  value={deslocValor}
+                  onChange={(e) => setDeslocValor(e.target.value)}
+                />
+              </Campo>
+            )}
+          </div>
+        )}
+        <Campo id="deslocamento_obs" rotulo="Observação sobre o deslocamento" opcional ajuda="Ex.: Pedágios à parte. Acima de 300 km, hospedagem por conta do cliente." erro={erros.deslocamento_obs}>
+          <input id="deslocamento_obs" maxLength={500} value={deslocObs} onChange={(e) => setDeslocObs(e.target.value)} />
+        </Campo>
+        <p className="campo-ajuda proposta-deslocamento-previa">
+          <strong>Como o cliente vai ler:</strong>{" "}
+          {textoDeslocamento({
+            deslocamento_tipo: deslocamento,
+            deslocamento_valor: lerReais(deslocValor),
+            deslocamento_cidade: deslocCidade,
+            deslocamento_obs: deslocObs,
+          })}
+        </p>
         <Campo id="nao_incluido" rotulo="Não está incluído" opcional ajuda="Ex.: Projeto elétrico, aprovação na prefeitura, compra de móveis." erro={erros.nao_incluido}>
           <textarea id="nao_incluido" rows={3} value={naoIncluido} onChange={(e) => setNaoIncluido(e.target.value)} />
         </Campo>

@@ -44,8 +44,17 @@ const esquema = z.object({
   revisoes_incluidas: z.number().int().min(0).max(50),
   visitas_incluidas: z.number().int().min(0).max(200),
   nao_incluido: textoOpcional(3000),
+  deslocamento_tipo: z.enum(["incluido", "fixo", "km", "reembolso"], "Escolha como o deslocamento é cobrado."),
+  deslocamento_valor: z.number().positive("Informe o valor.").max(100_000).nullable(),
+  deslocamento_cidade: textoOpcional(80),
+  deslocamento_obs: textoOpcional(500),
   validade_dias: z.number().int().min(1, "Mínimo de 1 dia.").max(90, "Máximo de 90 dias."),
-});
+})
+  .superRefine((d, ctx) => {
+    if ((d.deslocamento_tipo === "fixo" || d.deslocamento_tipo === "km") && !d.deslocamento_valor) {
+      ctx.addIssue({ code: "custom", path: ["deslocamento_valor"], message: "Informe o valor do deslocamento." });
+    }
+  });
 
 export type DadosProposta = z.input<typeof esquema>;
 type Resultado = { ok: true } | { erro: string; erros?: Record<string, string> };

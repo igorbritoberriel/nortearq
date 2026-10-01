@@ -1,5 +1,5 @@
-import { CalendarClock, Eye, PencilRuler, Wallet } from "lucide-react";
-import { type ConteudoProposta, dataCurta, reais, somaParcelas } from "@/lib/propostas";
+import { CalendarClock, Car, Eye, PencilRuler, Wallet } from "lucide-react";
+import { type ConteudoProposta, dataCurta, reais, somaParcelas, textoDeslocamento } from "@/lib/propostas";
 
 // A proposta como o cliente lê (RN-01.6). Usada no link do cliente e na pré-visualização do arquiteto.
 export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta }) {
@@ -86,6 +86,13 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
                     : `${p.visitas_incluidas} visitas à obra`}
               </strong>
               {p.visitas_incluidas > 0 ? "incluídas no valor" : "visitas podem ser contratadas à parte"}
+            </span>
+          </li>
+          <li>
+            <Car size={20} aria-hidden="true" />
+            <span>
+              <strong>{p.deslocamento_tipo === "incluido" ? "Deslocamento incluído" : "Deslocamento para visitas"}</strong>
+              {textoDeslocamento(p)}
             </span>
           </li>
           <li>

@@ -74,8 +74,8 @@ supabase/migrations/     → estrutura do banco de dados (SQL)
    configuração inicial e logo) `0004_formulario_e_contatos.sql` (formulário público e contatos), `0005_clientes_e_links.sql`
    (clientes e links do cliente), `0006_briefing.sql` (briefing, quiz de estilo e fotos),
    `0007_propostas.sql` (propostas, versões e resposta do cliente), `0008_contratos.sql` (contrato com
-   aceite eletrônico, projeto e pagamentos), `0009_ajuste_link_proposta.sql` e `0010_projetos.sql`
-   (etapas, arquivos com versões e aprovações do cliente).
+   aceite eletrônico, projeto e pagamentos), `0009_ajuste_link_proposta.sql`, `0010_projetos.sql`
+   (etapas, arquivos com versões e aprovações do cliente) e `0011_deslocamento.sql` (deslocamento das visitas).
 3. Copie `.env.example` para `.env.local` e preencha a URL e a chave (*Project Settings → API*).
 4. Para o envio de fotos do briefing e os avisos por e-mail, preencha também `SUPABASE_SECRET_KEY`
    (chave secreta, só o servidor usa) e `RESEND_API_KEY` (veja "Avisos por e-mail").
@@ -128,6 +128,7 @@ Sem a chave, nada quebra: o aviso só aparece no terminal.
 - [x] Perfil do Cliente em PDF (impressão do navegador → "Salvar como PDF")
 - [x] Banco de imagens de estilo padrão do NorteArq: 24 imagens geradas por IA no Canva (3 por estilo), em `estilos/padrao/`
 - [x] Proposta: criar, versões, enviar, aprovar / pedir ajuste / recusar (com IP), motivos de recusa
+- [x] Deslocamento para visitas fora da cidade na proposta (incluído, taxa fixa, por km ou reembolso) e no contrato
 - [x] Contrato automático do modelo do escritório + aceite eletrônico próprio (data, hora, IP, código SHA-256)
 - [x] Contrato assinado cria o projeto com as etapas padrão e os pagamentos (controle pago/pendente)
 - [ ] Revisão do modelo de contrato por advogado (decisão 11) · ZapSign/Clicksign, se for preciso
