@@ -19,6 +19,16 @@ async function emailsDoEscritorio(admin: SupabaseClient, escritorioId: string) {
   return emails.filter((e): e is string => !!e);
 }
 
+// Notificação dentro do app (sininho + aviso na tela). Criada antes do e-mail: vale mesmo sem e-mail configurado.
+type Notificacao = { tipo: "contato" | "briefing" | "proposta" | "contrato" | "etapa"; titulo: string; texto?: string | null; link: string };
+
+async function notificar(admin: SupabaseClient, escritorioId: string, n: Notificacao) {
+  const { error } = await admin
+    .from("notificacoes")
+    .insert({ escritorio_id: escritorioId, tipo: n.tipo, titulo: n.titulo, texto: n.texto ?? null, link: n.link });
+  if (error) console.error("[notificacao]", error.message);
+}
+
 // Novo pedido de orçamento pelo formulário público.
 export async function avisarNovoContato(contatoId: string) {
   const admin = criarClienteAdmin();
@@ -30,10 +40,16 @@ export async function avisarNovoContato(contatoId: string) {
     .eq("id", contatoId)
     .maybeSingle();
   if (!c) return;
+  const status = STATUS_CONTATO[c.status as StatusContato];
+  await notificar(admin, c.escritorio_id, {
+    tipo: "contato",
+    titulo: `${c.nome} pediu um orçamento`,
+    texto: `${status} · ${formatarReais(c.orcamento_disponivel) ?? "investimento não informado"}${c.prazo_apertado ? " · prazo apertado" : ""}`,
+    link: "/app/contatos",
+  });
   const para = await emailsDoEscritorio(admin, c.escritorio_id);
   if (!para.length) return;
 
-  const status = STATUS_CONTATO[c.status as StatusContato];
   const dados = [
     `<strong>WhatsApp:</strong> ${escaparHtml(formatarWhatsapp(c.whatsapp) ?? "—")}`,
     c.email && `<strong>E-mail:</strong> ${escaparHtml(c.email)}`,
@@ -77,12 +93,18 @@ export async function avisarBriefingRespondido(briefingId: string) {
     .eq("id", briefingId)
     .maybeSingle();
   if (!b) return;
-  const para = await emailsDoEscritorio(admin, b.escritorio_id);
-  if (!para.length) return;
-
   const nome = (b.cliente as unknown as { nome: string } | null)?.nome ?? "Seu cliente";
   const estilo = (b.estilos_principais as Estilo[]).map((e) => ESTILOS[e] ?? e).join(" e ");
   const url = `${urlDoSite()}/app/briefings/${briefingId}`;
+
+  await notificar(admin, b.escritorio_id, {
+    tipo: "briefing",
+    titulo: `${nome} respondeu o briefing`,
+    texto: estilo ? `Estilo principal: ${estilo}` : "O Perfil do Cliente está pronto.",
+    link: `/app/briefings/${briefingId}`,
+  });
+  const para = await emailsDoEscritorio(admin, b.escritorio_id);
+  if (!para.length) return;
 
   await enviarEmail({
     para,
@@ -110,14 +132,20 @@ export async function avisarPropostaRespondida(propostaId: string) {
     .eq("id", propostaId)
     .maybeSingle();
   if (!p) return;
-  const para = await emailsDoEscritorio(admin, p.escritorio_id);
-  if (!para.length) return;
-
   const nome = (p.cliente as unknown as { nome: string } | null)?.nome ?? "Seu cliente";
   const acao = p.status === "aprovada" ? "aprovou" : p.status === "ajuste_pedido" ? "pediu ajustes na" : "recusou a";
   const assunto = `${nome} ${acao}${p.status === "aprovada" ? " a" : ""} proposta`;
   const motivo = p.motivo_recusa ? MOTIVOS_RECUSA[p.motivo_recusa as MotivoRecusa] : null;
   const url = `${urlDoSite()}/app/propostas/${propostaId}`;
+
+  await notificar(admin, p.escritorio_id, {
+    tipo: "proposta",
+    titulo: assunto,
+    texto: motivo ? `Motivo: ${motivo}` : p.comentario_cliente ? `“${p.comentario_cliente.slice(0, 140)}”` : reais(p.valor_total),
+    link: `/app/propostas/${propostaId}`,
+  });
+  const para = await emailsDoEscritorio(admin, p.escritorio_id);
+  if (!para.length) return;
 
   await enviarEmail({
     para,
@@ -158,6 +186,12 @@ export async function avisarContratoAssinado(contratoId: string) {
   const nome = cliente?.nome ?? "Seu cliente";
   const url = `${urlDoSite()}/app/contratos/${contratoId}`;
 
+  await notificar(admin, c.escritorio_id, {
+    tipo: "contrato",
+    titulo: `${nome} assinou o contrato`,
+    texto: `${valor} · o projeto já foi criado`,
+    link: `/app/contratos/${contratoId}`,
+  });
   const para = await emailsDoEscritorio(admin, c.escritorio_id);
   if (para.length) {
     await enviarEmail({
@@ -242,8 +276,6 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
     cliente: { nome: string } | null;
   } | null;
   if (!e || !projeto) return;
-  const para = await emailsDoEscritorio(admin, projeto.escritorio_id);
-  if (!para.length) return;
 
   const { data: ultima } = await admin
     .from("aprovacoes")
@@ -256,6 +288,19 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
   const aprovada = e.status === "aprovada";
   const assunto = `${nome} ${aprovada ? "aprovou" : "pediu revisão de"} "${e.nome}"`;
   const url = `${urlDoSite()}/app/projetos/${e.projeto_id}`;
+
+  await notificar(admin, projeto.escritorio_id, {
+    tipo: "etapa",
+    titulo: assunto,
+    texto: excedeu
+      ? `Passou do limite de ${projeto.revisoes_incluidas} revisões contratadas`
+      : ultima?.comentario
+        ? `“${ultima.comentario.slice(0, 140)}”`
+        : projeto.nome,
+    link: `/app/projetos/${e.projeto_id}`,
+  });
+  const para = await emailsDoEscritorio(admin, projeto.escritorio_id);
+  if (!para.length) return;
 
   await enviarEmail({
     para,

@@ -5,6 +5,8 @@ import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
 import { diasDeTeste, obterSessaoArquiteto } from "@/lib/escritorio";
 import { MENU_ARQUITETO } from "@/lib/navegacao";
+import { carregarNotificacoes } from "@/lib/notificacoes";
+import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 
 // Layout do sistema do arquiteto.
 // RN-00.3: sem a configuração inicial concluída, o arquiteto volta para o assistente.
@@ -14,6 +16,7 @@ export default async function SistemaLayout({ children }: { children: React.Reac
   if (sessao && !sessao.escritorio.onboarding_concluido_em) redirect("/app/onboarding");
 
   const dias = sessao ? diasDeTeste(sessao.escritorio) : null;
+  const notificacoes = sessao ? await carregarNotificacoes() : null;
 
   return (
     <div className="app">
@@ -30,6 +33,13 @@ export default async function SistemaLayout({ children }: { children: React.Reac
               </span>
             )}
           </div>
+        )}
+        {sessao && notificacoes && (
+          <Notificacoes
+            escritorioId={sessao.escritorio.id}
+            iniciais={notificacoes.lista}
+            naoLidasIniciais={notificacoes.naoLidas}
+          />
         )}
         <nav>
           {MENU_ARQUITETO.map((item) => (
