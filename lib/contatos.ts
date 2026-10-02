@@ -18,6 +18,7 @@ export type Contato = {
   status: StatusContato;
   compativel: boolean | null;
   prazo_apertado: boolean;
+  acima_da_faixa: boolean;
   motivo_encerramento: MotivoEncerramento | null;
   observacao_encerramento: string | null;
   visto_em: string | null;

@@ -36,7 +36,7 @@ export async function avisarNovoContato(contatoId: string) {
 
   const { data: c } = await admin
     .from("contatos")
-    .select("escritorio_id, nome, whatsapp, email, status, orcamento_disponivel, prazo_desejado, localizacao, mensagem, prazo_apertado")
+    .select("escritorio_id, nome, whatsapp, email, status, orcamento_disponivel, prazo_desejado, localizacao, mensagem, prazo_apertado, acima_da_faixa")
     .eq("id", contatoId)
     .maybeSingle();
   if (!c) return;
@@ -44,7 +44,7 @@ export async function avisarNovoContato(contatoId: string) {
   await notificar(admin, c.escritorio_id, {
     tipo: "contato",
     titulo: `${c.nome} pediu um orçamento`,
-    texto: `${status} · ${formatarReais(c.orcamento_disponivel) ?? "investimento não informado"}${c.prazo_apertado ? " · prazo apertado" : ""}`,
+    texto: `${status} · ${formatarReais(c.orcamento_disponivel) ?? "investimento não informado"}${c.prazo_apertado ? " · prazo apertado" : ""}${c.acima_da_faixa ? " · acima da sua faixa" : ""}`,
     link: "/app/contatos",
   });
   const para = await emailsDoEscritorio(admin, c.escritorio_id);

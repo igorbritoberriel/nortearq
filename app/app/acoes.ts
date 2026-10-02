@@ -179,10 +179,8 @@ const valorEmReais = (mensagem: string) =>
 
 const esquemaPreco = z
   .object({
-    faixa_preco_min: valorEmReais("Informe um valor em reais, como 8.000.").refine(
-      (v) => v !== null,
-      "Informe o menor orçamento que você aceita.",
-    ),
+    // Os dois são opcionais: sem mínimo, todo pedido chega como "a avaliar".
+    faixa_preco_min: valorEmReais("Informe um valor em reais, como 8.000."),
     faixa_preco_max: valorEmReais("Informe um valor em reais, como 40.000."),
     proxima_data_livre: z
       .string()

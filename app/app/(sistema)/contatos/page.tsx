@@ -54,7 +54,7 @@ export default async function ContatosPage({ searchParams }: { searchParams: Pro
     supabase
       .from("contatos")
       .select(
-        "id, nome, whatsapp, email, servicos, area_m2, localizacao, orcamento_disponivel, prazo_desejado, inicio_desejado, mensagem, status, compativel, prazo_apertado, motivo_encerramento, observacao_encerramento, visto_em, cliente_id, criado_em",
+        "id, nome, whatsapp, email, servicos, area_m2, localizacao, orcamento_disponivel, prazo_desejado, inicio_desejado, mensagem, status, compativel, prazo_apertado, acima_da_faixa, motivo_encerramento, observacao_encerramento, visto_em, cliente_id, criado_em",
       )
       .in("status", [...filtro.status])
       .order("criado_em", { ascending: false })
@@ -121,6 +121,12 @@ export default async function ContatosPage({ searchParams }: { searchParams: Pro
                   </div>
                 </div>
 
+                {c.acima_da_faixa && c.status !== "encerrado" && (
+                  <p className="contato-alerta">
+                    <AlertTriangle size={16} aria-hidden="true" />
+                    Acima da sua faixa: o investimento passa do seu valor máximo.
+                  </p>
+                )}
                 {c.prazo_apertado && c.status !== "encerrado" && (
                   <p className="contato-alerta">
                     <AlertTriangle size={16} aria-hidden="true" />

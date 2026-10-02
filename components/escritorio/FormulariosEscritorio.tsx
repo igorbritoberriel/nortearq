@@ -232,12 +232,17 @@ export function FormPrecoAgenda({
       <Mensagem estado={estado} />
       {proximo && <input type="hidden" name="proximo" value={proximo} />}
       <p className="muted">
-        Esses números não aparecem para o cliente. Servem para o NorteArq marcar cada pedido de orçamento como{" "}
-        <strong>compatível</strong>, <strong>fora do perfil</strong> ou <strong>a avaliar</strong>. Nada é
-        bloqueado: quem decide é você.
+        Os dois valores são opcionais e não aparecem para o cliente. Servem só para sinalizar cada pedido de orçamento:
+        nada é bloqueado, quem decide é você.
       </p>
       <div className="form-linha">
-        <Campo id="faixa_preco_min" rotulo="Menor orçamento que você aceita (R$)" erro={erro.faixa_preco_min}>
+        <Campo
+          id="faixa_preco_min"
+          rotulo="Valor mínimo (R$)"
+          opcional
+          ajuda="Abaixo dele, o pedido chega como “fora do perfil”. Em branco, todos chegam como “a avaliar”."
+          erro={erro.faixa_preco_min}
+        >
           <input
             id="faixa_preco_min"
             name="faixa_preco_min"
@@ -246,7 +251,13 @@ export function FormPrecoAgenda({
             defaultValue={v.faixa_preco_min ?? reais(escritorio.faixa_preco_min)}
           />
         </Campo>
-        <Campo id="faixa_preco_max" rotulo="Valor máximo (R$)" opcional erro={erro.faixa_preco_max}>
+        <Campo
+          id="faixa_preco_max"
+          rotulo="Valor máximo (R$)"
+          opcional
+          ajuda="Acima dele, o pedido chega com o aviso “acima da sua faixa” (continua compatível)."
+          erro={erro.faixa_preco_max}
+        >
           <input
             id="faixa_preco_max"
             name="faixa_preco_max"
