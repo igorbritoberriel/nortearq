@@ -6,6 +6,7 @@ import { Pagamentos } from "@/components/contratos/Pagamentos";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { EtapaArquiteto, type ArquivoArquiteto, type DecisaoArquiteto } from "@/components/projetos/EtapaArquiteto";
+import { ListaEtapas } from "@/components/projetos/ListaEtapas";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { carregarPagamentos } from "@/lib/pagamentos";
@@ -137,30 +138,34 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
         />
       </section>
 
-      {etapas.map((e, i) => (
-        <EtapaArquiteto
-          key={e.id}
-          projetoId={id}
-          etapa={e}
-          primeira={i === 0}
-          ultima={i === etapas.length - 1}
-          arquivos={arquivos
-            .filter((a) => a.etapa_id === e.id)
-            .map(
-              (a): ArquivoArquiteto => ({
-                id: a.id,
-                nome: a.nome,
-                versao: a.versao,
-                tamanho_bytes: a.tamanho_bytes,
-                visivel_cliente: a.visivel_cliente,
-                criado_em: a.criado_em,
-                url: urls[a.caminho_storage] ?? null,
-              }),
-            )}
-          historico={historico.filter((h) => h.etapa_id === e.id)}
-          cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
-        />
-      ))}
+      <ListaEtapas
+        projetoId={id}
+        itens={etapas.map((e) => ({
+          id: e.id,
+          status: e.status,
+          conteudo: (
+            <EtapaArquiteto
+              projetoId={id}
+              etapa={e}
+              arquivos={arquivos
+                .filter((a) => a.etapa_id === e.id)
+                .map(
+                  (a): ArquivoArquiteto => ({
+                    id: a.id,
+                    nome: a.nome,
+                    versao: a.versao,
+                    tamanho_bytes: a.tamanho_bytes,
+                    visivel_cliente: a.visivel_cliente,
+                    criado_em: a.criado_em,
+                    url: urls[a.caminho_storage] ?? null,
+                  }),
+                )}
+              historico={historico.filter((h) => h.etapa_id === e.id)}
+              cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
+            />
+          ),
+        }))}
+      />
       <NovaEtapa projetoId={id} />
 
       {financeiro.pagamentos.length > 0 && (

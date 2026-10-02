@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -10,7 +10,6 @@ import {
   enviarEtapa,
   excluirArquivo,
   excluirEtapa,
-  moverEtapa,
   registrarArquivo,
   renomearEtapa,
 } from "@/app/app/(sistema)/projetos/acoes";
@@ -24,6 +23,7 @@ import {
   type StatusEtapa,
 } from "@/lib/projetos";
 import { criarClienteNavegador } from "@/lib/supabase/client";
+import { useOrdemEtapas } from "./ListaEtapas";
 
 export type ArquivoArquiteto = {
   id: string;
@@ -58,33 +58,45 @@ export function EtapaArquiteto({
   etapa,
   arquivos,
   historico,
-  primeira,
-  ultima,
   cliente,
 }: {
   projetoId: string;
   etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
   arquivos: ArquivoArquiteto[];
   historico: DecisaoArquiteto[];
-  primeira: boolean;
-  ultima: boolean;
   cliente: { nome: string; telefone: string | null; escritorio: string };
 }) {
   const [pendente, iniciar] = useTransition();
+  const ordem = useOrdemEtapas();
   const [erro, setErro] = useState<string | null>(null);
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(etapa.nome);
   const [visivel, setVisivel] = useState(true);
   const [progresso, setProgresso] = useState<string | null>(null);
 
-  const aberta = etapa.status === "pendente" || etapa.status === "em_andamento" || etapa.status === "revisao";
-  const atuais = versoesAtuais(arquivos);
-  const anteriores = arquivos.filter((a) => !atuais.includes(a)).sort((x, y) => y.criado_em.localeCompare(x.criado_em));
-  const temVisivel = arquivos.some((a) => a.visivel_cliente);
+  // Mudanças aparecem na hora (useOptimistic) e voltam atrás sozinhas se o servidor recusar.
+  const [otimista, aplicar] = useOptimistic(
+    { arquivos, apagada: false },
+    (estado, m: { tipo: "visivel"; id: string; visivel: boolean } | { tipo: "apagar"; id: string } | { tipo: "apagar-etapa" }) => {
+      if (m.tipo === "apagar-etapa") return { ...estado, apagada: true };
+      if (m.tipo === "apagar") return { ...estado, arquivos: estado.arquivos.filter((a) => a.id !== m.id) };
+      return { ...estado, arquivos: estado.arquivos.map((a) => (a.id === m.id ? { ...a, visivel_cliente: m.visivel } : a)) };
+    },
+  );
+  const lista = otimista.arquivos;
 
-  function executar(acao: () => Promise<{ ok: true } | { erro: string } | void>) {
+  const aberta = etapa.status === "pendente" || etapa.status === "em_andamento" || etapa.status === "revisao";
+  const atuais = versoesAtuais(lista);
+  const anteriores = lista.filter((a) => !atuais.includes(a)).sort((x, y) => y.criado_em.localeCompare(x.criado_em));
+  const temVisivel = lista.some((a) => a.visivel_cliente);
+
+  function executar(
+    acao: () => Promise<{ ok: true } | { erro: string } | void>,
+    mudanca?: Parameters<typeof aplicar>[0],
+  ) {
     setErro(null);
     iniciar(async () => {
+      if (mudanca) aplicar(mudanca);
       const r = await acao();
       if (r && "erro" in r) setErro(r.erro);
     });
@@ -140,8 +152,13 @@ export function EtapaArquiteto({
         <button
           type="button"
           className="botao-icone"
-          disabled={pendente}
-          onClick={() => executar(() => alternarVisibilidade(projetoId, a.id, !a.visivel_cliente))}
+          onClick={() =>
+            executar(() => alternarVisibilidade(projetoId, a.id, !a.visivel_cliente), {
+              tipo: "visivel",
+              id: a.id,
+              visivel: !a.visivel_cliente,
+            })
+          }
           aria-label={a.visivel_cliente ? `Esconder ${a.nome} do cliente` : `Mostrar ${a.nome} ao cliente`}
           title={a.visivel_cliente ? "Visível ao cliente" : "Só você vê"}
         >
@@ -153,7 +170,9 @@ export function EtapaArquiteto({
             className="botao-icone"
             disabled={pendente}
             onClick={() => {
-              if (confirm(`Apagar ${a.nome} (${rotuloVersao(a.versao)})?`)) executar(() => excluirArquivo(projetoId, a.id));
+              if (confirm(`Apagar ${a.nome} (${rotuloVersao(a.versao)})?`)) {
+                executar(() => excluirArquivo(projetoId, a.id), { tipo: "apagar", id: a.id });
+              }
             }}
             aria-label={`Apagar ${a.nome}`}
           >
@@ -163,6 +182,8 @@ export function EtapaArquiteto({
       </span>
     </li>
   );
+
+  if (otimista.apagada) return null;
 
   return (
     <section className={`cartao etapa etapa-${etapa.status}`} aria-labelledby={`etapa-${etapa.id}`}>
@@ -202,8 +223,8 @@ export function EtapaArquiteto({
             <button
               type="button"
               className="botao-icone"
-              disabled={pendente || primeira}
-              onClick={() => executar(() => moverEtapa(projetoId, etapa.id, "subir"))}
+              disabled={!ordem?.podeSubir(etapa.id)}
+              onClick={() => ordem?.mover(etapa.id, -1)}
               aria-label={`Subir ${etapa.nome}`}
             >
               <ArrowUp size={16} aria-hidden="true" />
@@ -211,8 +232,8 @@ export function EtapaArquiteto({
             <button
               type="button"
               className="botao-icone"
-              disabled={pendente || ultima}
-              onClick={() => executar(() => moverEtapa(projetoId, etapa.id, "descer"))}
+              disabled={!ordem?.podeDescer(etapa.id)}
+              onClick={() => ordem?.mover(etapa.id, 1)}
               aria-label={`Descer ${etapa.nome}`}
             >
               <ArrowDown size={16} aria-hidden="true" />
@@ -223,7 +244,9 @@ export function EtapaArquiteto({
                 className="botao-icone"
                 disabled={pendente}
                 onClick={() => {
-                  if (confirm(`Apagar a etapa "${etapa.nome}"?`)) executar(() => excluirEtapa(projetoId, etapa.id));
+                  if (confirm(`Apagar a etapa "${etapa.nome}"?`)) {
+                    executar(() => excluirEtapa(projetoId, etapa.id), { tipo: "apagar-etapa" });
+                  }
                 }}
                 aria-label={`Apagar ${etapa.nome}`}
               >

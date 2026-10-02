@@ -118,46 +118,22 @@ export async function criarPergunta(_anterior: EstadoFormulario, formData: FormD
   return { status: "sucesso", mensagem: "Pergunta adicionada. Ela vale para os próximos briefings." };
 }
 
-export async function alternarPergunta(id: string, ativa: boolean) {
+// Liga/desliga a pergunta. A tela já mudou na hora; aqui só grava (sem recarregar a página).
+export async function alternarPergunta(id: string, ativa: boolean): Promise<boolean> {
   const ctx = await contexto();
-  if (!ctx || !UUID.test(id)) return;
+  if (!ctx || !UUID.test(id)) return false;
   const { error } = await ctx.supabase.from("briefing_perguntas").update({ ativa }).eq("id", id);
   if (error) console.error("[editor] ativar", error.message);
-  revalidatePath("/app/briefings/editor");
+  return !error;
 }
 
-// Troca de lugar com a vizinha do mesmo grupo (bloco + ambiente) e renumera o grupo.
-export async function moverPergunta(id: string, direcao: "subir" | "descer") {
+// Grava a ordem nova de um grupo (bloco + ambiente) numa chamada só. A tela já moveu na hora.
+export async function salvarOrdemPerguntas(ids: string[]): Promise<boolean> {
   const ctx = await contexto();
-  if (!ctx || !UUID.test(id)) return;
-  const { data: pergunta } = await ctx.supabase
-    .from("briefing_perguntas")
-    .select("tipo_briefing, ambiente")
-    .eq("id", id)
-    .maybeSingle();
-  if (!pergunta) return;
-
-  let consulta = ctx.supabase
-    .from("briefing_perguntas")
-    .select("id")
-    .eq("tipo_briefing", pergunta.tipo_briefing)
-    .order("ordem")
-    .order("criado_em");
-  consulta = pergunta.ambiente ? consulta.eq("ambiente", pergunta.ambiente) : consulta.is("ambiente", null);
-  const { data: grupo } = await consulta;
-  const ids = (grupo ?? []).map((g) => g.id as string);
-
-  const i = ids.indexOf(id);
-  const j = direcao === "subir" ? i - 1 : i + 1;
-  if (i < 0 || j < 0 || j >= ids.length) return;
-  [ids[i], ids[j]] = [ids[j], ids[i]];
-
-  const resultados = await Promise.all(
-    ids.map((pid, n) => ctx.supabase.from("briefing_perguntas").update({ ordem: (n + 1) * 10 }).eq("id", pid)),
-  );
-  const erro = resultados.find((r) => r.error)?.error;
-  if (erro) console.error("[editor] mover", erro.message);
-  revalidatePath("/app/briefings/editor");
+  if (!ctx || !Array.isArray(ids) || ids.length > 300 || !ids.every((id) => UUID.test(id))) return false;
+  const { error } = await ctx.supabase.rpc("ordenar_perguntas", { p_ids: ids });
+  if (error) console.error("[editor] ordenar", error.message);
+  return !error;
 }
 
 // RN-02.11: só perguntas criadas pelo escritório podem ser apagadas (o banco também barra).

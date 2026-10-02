@@ -154,34 +154,16 @@ export async function excluirEtapa(projetoId: string, etapaId: string): Promise<
   return { ok: true };
 }
 
-// Troca de lugar com a vizinha. Etapas já enviadas ou aprovadas ficam onde estão.
-export async function moverEtapa(projetoId: string, etapaId: string, direcao: "subir" | "descer"): Promise<Resultado> {
+// Grava a ordem nova das etapas numa chamada só. A tela já moveu na hora.
+// O banco recusa mover etapas aguardando o cliente ou aprovadas.
+export async function salvarOrdemEtapas(projetoId: string, ids: string[]): Promise<boolean> {
   const ctx = await contexto();
-  if (!ctx || !UUID.test(projetoId)) return { erro: "Projeto não encontrado." };
-  const { data } = await ctx.supabase
-    .from("etapas")
-    .select("id, status, ordem")
-    .eq("projeto_id", projetoId)
-    .order("ordem")
-    .order("id");
-  const etapas = data ?? [];
-  const i = etapas.findIndex((e) => e.id === etapaId);
-  const j = direcao === "subir" ? i - 1 : i + 1;
-  if (i < 0 || j < 0 || j >= etapas.length) return { ok: true };
-  const travada = (s: string) => s === "aguardando_aprovacao" || s === "aprovada";
-  if (travada(etapas[i].status) || travada(etapas[j].status)) {
-    return { erro: "Etapas aprovadas ou aguardando o cliente não mudam de lugar." };
+  if (!ctx || !UUID.test(projetoId) || !Array.isArray(ids) || ids.length > 100 || !ids.every((id) => UUID.test(id))) {
+    return false;
   }
-  // Se as duas tinham a mesma ordem, a de baixo ganha +1 para a troca valer.
-  const [oi, oj] = [etapas[i].ordem, etapas[j].ordem === etapas[i].ordem ? etapas[i].ordem + (j > i ? 1 : -1) : etapas[j].ordem];
-  const resultados = await Promise.all([
-    ctx.supabase.from("etapas").update({ ordem: oj }).eq("id", etapas[i].id),
-    ctx.supabase.from("etapas").update({ ordem: oi }).eq("id", etapas[j].id),
-  ]);
-  const erro = resultados.find((r) => r.error)?.error;
-  if (erro) console.error("[projeto] mover etapa", erro.message);
-  atualizar(projetoId);
-  return { ok: true };
+  const { error } = await ctx.supabase.rpc("ordenar_etapas", { p_projeto: projetoId, p_ids: ids });
+  if (error) console.error("[projeto] ordenar etapas", error.message);
+  return !error;
 }
 
 // RN-03.10: revisão acima do limite que o arquiteto decide não cobrar.

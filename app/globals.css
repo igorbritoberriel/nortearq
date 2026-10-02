@@ -1064,3 +1064,12 @@ p { margin: 0 0 1em; }
 @media (max-width: 900px) { .acesso-video-botao { right: 10px; bottom: 10px; width: 30px; height: 30px; } }
 .sem-quebra { white-space: nowrap; }
 .primeira-maiuscula::first-letter { text-transform: uppercase; }
+
+/* Salvamento automático ("muda na hora, salva por trás") */
+.salvamento-faixa { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; padding: 8px 12px; border: 1px solid var(--cor-borda); border-radius: 8px; background: rgba(247, 245, 241, 0.95); backdrop-filter: blur(6px); font-size: 0.88rem; }
+.salvamento { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; min-height: 1.2em; color: var(--cor-texto-suave); }
+.salvamento-salvo { color: var(--cor-sucesso); }
+.salvamento-erro { color: var(--cor-erro); font-weight: 600; }
+.girando { animation: girar 0.9s linear infinite; }
+@keyframes girar { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .girando { animation: none; } }

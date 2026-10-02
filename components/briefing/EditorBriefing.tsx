@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, ImagePlus, Trash2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import {
   alternarPergunta,
   criarPergunta,
   excluirPergunta,
-  moverPergunta,
   registrarImagemEstilo,
   removerImagemEstilo,
+  salvarOrdemPerguntas,
 } from "@/app/app/(sistema)/briefings/acoes";
 import {
   AMBIENTES,
@@ -23,6 +23,7 @@ import {
   type SecaoBriefing,
 } from "@/lib/briefing";
 import type { EstadoFormulario } from "@/lib/formulario";
+import { IndicadorSalvamento, useSalvarEmFila } from "@/lib/salvar-em-fila";
 import { criarClienteNavegador } from "@/lib/supabase/client";
 
 const NOMES_BLOCOS: Record<SecaoBriefing, string> = {
@@ -48,26 +49,64 @@ function agrupar(perguntas: PerguntaModelo[]) {
   }).filter((g) => g.perguntas.length || g.chave === "comum");
 }
 
+// Grupo onde a pergunta pode trocar de lugar (mesmo bloco e, em interiores, mesmo ambiente).
+const grupoDe = (p: PerguntaModelo) => `${p.tipo_briefing}:${p.ambiente ?? ""}`;
+
 export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) {
+  // A tela muda na hora (estado local) e o salvamento roda por trás, sem travar os botões.
+  const [lista, setLista] = useState(perguntas);
   const [pendente, iniciar] = useTransition();
-  const grupos = agrupar(perguntas);
+  const { agendar, status, ocupado } = useSalvarEmFila();
+  const grupos = agrupar(lista);
+
+  // Dados novos do servidor (ex.: pergunta criada) só entram quando não há nada para salvar.
+  useEffect(() => {
+    if (!ocupado()) setLista(perguntas);
+  }, [perguntas, ocupado]);
+
+  // Sempre a lista mais recente, mesmo com cliques muito rápidos.
+  const atual = useRef(lista);
+  atual.current = lista;
+
+  function mover(id: string, direcao: -1 | 1) {
+    const base = atual.current;
+    const pergunta = base.find((p) => p.id === id);
+    if (!pergunta) return;
+    const grupo = grupoDe(pergunta);
+    const posicoes = base.flatMap((p, i) => (grupoDe(p) === grupo ? [i] : []));
+    const k = posicoes.findIndex((i) => base[i].id === id);
+    const alvo = posicoes[k + direcao];
+    if (alvo === undefined) return;
+    const nova = [...base];
+    [nova[posicoes[k]], nova[alvo]] = [nova[alvo], nova[posicoes[k]]];
+    atual.current = nova;
+    setLista(nova);
+    const ids = nova.filter((p) => grupoDe(p) === grupo).map((p) => p.id);
+    agendar(`ordem:${grupo}`, () => salvarOrdemPerguntas(ids));
+  }
+
+  function alternar(id: string, ativa: boolean) {
+    const nova = atual.current.map((p) => (p.id === id ? { ...p, ativa } : p));
+    atual.current = nova;
+    setLista(nova);
+    agendar(`ativa:${id}`, () => alternarPergunta(id, ativa));
+  }
 
   return (
     <>
+      <div className="salvamento-faixa">
+        <span className="muted">As mudanças são salvas sozinhas.</span>
+        <IndicadorSalvamento status={status} />
+      </div>
       {grupos.map((g) => (
         <section key={g.chave} className="cartao secao-config">
           <h2>{g.titulo}</h2>
           {g.chave === "comum" && <p className="muted">{SECOES.comum.descricao}</p>}
-          <ol className="editor-perguntas" aria-busy={pendente}>
+          <ol className="editor-perguntas">
             {g.perguntas.map((p, i) => (
               <li key={p.id} className={p.ativa ? "" : "desativada"}>
                 <label className="editor-ativa" title={p.ativa ? "Desativar" : "Ativar"}>
-                  <input
-                    type="checkbox"
-                    checked={p.ativa}
-                    disabled={pendente}
-                    onChange={(e) => iniciar(() => alternarPergunta(p.id, e.target.checked))}
-                  />
+                  <input type="checkbox" checked={p.ativa} onChange={(e) => alternar(p.id, e.target.checked)} />
                   <span className="sr-only">Pergunta ativa</span>
                 </label>
                 <div className="editor-texto">
@@ -82,8 +121,8 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
                   <button
                     type="button"
                     className="botao-icone"
-                    disabled={pendente || i === 0}
-                    onClick={() => iniciar(() => moverPergunta(p.id, "subir"))}
+                    disabled={i === 0}
+                    onClick={() => mover(p.id, -1)}
                     aria-label={`Subir: ${p.texto}`}
                   >
                     <ArrowUp size={16} aria-hidden="true" />
@@ -91,8 +130,8 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
                   <button
                     type="button"
                     className="botao-icone"
-                    disabled={pendente || i === g.perguntas.length - 1}
-                    onClick={() => iniciar(() => moverPergunta(p.id, "descer"))}
+                    disabled={i === g.perguntas.length - 1}
+                    onClick={() => mover(p.id, 1)}
                     aria-label={`Descer: ${p.texto}`}
                   >
                     <ArrowDown size={16} aria-hidden="true" />
@@ -211,6 +250,8 @@ export function ImagensEstilo({
   const [progresso, setProgresso] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
+  // A imagem some na hora; volta sozinha se o servidor recusar.
+  const [visiveis, esconder] = useOptimistic(imagens, (atual, id: string) => atual.filter((img) => img.id !== id));
 
   async function enviar(lista: FileList | null) {
     const supabase = criarClienteNavegador();
@@ -280,9 +321,9 @@ export function ImagensEstilo({
         </p>
       )}
 
-      {imagens.length > 0 && (
-        <ul className="fotos estilos-grade" aria-busy={pendente}>
-          {imagens.map((img) => (
+      {visiveis.length > 0 && (
+        <ul className="fotos estilos-grade">
+          {visiveis.map((img) => (
             <li key={img.id} className="foto">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={img.url} alt={`Imagem de estilo ${ESTILOS[img.estilo]}`} loading="lazy" />
@@ -290,8 +331,12 @@ export function ImagensEstilo({
               <button
                 type="button"
                 className="foto-remover"
-                disabled={pendente}
-                onClick={() => iniciar(() => removerImagemEstilo(img.id))}
+                onClick={() =>
+                  iniciar(async () => {
+                    esconder(img.id);
+                    await removerImagemEstilo(img.id);
+                  })
+                }
                 aria-label={`Remover imagem de estilo ${ESTILOS[img.estilo]}`}
               >
                 <Trash2 size={14} aria-hidden="true" />

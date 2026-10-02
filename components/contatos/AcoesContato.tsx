@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, useTransition } from "react";
+import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
 import { MessageCircle, UserCheck, UserPlus } from "lucide-react";
 import { Aviso } from "@/components/Campo";
@@ -19,6 +19,8 @@ const inicial: EstadoFormulario = { status: "inicial" };
 export function AcoesContato({ contato, escritorio }: { contato: Contato; escritorio: string }) {
   const [encerrando, setEncerrando] = useState(false);
   const [pendente, iniciar] = useTransition();
+  // A classificação muda na hora; volta sozinha se o servidor recusar.
+  const [compativel, setCompativel] = useOptimistic(contato.compativel);
   const [estado, enviar, enviandoEncerrar] = useActionState(encerrarContato, inicial);
   const primeiroNome = contato.nome.split(" ")[0];
 
@@ -77,11 +79,13 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
       <label className="contato-classificar">
         <span className="sr-only">Classificação</span>
         <select
-          value={contato.compativel === null ? "avaliar" : contato.compativel ? "sim" : "nao"}
-          disabled={pendente}
+          value={compativel === null ? "avaliar" : compativel ? "sim" : "nao"}
           onChange={(e) => {
             const valor = e.target.value === "avaliar" ? null : e.target.value === "sim";
-            iniciar(() => reclassificarContato(contato.id, valor));
+            iniciar(async () => {
+              setCompativel(valor);
+              await reclassificarContato(contato.id, valor);
+            });
           }}
         >
           <option value="sim">Compatível</option>
