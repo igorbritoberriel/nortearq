@@ -1073,3 +1073,23 @@ p { margin: 0 0 1em; }
 .girando { animation: girar 0.9s linear infinite; }
 @keyframes girar { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .girando { animation: none; } }
+
+/* Painel inicial: pendências */
+.painel-secao { margin-top: 28px; }
+.painel-secao h2 { font-size: 1.05rem; color: var(--cor-texto-suave); font-weight: 600; margin-bottom: 12px; }
+.painel-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.painel-cartao { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 12px; padding: 16px 18px; border-left: 4px solid var(--cor-areia); transition: border-color 0.15s, box-shadow 0.15s; }
+.painel-cartao:hover { border-color: var(--cor-norte); box-shadow: 0 6px 18px rgba(15, 27, 43, 0.08); }
+.painel-cartao:focus-visible { outline: 2px solid var(--cor-norte); outline-offset: 2px; }
+.painel-esperando { border-left-color: var(--cor-borda); }
+.painel-icone { color: var(--cor-norte); }
+.painel-numero { font-size: 1.8rem; font-weight: 700; line-height: 1; color: var(--cor-norte); font-variant-numeric: tabular-nums; }
+.painel-texto { display: grid; gap: 2px; min-width: 0; }
+.painel-texto strong { font-size: 0.95rem; line-height: 1.3; }
+.painel-texto small { font-size: 0.82rem; }
+.painel-seta { color: var(--cor-texto-suave); }
+.painel-receber { max-width: 520px; border-left-color: var(--cor-sucesso); }
+.painel-receber .painel-numero { font-size: 1.5rem; color: var(--cor-sucesso); }
+.painel-em-dia { display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 16px; border-radius: var(--raio); background: #e3f1e8; color: var(--cor-sucesso); font-weight: 600; }
+.painel-link { margin-top: 32px; }
+@media (prefers-reduced-motion: reduce) { .painel-cartao { transition: none; } }
