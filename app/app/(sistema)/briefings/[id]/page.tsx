@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, FileText, Heart, RotateCcw } from "lucide-react";
+import { ArrowLeft, BadgeCheck, FileText, RotateCcw } from "lucide-react";
+import { GaleriaEstilos, type GrupoGaleria } from "@/components/briefing/GaleriaEstilos";
 import { BotaoImprimir } from "@/components/briefing/BotaoImprimir";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import {
@@ -37,6 +38,7 @@ type Briefing = {
   respostas: Respostas;
   estilos: ImagemEstilo[];
   estilos_curtidos: string[];
+  estilos_rejeitados: string[] | null;
   estilos_principais: Estilo[];
   estilos_secundarios: Estilo[] | null;
   estilos_pontuacao: Record<Estilo, number> | null;
@@ -59,7 +61,7 @@ export default async function PerfilClientePage({ params }: { params: Promise<{ 
   const { data } = await supabase
     .from("briefings")
     .select(
-      "id, status, tipos, ambientes, perguntas, respostas, estilos, estilos_curtidos, estilos_principais, estilos_secundarios, estilos_pontuacao, respondido_em, validado_em, criado_em, cliente:clientes(id, nome)",
+      "id, status, tipos, ambientes, perguntas, respostas, estilos, estilos_curtidos, estilos_rejeitados, estilos_principais, estilos_secundarios, estilos_pontuacao, respondido_em, validado_em, criado_em, cliente:clientes(id, nome)",
     )
     .eq("id", id)
     .maybeSingle();
@@ -95,6 +97,22 @@ export default async function PerfilClientePage({ params }: { params: Promise<{ 
   const pontuacao = Object.entries(b.estilos_pontuacao ?? {})
     .map(([estilo, pct]) => ({ estilo: estilo as Estilo, pct: Number(pct) }))
     .sort((x, y) => y.pct - x.pct);
+  // Mural agrupado por estilo, na ordem do resultado do quiz.
+  const nomeEstilo = (e: string) => ESTILOS[e as Estilo] ?? e;
+  const ordemEstilos = [
+    ...pontuacao.map((p) => p.estilo as string),
+    ...curtidas.map((c) => c.estilo as string).filter((e) => !pontuacao.some((p) => p.estilo === e)),
+  ];
+  const grupos: GrupoGaleria[] = [...new Set(ordemEstilos)]
+    .map((estilo) => ({
+      estilo: nomeEstilo(estilo),
+      pct: pontuacao.find((p) => p.estilo === estilo)?.pct ?? null,
+      imagens: curtidas.filter((c) => c.estilo === estilo).map((c) => ({ id: c.id, url: c.url, estilo: nomeEstilo(c.estilo) })),
+    }))
+    .filter((g) => g.imagens.length > 0);
+  const rejeitadas = b.estilos
+    .filter((e) => (b.estilos_rejeitados ?? []).includes(e.id))
+    .map((e) => ({ id: e.id, url: e.url, estilo: nomeEstilo(e.estilo) }));
   const aberto = b.status === "pendente" || b.status === "em_andamento";
 
   return (
@@ -177,21 +195,7 @@ export default async function PerfilClientePage({ params }: { params: Promise<{ 
               ))}
             </ul>
           )}
-          {curtidas.length > 0 && (
-            <>
-              <h3 className="perfil-sub">
-                <Heart size={16} aria-hidden="true" /> Imagens que o cliente gostou
-              </h3>
-              <ul className="fotos">
-                {curtidas.map((img) => (
-                  <li key={img.id} className="foto">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.url} alt={`Referência de estilo ${ESTILOS[img.estilo] ?? img.estilo}`} />
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
+          <GaleriaEstilos grupos={grupos} rejeitadas={rejeitadas} />
         </section>
       )}
 
