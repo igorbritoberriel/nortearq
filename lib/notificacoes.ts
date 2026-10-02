@@ -2,7 +2,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 
 // Notificações do arquiteto: o que o cliente fez (pedido, briefing, proposta, contrato, etapa).
 
-export type TipoNotificacao = "contato" | "briefing" | "proposta" | "contrato" | "etapa";
+export type TipoNotificacao = "contato" | "briefing" | "proposta" | "contrato" | "etapa" | "aditivo";
 
 export type Notificacao = {
   id: string;

@@ -41,6 +41,26 @@ export type ProjetoPublico = {
     recibo_codigo: string | null;
     recibo_numero: number | null;
   }[];
+  aditivos?: {
+    id: string;
+    numero: number;
+    descricao: string;
+    valor: number;
+    prazo_dias: number;
+    revisoes_extras: number;
+    visitas_extras: number;
+    parcelas: number;
+    status: "enviado" | "aprovado" | "recusado" | "cancelado";
+    criado_em: string;
+    respondido_em: string | null;
+    motivo_recusa: string | null;
+  }[];
+  aprovacoes_externas?: {
+    orgao: string;
+    protocolo: string | null;
+    entrada_em: string | null;
+    situacao: "em_preparo" | "em_analise" | "exigencia" | "aprovado" | "indeferido";
+  }[];
 };
 
 export const STATUS_ETAPA: Record<StatusEtapa, string> = {

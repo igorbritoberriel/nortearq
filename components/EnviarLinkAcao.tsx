@@ -17,6 +17,7 @@ export function EnviarLinkAcao({
   escritorio,
   rotulo,
   depois,
+  mensagemAditivo,
 }: {
   acao: () => Promise<{ link: string } | { erro: string }>;
   destino: DestinoLink;
@@ -25,12 +26,16 @@ export function EnviarLinkAcao({
   escritorio: string;
   rotulo?: string;
   depois?: string; // aviso mostrado com o link gerado
+  mensagemAditivo?: boolean; // texto do WhatsApp para pedir a resposta de um aditivo
 }) {
   const [pendente, iniciar] = useTransition();
   const [link, setLink] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
-  const mensagem = (l: string) => DESTINOS_LINK[destino].mensagem(cliente.split(" ")[0], escritorio, l);
+  const mensagem = (l: string) =>
+    mensagemAditivo
+      ? `Olá, ${cliente.split(" ")[0]}! Aqui é do ${escritorio}. Enviei um aditivo do seu projeto para você ver e aprovar ou recusar: ${l}`
+      : DESTINOS_LINK[destino].mensagem(cliente.split(" ")[0], escritorio, l);
 
   function gerar() {
     setErro(null);

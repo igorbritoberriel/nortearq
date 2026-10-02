@@ -1135,3 +1135,26 @@ p { margin: 0 0 1em; }
   .galeria-grupo { break-inside: avoid-page; }
   .visualizador { display: none !important; }
 }
+
+/* Aditivos e aprovações externas */
+.aditivos, .externas { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.aditivo { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--cor-borda); border-left: 4px solid var(--cor-areia); border-radius: var(--raio); background: #fff; }
+.aditivo-aprovado { border-left-color: var(--cor-sucesso); }
+.aditivo-recusado { border-left-color: var(--cor-erro); opacity: 0.85; }
+.aditivo-linha { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.aditivo-descricao { display: grid; gap: 2px; flex: 1; min-width: 220px; }
+.aditivo-descricao small { font-size: 0.85rem; }
+.aditivo-valor { display: grid; justify-items: end; gap: 4px; }
+.aditivo-acoes { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+.aditivo-form { margin: 12px 0; }
+.form-linha-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 560px) { .form-linha-3 { grid-template-columns: 1fr; } }
+.selo-aditivo-enviado, .selo-externa-em_preparo, .selo-externa-em_analise { background: #fbf0dc; color: #8a5a00; }
+.selo-aditivo-aprovado, .selo-externa-aprovado { background: #e3f1e8; color: var(--cor-sucesso); }
+.selo-aditivo-recusado, .selo-externa-indeferido { background: #f9e5e3; color: var(--cor-erro); }
+.selo-externa-exigencia { background: #fde8d2; color: #9a4b00; }
+.externa { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fff; flex-wrap: wrap; }
+.externa-dados { display: grid; gap: 2px; flex: 1; min-width: 200px; }
+.externa select { padding: 8px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; font-size: 0.9rem; background: #fff; }
+.externa-exigencia { border-color: #f0c08a; }
+.externa-aprovado { border-color: #b9dcc6; }

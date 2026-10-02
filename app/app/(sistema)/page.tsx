@@ -75,7 +75,7 @@ export default async function PainelPage() {
 
   const dias = diasDeTeste(sessao.escritorio);
 
-  const [contatos, briefings, ajustes, enviadas, rascunhos, aguardandoAssinatura, revisoes, aguardandoAprovacao, aReceber] =
+  const [contatos, briefings, ajustes, enviadas, rascunhos, aguardandoAssinatura, revisoes, aguardandoAprovacao, aReceber, aditivosCliente] =
     await Promise.all([
       supabase
         .from("contatos")
@@ -90,6 +90,7 @@ export default async function PainelPage() {
       supabase.from("etapas").select("id, projeto_id, atualizado_em").eq("status", "revisao"),
       supabase.from("etapas").select("id, projeto_id, enviada_em").eq("status", "aguardando_aprovacao"),
       supabase.from("pagamentos").select("valor").is("pago_em", null),
+      supabase.from("aditivos").select("id, projeto_id, criado_em").eq("status", "enviado"),
     ]);
 
   const precisaDeVoce: Cartao[] = [
@@ -163,6 +164,14 @@ export default async function PainelPage() {
         quando: e.enviada_em,
         href: `/app/projetos/${e.projeto_id}`,
       })),
+    },
+    {
+      chave: "aditivos",
+      icone: FileText,
+      singular: "aditivo esperando resposta",
+      plural: "aditivos esperando resposta",
+      lista: "/app/projetos",
+      itens: (aditivosCliente.data ?? []).map((a) => ({ id: a.id, quando: a.criado_em, href: `/app/projetos/${a.projeto_id}#aditivos` })),
     },
   ].filter((c) => c.itens.length > 0);
 

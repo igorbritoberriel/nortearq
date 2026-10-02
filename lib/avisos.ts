@@ -20,7 +20,7 @@ async function emailsDoEscritorio(admin: SupabaseClient, escritorioId: string) {
 }
 
 // Notificação dentro do app (sininho + aviso na tela). Criada antes do e-mail: vale mesmo sem e-mail configurado.
-type Notificacao = { tipo: "contato" | "briefing" | "proposta" | "contrato" | "etapa"; titulo: string; texto?: string | null; link: string };
+type Notificacao = { tipo: "contato" | "briefing" | "proposta" | "contrato" | "etapa" | "aditivo"; titulo: string; texto?: string | null; link: string };
 
 async function notificar(admin: SupabaseClient, escritorioId: string, n: Notificacao) {
   const { error } = await admin
@@ -319,5 +319,47 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
       botao: { texto: "Abrir o projeto", url },
     }),
     texto: `${assunto}.${ultima?.comentario ? `\nComentário: ${ultima.comentario}` : ""}${excedeu ? "\nPassou do limite de revisões contratado." : ""}\nAbrir: ${url}`,
+  });
+}
+
+// O cliente aprovou ou recusou um aditivo (RN-03.15).
+export async function avisarAditivoRespondido(aditivoId: string) {
+  const admin = criarClienteAdmin();
+  if (!admin) return console.info("[aviso] SUPABASE_SECRET_KEY não configurada: aviso de aditivo não enviado.");
+  const { data: a } = await admin
+    .from("aditivos")
+    .select("escritorio_id, projeto_id, numero, descricao, valor, status, motivo_recusa, projeto:projetos(nome, cliente:clientes(nome))")
+    .eq("id", aditivoId)
+    .maybeSingle();
+  if (!a) return;
+  const projeto = a.projeto as unknown as { nome: string; cliente: { nome: string } | null } | null;
+  const nome = projeto?.cliente?.nome ?? "O cliente";
+  const aprovado = a.status === "aprovado";
+  const assunto = `${nome} ${aprovado ? "aprovou" : "recusou"} o aditivo ${a.numero}`;
+  const url = `${urlDoSite()}/app/projetos/${a.projeto_id}`;
+
+  await notificar(admin, a.escritorio_id, {
+    tipo: "aditivo",
+    titulo: assunto,
+    texto: aprovado ? `${reais(a.valor)} · as parcelas já estão em Pagamentos` : `Motivo: ${a.motivo_recusa ?? "—"}`,
+    link: `/app/projetos/${a.projeto_id}`,
+  });
+  const para = await emailsDoEscritorio(admin, a.escritorio_id);
+  if (!para.length) return;
+  await enviarEmail({
+    para,
+    assunto,
+    html: modeloEmail({
+      titulo: assunto,
+      linhas: [
+        `Projeto: ${escaparHtml(projeto?.nome ?? "")}.`,
+        `<strong>${escaparHtml(a.descricao)}</strong> · ${escaparHtml(reais(a.valor))}`,
+        aprovado
+          ? "As parcelas do aditivo já entraram nos Pagamentos do contrato, e as revisões ou visitas extras foram somadas ao projeto."
+          : `<strong>Motivo da recusa:</strong> ${escaparHtml(a.motivo_recusa ?? "—")}`,
+      ],
+      botao: { texto: "Abrir o projeto", url },
+    }),
+    texto: `${assunto}.\n${a.descricao} (${reais(a.valor)})\nAbrir: ${url}`,
   });
 }

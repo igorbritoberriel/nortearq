@@ -2,10 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
+import { z } from "zod";
 import { avisarEtapaEnviada } from "@/lib/avisos";
 import { linkDoCliente } from "@/lib/clientes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
-import { SEM_SUPABASE } from "@/lib/formulario";
+import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { TAMANHO_MAXIMO_ARQUIVO } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -172,5 +173,140 @@ export async function concederCortesia(projetoId: string, aprovacaoId: string) {
   if (!ctx || !UUID.test(aprovacaoId)) return;
   const { error } = await ctx.supabase.rpc("conceder_cortesia", { p_aprovacao: aprovacaoId });
   if (error) console.error("[projeto] cortesia", error.message);
+  atualizar(projetoId);
+}
+
+// ---------- Aditivos (RN-03.15, RN-03.16) ----------
+
+const ERROS_ADITIVO: Record<string, string> = {
+  descricao_obrigatoria: "Descreva o que o aditivo cobre.",
+  valor_invalido: "Informe o valor do aditivo.",
+  revisao_invalida: "Esta revisão já foi cobrada ou concedida como cortesia.",
+  aditivo_respondido: "O cliente já respondeu este aditivo.",
+};
+
+function erroAditivo(mensagem: string) {
+  const codigo = Object.keys(ERROS_ADITIVO).find((c) => mensagem.includes(c));
+  return codigo ? ERROS_ADITIVO[codigo] : "Não foi possível salvar. Tente de novo.";
+}
+
+const inteiro = (min: number, max: number, mensagem: string) =>
+  z.preprocess((v) => (v === "" || v === null || v === undefined ? 0 : Number(v)), z.number().int().min(min, mensagem).max(max, mensagem));
+
+const esquemaAditivo = z.object({
+  descricao: z.string().trim().min(5, "Descreva o que o aditivo cobre.").max(2000, "Use até 2.000 caracteres."),
+  valor: z
+    .string()
+    .transform((v) => Number(v.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".")))
+    .refine((v) => Number.isFinite(v) && v >= 0 && v < 100_000_000, "Informe o valor em reais, como 1.500."),
+  prazo_dias: inteiro(0, 3650, "Use de 0 a 3650 dias."),
+  revisoes_extras: inteiro(0, 50, "Use de 0 a 50."),
+  visitas_extras: inteiro(0, 100, "Use de 0 a 100."),
+  parcelas: inteiro(1, 24, "De 1 a 24 parcelas."),
+});
+
+export async function criarAditivo(
+  projetoId: string,
+  aprovacaoId: string | null,
+  _anterior: EstadoFormulario,
+  formData: FormData,
+): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const resultado = esquemaAditivo.safeParse(Object.fromEntries(formData));
+  if (!resultado.success) {
+    return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
+  }
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(projetoId)) return { ...SEM_SUPABASE, valores };
+  const d = resultado.data;
+  const { error } = await ctx.supabase.rpc("criar_aditivo", {
+    p_projeto: projetoId,
+    p_descricao: d.descricao,
+    p_valor: d.valor,
+    p_prazo_dias: d.prazo_dias,
+    p_revisoes: d.revisoes_extras,
+    p_visitas: d.visitas_extras,
+    p_parcelas: d.parcelas,
+    p_aprovacao: aprovacaoId && UUID.test(aprovacaoId) ? aprovacaoId : null,
+  });
+  if (error) {
+    console.error("[aditivo] criar", error.message);
+    return { status: "erro", mensagem: erroAditivo(error.message), valores };
+  }
+  atualizar(projetoId);
+  return { status: "sucesso", mensagem: "Aditivo criado. Envie o link do projeto para o cliente responder." };
+}
+
+export async function cancelarAditivo(projetoId: string, aditivoId: string): Promise<Resultado> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(aditivoId)) return { erro: "Aditivo não encontrado." };
+  const { error } = await ctx.supabase.rpc("cancelar_aditivo", { p_aditivo: aditivoId });
+  if (error) return { erro: erroAditivo(error.message) };
+  atualizar(projetoId);
+  return { ok: true };
+}
+
+// ---------- Aprovações externas (RN-03.17): controle do arquiteto ----------
+
+const SITUACOES = ["em_preparo", "em_analise", "exigencia", "aprovado", "indeferido"] as const;
+
+const esquemaExterna = z.object({
+  orgao: z.string().trim().min(2, "Informe o órgão (ex.: Prefeitura, Condomínio).").max(120, "Use até 120 caracteres."),
+  protocolo: z.string().trim().max(80, "Use até 80 caracteres.").optional(),
+  entrada_em: z
+    .string()
+    .refine((v) => v === "" || /^\d{4}-\d{2}-\d{2}$/.test(v), "Data inválida.")
+    .optional(),
+  situacao: z.enum(SITUACOES, "Escolha a situação."),
+  observacao: z.string().trim().max(500, "Use até 500 caracteres.").optional(),
+});
+
+export async function criarAprovacaoExterna(
+  projetoId: string,
+  _anterior: EstadoFormulario,
+  formData: FormData,
+): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const resultado = esquemaExterna.safeParse(Object.fromEntries(formData));
+  if (!resultado.success) {
+    return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
+  }
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(projetoId)) return { ...SEM_SUPABASE, valores };
+  const d = resultado.data;
+  const { error } = await ctx.supabase.from("aprovacoes_externas").insert({
+    escritorio_id: ctx.sessao.escritorio.id,
+    projeto_id: projetoId,
+    orgao: d.orgao,
+    protocolo: d.protocolo || null,
+    entrada_em: d.entrada_em || null,
+    situacao: d.situacao,
+    observacao: d.observacao || null,
+  });
+  if (error) {
+    console.error("[externa] criar", error.message);
+    return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
+  }
+  atualizar(projetoId);
+  return { status: "sucesso", mensagem: "Aprovação externa registrada." };
+}
+
+// Mudança de situação: a tela já mudou na hora; aqui só grava.
+export async function mudarSituacaoExterna(id: string, situacao: (typeof SITUACOES)[number]): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id) || !SITUACOES.includes(situacao)) return false;
+  const { error } = await ctx.supabase
+    .from("aprovacoes_externas")
+    .update({ situacao, atualizado_em: new Date().toISOString() })
+    .eq("id", id);
+  if (error) console.error("[externa] situação", error.message);
+  return !error;
+}
+
+export async function excluirAprovacaoExterna(projetoId: string, id: string) {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return;
+  const { error } = await ctx.supabase.from("aprovacoes_externas").delete().eq("id", id);
+  if (error) console.error("[externa] excluir", error.message);
   atualizar(projetoId);
 }

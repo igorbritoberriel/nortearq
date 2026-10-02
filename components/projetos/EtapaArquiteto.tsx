@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FilePlus, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import {
@@ -43,6 +43,7 @@ export type DecisaoArquiteto = {
   ip: string | null;
   cortesia: boolean;
   excedente: boolean; // passou do limite contratado e ainda não virou cortesia
+  aditivo_id: string | null; // cobrada por um aditivo (aguardando ou aprovado)
 };
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
@@ -331,7 +332,15 @@ export function EtapaArquiteto({
                 {h.cortesia && " · cortesia"}
                 {h.comentario && <span className="etapa-comentario">“{h.comentario}”</span>}
               </span>
-              {h.excedente && (
+              {h.excedente && h.aditivo_id && (
+                <span className="etapa-excedente">
+                  Passou do limite: cobrança enviada como aditivo.{" "}
+                  <a className="tabela-link" href="#aditivos">
+                    Ver aditivo
+                  </a>
+                </span>
+              )}
+              {h.excedente && !h.aditivo_id && (
                 <span className="etapa-excedente">
                   Passou do limite de revisões.{" "}
                   <button
@@ -342,7 +351,10 @@ export function EtapaArquiteto({
                   >
                     <Gift size={14} aria-hidden="true" /> Conceder como cortesia
                   </button>{" "}
-                  ou cobre como aditivo (em breve).
+                  ou{" "}
+                  <a className="tabela-link" href={`/app/projetos/${projetoId}?cobrar=${h.id}#aditivos`}>
+                    <FilePlus size={14} aria-hidden="true" /> Cobrar como aditivo
+                  </a>
                 </span>
               )}
             </li>

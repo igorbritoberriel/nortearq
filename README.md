@@ -136,7 +136,7 @@ Sem a chave, nada quebra: o aviso só aparece no terminal.
 - [ ] Revisão do modelo de contrato por advogado (decisão 11) · ZapSign/Clicksign, se for preciso
 - [x] Projeto: etapas (renomear, reordenar, adicionar), arquivos com versões Rev01/Rev02 e visibilidade,
   envio para aprovação, aprovação/revisão pelo cliente via link (com IP), contador de revisões e cortesia
-- [ ] Aditivos (revisão excedente cobrada, mudança em etapa aprovada) e aprovações externas (RN-03.15 a 03.17)
+- [x] Aditivos (revisão excedente cobrada, mudança em etapa aprovada) e aprovações externas (RN-03.15 a 03.17)
 - [ ] Portal do cliente
 - [ ] Cobrança da assinatura (Asaas, Stripe ou Mercado Pago)
 

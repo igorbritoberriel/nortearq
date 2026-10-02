@@ -7,6 +7,8 @@ import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { EtapaArquiteto, type ArquivoArquiteto, type DecisaoArquiteto } from "@/components/projetos/EtapaArquiteto";
 import { ListaEtapas } from "@/components/projetos/ListaEtapas";
+import { Aditivos, AprovacoesExternas } from "@/components/projetos/Aditivos";
+import { COLUNAS_ADITIVO, type Aditivo, type AprovacaoExterna } from "@/lib/aditivos";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { carregarPagamentos } from "@/lib/pagamentos";
@@ -19,8 +21,15 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Etapa = { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
 
-export default async function ProjetoPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ProjetoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ cobrar?: string }>;
+}) {
   const { id } = await params;
+  const { cobrar } = await searchParams;
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -54,7 +63,7 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
   const { data: decisoes } = etapas.length
     ? await supabase
         .from("aprovacoes")
-        .select("id, etapa_id, decisao, comentario, decidido_em, ip, conta_revisao, cortesia")
+        .select("id, etapa_id, decisao, comentario, decidido_em, ip, conta_revisao, cortesia, aditivo_id")
         .in("etapa_id", etapas.map((e) => e.id))
         .order("decidido_em")
     : { data: [] };
@@ -77,6 +86,21 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
   });
 
   const revisoesUsadas = (usadas as number | null) ?? 0;
+
+  // Aditivos e aprovações externas (RN-03.15 a RN-03.17).
+  const [{ data: aditivos }, { data: externas }] = await Promise.all([
+    supabase.from("aditivos").select(COLUNAS_ADITIVO).eq("projeto_id", id).neq("status", "cancelado").order("criado_em"),
+    supabase
+      .from("aprovacoes_externas")
+      .select("id, orgao, protocolo, entrada_em, situacao, observacao")
+      .eq("projeto_id", id)
+      .order("criado_em"),
+  ]);
+  // "Cobrar como aditivo" numa revisão excedente: abre o formulário já preenchido.
+  const excedente = cobrar ? historico.find((h) => h.id === cobrar && h.excedente && !h.aditivo_id) : undefined;
+  const revisaoACobrar = excedente
+    ? { aprovacaoId: excedente.id, etapa: etapas.find((e) => e.id === excedente.etapa_id)?.nome ?? "" }
+    : null;
   const aprovadas = etapas.filter((e) => e.status === "aprovada").length;
   const passou = revisoesUsadas > projeto.revisoes_incluidas;
 
@@ -167,6 +191,15 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
         }))}
       />
       <NovaEtapa projetoId={id} />
+
+      <Aditivos
+        projetoId={id}
+        aditivos={(aditivos ?? []) as Aditivo[]}
+        cobrar={revisaoACobrar}
+        cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
+        temContrato={!!projeto.contrato_id}
+      />
+      <AprovacoesExternas projetoId={id} itens={(externas ?? []) as AprovacaoExterna[]} />
 
       {financeiro.pagamentos.length > 0 && (
         <section className="cartao secao-config">

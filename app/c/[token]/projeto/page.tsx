@@ -1,5 +1,7 @@
 import { Check, Download, ExternalLink, Receipt } from "lucide-react";
+import { RespostaAditivo } from "@/components/projetos/RespostaAditivo";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
+import { SITUACOES_EXTERNAS, STATUS_ADITIVO, resumoAditivo } from "@/lib/aditivos";
 import { exigirLink } from "@/lib/link-cliente";
 import {
   STATUS_ETAPA,
@@ -147,6 +149,56 @@ export default async function ProjetoClientePage({ params }: { params: Promise<{
           );
         })}
       </ol>
+
+      {!!projeto.aditivos?.length && (
+        <section className="cartao projeto-pagamentos" id="aditivos">
+          <h2>Aditivos</h2>
+          <p className="muted">Serviços além do contratado. Nada é cobrado sem a sua aprovação.</p>
+          <ul className="aditivos">
+            {projeto.aditivos.map((a) => (
+              <li key={a.id} className={`aditivo aditivo-${a.status}`}>
+                <div className="aditivo-linha">
+                  <span className="aditivo-descricao">
+                    <strong>
+                      Aditivo {a.numero}: {a.descricao}
+                    </strong>
+                    <small className="muted">{resumoAditivo(a)}</small>
+                  </span>
+                  <span className="aditivo-valor">
+                    <strong>{reais(Number(a.valor))}</strong>
+                    <span className={`selo-status selo-aditivo-${a.status}`}>
+                      {a.status === "enviado" ? "Aguardando você" : STATUS_ADITIVO[a.status]}
+                    </span>
+                  </span>
+                </div>
+                {a.status === "enviado" && <RespostaAditivo token={token} aditivoId={a.id} valor={Number(a.valor)} />}
+                {a.status === "recusado" && a.motivo_recusa && <p className="campo-ajuda">Motivo: {a.motivo_recusa}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {!!projeto.aprovacoes_externas?.length && (
+        <section className="cartao projeto-pagamentos">
+          <h2>Aprovações externas</h2>
+          <ul className="externas">
+            {projeto.aprovacoes_externas.map((x, i) => (
+              <li key={i} className={`externa externa-${x.situacao}`}>
+                <span className="externa-dados">
+                  <strong>{x.orgao}</strong>
+                  <small className="muted">
+                    {[x.protocolo && `Protocolo ${x.protocolo}`, x.entrada_em && `entrada em ${dataCurta(x.entrada_em)}`]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </small>
+                </span>
+                <span className={`selo-status selo-externa-${x.situacao}`}>{SITUACOES_EXTERNAS[x.situacao]}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {!!projeto.pagamentos?.length && (
         <section className="cartao projeto-pagamentos">
