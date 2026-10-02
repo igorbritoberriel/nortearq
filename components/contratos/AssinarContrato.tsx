@@ -30,11 +30,11 @@ export function AssinarContrato({
         <CircleCheck size={44} aria-hidden="true" />
         <h2>Contrato assinado!</h2>
         <p>
-          O {escritorio} recebeu o seu aceite. Recarregue a página para ver o contrato final, com o código de verificação, e
-          salvar em PDF.
+          O {escritorio} recebeu o seu aceite. Na próxima tela você vê o contrato final, com o código de verificação, salva em
+          PDF e pode criar o seu acesso ao portal do projeto.
         </p>
         <button type="button" className="botao botao-marca" onClick={() => window.location.reload()}>
-          <FileDown size={18} aria-hidden="true" /> Ver contrato assinado
+          <FileDown size={18} aria-hidden="true" /> Ver contrato e criar meu acesso
         </button>
       </div>
     );

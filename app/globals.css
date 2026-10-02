@@ -1158,3 +1158,31 @@ p { margin: 0 0 1em; }
 .externa select { padding: 8px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; font-size: 0.9rem; background: #fff; }
 .externa-exigencia { border-color: #f0c08a; }
 .externa-aprovado { border-color: #b9dcc6; }
+
+/* Portal do cliente */
+.portal-topo { justify-content: space-between; flex-wrap: wrap; }
+.portal-marca { display: flex; align-items: center; gap: 12px; }
+.portal-sair { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.portal-secao { margin-top: 24px; }
+.portal-secao h2 { font-size: 1.05rem; color: var(--cor-texto-suave); font-weight: 600; margin-bottom: 10px; }
+.portal-pendencias, .portal-projetos, .portal-documentos { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.portal-pendencia { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px 16px; border-left: 4px solid var(--cor-marca); }
+.portal-pendencia > svg:first-child { color: var(--cor-marca); }
+.portal-pendencia span { display: grid; gap: 2px; }
+.portal-pendencia:hover, .portal-projeto:hover, .portal-documento:hover { box-shadow: 0 6px 18px rgba(15, 27, 43, 0.08); }
+.portal-projeto { display: grid; gap: 6px; padding: 16px; }
+.portal-projeto strong { font-size: 1.1rem; }
+.portal-barra { display: block; height: 6px; border-radius: 999px; background: var(--cor-borda); overflow: hidden; }
+.portal-barra span { display: block; height: 100%; background: var(--cor-marca); border-radius: 999px; }
+.portal-documento { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fff; }
+.portal-documento > svg { color: var(--cor-marca); flex: none; }
+.portal-documento span { display: grid; gap: 2px; }
+.portal-doc-topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.portal-pendencia:focus-visible, .portal-projeto:focus-visible, .portal-documento:focus-visible, .portal-marca:focus-visible { outline: 2px solid var(--cor-marca); outline-offset: 2px; }
+.portal-convite { margin-top: 24px; border-top: 4px solid var(--cor-marca, var(--cor-norte)); display: grid; gap: 14px; }
+.portal-convite-topo { display: flex; gap: 12px; align-items: flex-start; }
+.portal-convite-topo > svg { color: var(--cor-marca, var(--cor-norte)); flex: none; margin-top: 4px; }
+.portal-convite-topo h2 { font-size: 1.2rem; margin: 0 0 4px; }
+.portal-convite-topo p { margin: 0; }
+.portal-convite-form { display: grid; gap: 4px; }
+.portal-convite .botao { justify-self: start; }

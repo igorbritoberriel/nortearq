@@ -116,7 +116,7 @@ export function Aditivos({
                     cliente={cliente.nome}
                     escritorio={cliente.escritorio}
                     rotulo={cliente.telefone ? "Enviar para o cliente no WhatsApp" : "Gerar link do projeto"}
-                    mensagemAditivo
+                    mensagemEspecial="aditivo"
                   />
                   <button
                     type="button"

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, FilePlus2, MessageCircle } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
+import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
 import { STATUS_CONTRATO, type StatusContrato } from "@/lib/contratos";
 import { STATUS_PROPOSTA, reais, statusVisivel, type StatusProposta } from "@/lib/propostas";
@@ -12,6 +13,7 @@ import { formatarReais, formatarWhatsapp, linkWhatsapp, type Contato } from "@/l
 import { listarServicos, obterSessaoArquiteto } from "@/lib/escritorio";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarProposta } from "../../propostas/acoes";
+import { linkDoProjeto } from "../../projetos/acoes";
 import { salvarCliente } from "../acoes";
 
 export const metadata: Metadata = { title: "Ficha do cliente" };
@@ -52,7 +54,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
   if (!linha) notFound();
   const cliente = linha as Cliente;
 
-  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }] =
+  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: projetoDoCliente }] =
     await Promise.all([
     listarServicos(),
     supabase
@@ -86,6 +88,7 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
       .eq("cliente_id", id)
       .neq("status", "cancelado")
       .order("criado_em", { ascending: false }),
+    supabase.from("projetos").select("id").eq("cliente_id", id).order("criado_em", { ascending: false }).limit(1).maybeSingle(),
   ]);
   const contratos = (listaContratos ?? []) as { id: string; status: StatusContrato; assinado_em: string | null }[];
   const propostas = (listaPropostas ?? []) as {
@@ -279,11 +282,27 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
 
           <section className="cartao secao-config">
             <h2>Portal do cliente</h2>
-            <p className="muted">
-              {cliente.usuario_id
-                ? "O cliente já tem acesso ao portal."
-                : "Depois do contrato, o cliente ganha um login para acompanhar o projeto (em breve)."}
-            </p>
+            {cliente.usuario_id ? (
+              <p className="muted">✓ O cliente já tem acesso ao portal e entra com o próprio e-mail e senha.</p>
+            ) : projetoDoCliente ? (
+              <>
+                <p className="muted">
+                  Com o acesso, ele acompanha etapas, arquivos, contrato e recibos num endereço fixo. O convite vai pelo link do
+                  projeto.
+                </p>
+                <EnviarLinkAcao
+                  acao={linkDoProjeto.bind(null, projetoDoCliente.id)}
+                  destino="projeto"
+                  telefone={cliente.telefone}
+                  cliente={cliente.nome}
+                  escritorio={sessao.escritorio.nome}
+                  rotulo={cliente.telefone ? "Convidar para o portal no WhatsApp" : "Gerar link de convite"}
+                  mensagemEspecial="portal"
+                />
+              </>
+            ) : (
+              <p className="muted">Depois do contrato assinado, o cliente recebe o convite para criar o acesso ao portal.</p>
+            )}
           </section>
         </aside>
       </div>

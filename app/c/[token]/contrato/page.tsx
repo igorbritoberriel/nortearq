@@ -1,6 +1,7 @@
 import { Ban, ShieldCheck } from "lucide-react";
 import { BotaoImprimir } from "@/components/briefing/BotaoImprimir";
 import { AssinarContrato } from "@/components/contratos/AssinarContrato";
+import { CriarAcessoPortal } from "@/components/portal/CriarAcessoPortal";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import type { ContratoPublico } from "@/lib/contratos";
 import { exigirLink } from "@/lib/link-cliente";
@@ -56,6 +57,9 @@ export default async function ContratoClientePage({ params }: { params: Promise<
   }
 
   const assinado = contrato.status === "assinado";
+  // Contrato assinado: convite para o portal (RN-01.15), enquanto o cliente não criou o acesso.
+  const { data: cliente } = assinado ? await supabase.rpc("cliente_do_link_portal", { p_token: token }) : { data: null };
+  const convite = cliente as { email: string | null; tem_acesso: boolean } | null;
   return (
     <>
       <p className="muted nao-imprimir">
@@ -67,6 +71,11 @@ export default async function ContratoClientePage({ params }: { params: Promise<
         <p className="nao-imprimir">
           <BotaoImprimir />
         </p>
+      )}
+      {convite && !convite.tem_acesso && (
+        <div className="nao-imprimir">
+          <CriarAcessoPortal token={token} email={convite.email} escritorio={link.escritorio.nome} />
+        </div>
       )}
 
       <div className="publico-form contrato-documento">
