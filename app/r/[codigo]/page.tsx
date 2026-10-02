@@ -106,7 +106,12 @@ export default async function ReciboPage({ params }: { params: Promise<{ codigo:
 
           <p className="recibo-texto">
             Recebi(emos) de <strong>{cliente.nome}</strong>
-            {docCliente ? `, CPF/CNPJ ${docCliente},` : ""} a importância de <strong>{reais(valor)}</strong> (
+            {docCliente && (
+              <>
+                , CPF/CNPJ <span className="sem-quebra">{docCliente}</span>,
+              </>
+            )}{" "}
+            a importância de <strong>{reais(valor)}</strong> (
             {valorPorExtenso(valor)}), referente a <strong>{recibo.descricao}</strong> do contrato de prestação de serviços
             firmado com {e.nome}.
           </p>
@@ -118,7 +123,7 @@ export default async function ReciboPage({ params }: { params: Promise<{ codigo:
             </div>
             <div>
               <dt>Forma de pagamento</dt>
-              <dd>{rotuloForma(recibo.forma)}</dd>
+              <dd className="primeira-maiuscula">{rotuloForma(recibo.forma)}</dd>
             </div>
             {recibo.observacao && (
               <div>
@@ -130,7 +135,11 @@ export default async function ReciboPage({ params }: { params: Promise<{ codigo:
 
           <div className="recibo-emitente">
             <strong>{e.nome}</strong>
-            {docEscritorio && <span>CPF/CNPJ {docEscritorio}</span>}
+            {docEscritorio && (
+              <span>
+                CPF/CNPJ <span className="sem-quebra">{docEscritorio}</span>
+              </span>
+            )}
             {e.endereco && <span>{e.endereco}</span>}
             {e.responsavel && (
               <span>

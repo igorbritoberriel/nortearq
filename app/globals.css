@@ -1062,3 +1062,5 @@ p { margin: 0 0 1em; }
 .acesso-video-botao:hover, .acesso-video-botao:focus-visible { opacity: 1; }
 .acesso-video-botao:focus-visible { outline: 2px solid var(--acesso-dourado); outline-offset: 2px; }
 @media (max-width: 900px) { .acesso-video-botao { right: 10px; bottom: 10px; width: 30px; height: 30px; } }
+.sem-quebra { white-space: nowrap; }
+.primeira-maiuscula::first-letter { text-transform: uppercase; }
