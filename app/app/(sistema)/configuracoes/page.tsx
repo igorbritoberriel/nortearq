@@ -37,7 +37,6 @@ export default async function ConfiguracoesPage() {
 
   return (
     <div className="pagina-app">
-      <span className="selo">Módulo 00</span>
       <h1>Configurações</h1>
 
       <section className="cartao secao-config">

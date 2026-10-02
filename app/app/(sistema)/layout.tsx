@@ -35,7 +35,6 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           {MENU_ARQUITETO.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.rotulo}
-              <small>{item.modulo}</small>
             </Link>
           ))}
         </nav>

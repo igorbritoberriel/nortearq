@@ -53,7 +53,6 @@ export default async function ClientesPage({
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 00</span>
       <div className="titulo-com-acao">
         <h1>Clientes</h1>
         <Link className="botao botao-primario" href="/app/clientes/novo">

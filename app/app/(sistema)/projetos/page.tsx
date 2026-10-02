@@ -44,7 +44,6 @@ export default async function ProjetosPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 03</span>
       <h1>Projetos</h1>
       <p className="muted">Cada contrato assinado vira um projeto com as etapas padrão.</p>
 

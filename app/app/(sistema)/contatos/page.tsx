@@ -70,7 +70,6 @@ export default async function ContatosPage({ searchParams }: { searchParams: Pro
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 01</span>
       <h1>Contatos</h1>
       <p className="muted">Pedidos de orçamento que chegaram pelo seu formulário. O filtro só sinaliza: quem decide é você.</p>
 

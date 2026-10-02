@@ -44,7 +44,6 @@ export default async function BriefingsPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 02</span>
       <div className="titulo-com-acao">
         <div>
           <h1>Briefings</h1>

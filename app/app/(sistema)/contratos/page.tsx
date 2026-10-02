@@ -47,7 +47,6 @@ export default async function ContratosPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 01</span>
       <div className="titulo-com-acao">
         <div>
           <h1>Contratos</h1>

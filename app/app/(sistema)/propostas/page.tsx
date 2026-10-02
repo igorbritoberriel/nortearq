@@ -62,7 +62,6 @@ export default async function PropostasPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <span className="selo">Módulo 01</span>
       <h1>Propostas</h1>
       <p className="muted">Para criar uma proposta, abra a ficha do cliente e use “Nova proposta”.</p>
 
