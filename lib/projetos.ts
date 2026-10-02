@@ -32,6 +32,15 @@ export type ProjetoPublico = {
   revisoes_incluidas: number;
   revisoes_usadas: number;
   etapas: EtapaPublica[];
+  // Visão do cliente dos pagamentos do contrato (migração 0015).
+  pagamentos?: {
+    descricao: string;
+    valor: number;
+    vencimento: string | null;
+    pago_em: string | null;
+    recibo_codigo: string | null;
+    recibo_numero: number | null;
+  }[];
 };
 
 export const STATUS_ETAPA: Record<StatusEtapa, string> = {

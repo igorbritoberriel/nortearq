@@ -7,8 +7,8 @@ import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { EtapaArquiteto, type ArquivoArquiteto, type DecisaoArquiteto } from "@/components/projetos/EtapaArquiteto";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
-import type { Pagamento } from "@/lib/contratos";
-import { obterSessaoArquiteto } from "@/lib/escritorio";
+import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { carregarPagamentos } from "@/lib/pagamentos";
 import type { StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { linkDoProjeto } from "../acoes";
@@ -35,7 +35,7 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
   if (!projeto) notFound();
   const cliente = projeto.cliente as unknown as { id: string; nome: string; telefone: string | null };
 
-  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, { data: pagamentos }] = await Promise.all([
+  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro] = await Promise.all([
     supabase.from("etapas").select("id, nome, ordem, status, enviada_em, aprovada_em").eq("projeto_id", id).order("ordem").order("id"),
     supabase
       .from("arquivos")
@@ -44,8 +44,8 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
       .order("criado_em"),
     supabase.rpc("revisoes_usadas", { p_projeto: id }),
     projeto.contrato_id
-      ? supabase.from("pagamentos").select("id, descricao, valor, vencimento, pago_em").eq("contrato_id", projeto.contrato_id).order("id")
-      : Promise.resolve({ data: [] }),
+      ? carregarPagamentos(supabase, projeto.contrato_id)
+      : Promise.resolve({ pagamentos: [], eventos: [] }),
   ]);
   const etapas = (etapasBrutas ?? []) as Etapa[];
   const arquivos = arquivosBrutos ?? [];
@@ -163,10 +163,18 @@ export default async function ProjetoPage({ params }: { params: Promise<{ id: st
       ))}
       <NovaEtapa projetoId={id} />
 
-      {(pagamentos ?? []).length > 0 && (
+      {financeiro.pagamentos.length > 0 && (
         <section className="cartao secao-config">
           <h2>Pagamentos</h2>
-          <Pagamentos pagamentos={(pagamentos ?? []) as Pagamento[]} />
+          <Pagamentos
+            pagamentos={financeiro.pagamentos}
+            eventos={financeiro.eventos}
+            souDono={sessao.membro.papel === "dono"}
+            hoje={new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())}
+            site={urlDoSite()}
+            cliente={{ nome: cliente.nome, telefone: cliente.telefone }}
+            escritorio={sessao.escritorio.nome}
+          />
         </section>
       )}
     </div>

@@ -75,14 +75,76 @@ export async function cancelarContrato(id: string) {
   revalidatePath("/app", "layout");
 }
 
-// RN-01.16: na V1, pagamento é só controle (pago ou pendente).
-export async function marcarPagamento(id: string, pago: boolean) {
+// ---------- Pagamentos protegidos (migração 0015) ----------
+// Baixa é definitiva; desfazer só por estorno com motivo, feito pelo dono. O banco garante as regras.
+
+const ERROS_PAGAMENTO: Record<string, string> = {
+  pagamento_ja_baixado: "Este pagamento já foi registrado. Para corrigir, use Estornar.",
+  pagamento_pendente: "Este pagamento ainda não foi registrado.",
+  data_invalida: "A data do pagamento não pode ser no futuro.",
+  forma_invalida: "Escolha a forma de pagamento.",
+  somente_dono: "Só o dono do escritório pode estornar um pagamento.",
+  motivo_obrigatorio: "Explique o motivo do estorno (pelo menos 5 letras).",
+};
+
+function erroPagamento(mensagem: string) {
+  const codigo = Object.keys(ERROS_PAGAMENTO).find((c) => mensagem.includes(c));
+  return codigo ? ERROS_PAGAMENTO[codigo] : "Não foi possível salvar. Tente de novo.";
+}
+
+const esquemaBaixa = z.object({
+  pagamento_id: z.uuid(),
+  pago_em: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data do pagamento."),
+  forma: z.enum(["pix", "transferencia", "boleto", "cartao", "dinheiro", "outro"], "Escolha a forma de pagamento."),
+  observacao: z.string().trim().max(300, "Use até 300 caracteres.").optional(),
+});
+
+export async function registrarPagamento(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const resultado = esquemaBaixa.safeParse(Object.fromEntries(formData));
+  if (!resultado.success) {
+    return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
+  }
   const ctx = await contexto();
-  if (!ctx || !UUID.test(id)) return;
-  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
-  const { error } = await ctx.supabase.from("pagamentos").update({ pago_em: pago ? hoje : null }).eq("id", id);
-  if (error) console.error("[pagamentos] marcar", error.message);
-  revalidatePath("/app/contratos", "layout");
+  if (!ctx) return { ...SEM_SUPABASE, valores };
+  const d = resultado.data;
+  const { error } = await ctx.supabase.rpc("registrar_pagamento", {
+    p_pagamento: d.pagamento_id,
+    p_data: d.pago_em,
+    p_forma: d.forma,
+    p_observacao: d.observacao ?? null,
+  });
+  if (error) {
+    console.error("[pagamentos] registrar", error.message);
+    return { status: "erro", mensagem: erroPagamento(error.message), valores };
+  }
+  revalidatePath("/app", "layout");
+  return { status: "sucesso", mensagem: "Pagamento registrado." };
+}
+
+const esquemaEstorno = z.object({
+  pagamento_id: z.uuid(),
+  motivo: z.string().trim().min(5, "Explique o motivo do estorno.").max(300, "Use até 300 caracteres."),
+});
+
+export async function estornarPagamento(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const resultado = esquemaEstorno.safeParse(Object.fromEntries(formData));
+  if (!resultado.success) {
+    return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
+  }
+  const ctx = await contexto();
+  if (!ctx) return { ...SEM_SUPABASE, valores };
+  const { error } = await ctx.supabase.rpc("estornar_pagamento", {
+    p_pagamento: resultado.data.pagamento_id,
+    p_motivo: resultado.data.motivo,
+  });
+  if (error) {
+    console.error("[pagamentos] estornar", error.message);
+    return { status: "erro", mensagem: erroPagamento(error.message), valores };
+  }
+  revalidatePath("/app", "layout");
+  return { status: "sucesso", mensagem: "Pagamento estornado. O recibo foi cancelado." };
 }
 
 // ---------- Modelo de contrato e dados do escritório ----------

@@ -13,9 +13,9 @@ import {
   STATUS_CONTRATO,
   formatarDocumento,
   type Contrato,
-  type Pagamento,
 } from "@/lib/contratos";
-import { obterSessaoArquiteto } from "@/lib/escritorio";
+import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { carregarPagamentos } from "@/lib/pagamentos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cancelarContrato, enviarContrato, salvarTextoContrato } from "../acoes";
 
@@ -45,10 +45,10 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
   if (!data) notFound();
   const contrato = data as unknown as Contrato;
 
-  const [{ data: cliente }, { data: previa }, { data: pagamentos }, { data: projeto }, { data: modelos }] = await Promise.all([
+  const [{ data: cliente }, { data: previa }, financeiro, { data: projeto }, { data: modelos }] = await Promise.all([
     supabase.from("clientes").select("id, nome, telefone").eq("id", contrato.cliente_id).maybeSingle(),
     supabase.rpc("previa_contrato", { p_contrato: id }),
-    supabase.from("pagamentos").select("id, descricao, valor, vencimento, pago_em").eq("contrato_id", id).order("id"),
+    carregarPagamentos(supabase, id),
     supabase.from("projetos").select("id, nome").eq("contrato_id", id).maybeSingle(),
     contrato.status === "rascunho"
       ? supabase.from("modelos_contrato").select("id, nome, padrao, servicos").order("padrao", { ascending: false }).order("criado_em")
@@ -128,7 +128,15 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
           <div className="ficha contrato-ficha">
             <section className="cartao secao-config">
               <h2>Pagamentos</h2>
-              <Pagamentos pagamentos={(pagamentos ?? []) as Pagamento[]} />
+              <Pagamentos
+                pagamentos={financeiro.pagamentos}
+                eventos={financeiro.eventos}
+                souDono={sessao.membro.papel === "dono"}
+                hoje={new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())}
+                site={urlDoSite()}
+                cliente={{ nome: cliente.nome, telefone: cliente.telefone }}
+                escritorio={e.nome}
+              />
             </section>
             <section className="cartao secao-config">
               <h2>Projeto</h2>

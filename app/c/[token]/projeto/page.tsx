@@ -1,4 +1,4 @@
-import { Check, Download, ExternalLink } from "lucide-react";
+import { Check, Download, ExternalLink, Receipt } from "lucide-react";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
 import { exigirLink } from "@/lib/link-cliente";
 import {
@@ -10,6 +10,7 @@ import {
   type ArquivoProjeto,
   type ProjetoPublico,
 } from "@/lib/projetos";
+import { dataCurta, reais } from "@/lib/propostas";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -146,6 +147,39 @@ export default async function ProjetoClientePage({ params }: { params: Promise<{
           );
         })}
       </ol>
+
+      {!!projeto.pagamentos?.length && (
+        <section className="cartao projeto-pagamentos">
+          <h2>Pagamentos</h2>
+          <ul className="pagamentos">
+            {projeto.pagamentos.map((p, i) => (
+              <li key={i}>
+                <span className="pagamento-descricao">
+                  {p.descricao}
+                  <small className="muted">
+                    {p.pago_em
+                      ? `Pago em ${dataCurta(p.pago_em)}`
+                      : `Pendente${p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : ""}`}
+                  </small>
+                </span>
+                <span className="projeto-pagamento-valor">
+                  <strong>{reais(Number(p.valor))}</strong>
+                  {p.pago_em && p.recibo_codigo && (
+                    <a href={`/r/${p.recibo_codigo}`} target="_blank" rel="noopener noreferrer" className="link-recibo">
+                      <Receipt size={14} aria-hidden="true" />
+                      Recibo
+                    </a>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="campo-ajuda">
+            Pago {reais(projeto.pagamentos.filter((p) => p.pago_em).reduce((s, p) => s + Number(p.valor), 0))} de{" "}
+            {reais(projeto.pagamentos.reduce((s, p) => s + Number(p.valor), 0))}
+          </p>
+        </section>
+      )}
     </>
   );
 }

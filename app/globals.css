@@ -430,6 +430,54 @@ p { margin: 0 0 1em; }
   .app-conteudo { padding: 20px 16px; }
 }
 
+/* Pagamentos protegidos */
+.pagamentos .pagamento { display: grid; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--cor-borda); }
+.pagamento-linha { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.pagamento-descricao { display: grid; gap: 2px; }
+.pagamento-descricao small { font-size: 0.84rem; }
+.pagamento-pago .pagamento-descricao { grid-template-columns: auto 1fr; column-gap: 6px; }
+.pagamento-pago .pagamento-descricao small { grid-column: 2; }
+.pagamento-cadeado { color: var(--cor-sucesso); margin-top: 4px; }
+.pagamento-acoes { display: flex; gap: 4px; flex-wrap: wrap; }
+.pagamento-acoes:empty { display: none; }
+.pagamento-estornar { color: var(--cor-erro); }
+.pagamento-form { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-fundo); }
+.pagamento-form .contato-alerta { margin: 4px 0 0; }
+.pagamento-form .form-rodape { margin-top: 8px; }
+.pagamento-form-estorno { border-color: #f2c6c2; background: #fdf6f5; }
+.pagamentos-historico { margin-top: 12px; font-size: 0.88rem; }
+.pagamentos-historico summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: var(--cor-norte); font-weight: 600; }
+.pagamentos-historico ol { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.pagamentos-historico li { display: grid; gap: 2px; padding-left: 12px; border-left: 2px solid var(--cor-borda); }
+.pagamentos-historico li.evento-estorno { border-color: var(--cor-erro); }
+.pagamentos-historico time { font-size: 0.8rem; color: var(--cor-texto-suave); }
+
+.projeto-pagamentos { margin-top: 24px; }
+.projeto-pagamentos h2 { font-size: 1.2rem; }
+.projeto-pagamento-valor { display: grid; justify-items: end; gap: 2px; }
+.link-recibo { display: inline-flex; align-items: center; gap: 4px; font-size: 0.85rem; color: var(--cor-marca, var(--cor-norte)); text-decoration: underline; }
+
+/* Recibo (/r/[codigo]) */
+.recibo { background: var(--cor-superficie); border: 1px solid var(--cor-borda); border-top: 4px solid var(--cor-marca); border-radius: var(--raio); padding: clamp(20px, 4vw, 36px); display: grid; gap: 20px; }
+.recibo-cabeca { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.recibo-cabeca h1 { margin: 0; font-size: 2rem; letter-spacing: 0.02em; text-transform: uppercase; }
+.recibo-cabeca > div { display: grid; justify-items: end; gap: 2px; }
+.recibo-numero { font-size: 0.85rem; color: var(--cor-texto-suave); font-variant-numeric: tabular-nums; }
+.recibo-valor { font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+.recibo-texto { margin: 0; font-size: 1.05rem; line-height: 1.7; }
+.recibo-dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px 24px; margin: 0; }
+.recibo-dados dt { font-size: 0.8rem; color: var(--cor-texto-suave); }
+.recibo-dados dd { margin: 0; font-weight: 600; }
+.recibo-emitente { display: grid; gap: 2px; padding-top: 16px; border-top: 1px solid var(--cor-borda); font-size: 0.92rem; }
+.recibo-rodape { margin: 0; font-size: 0.8rem; color: var(--cor-texto-suave); }
+.recibo-cancelado { display: flex; align-items: center; gap: 8px; padding: 12px 14px; margin: 0 0 16px; border-radius: 8px; background: #f9e5e3; color: var(--cor-erro); font-weight: 600; }
+.recibo-invalido { opacity: 0.6; background-image: repeating-linear-gradient(-45deg, transparent 0 18px, rgba(179, 38, 30, 0.05) 18px 36px); }
+.recibo-acoes { display: flex; justify-content: flex-end; margin-top: 16px; }
+@media print {
+  .recibo-pagina { border-top: 0; min-height: auto; }
+  .recibo { border: 1px solid #999; }
+}
+
 /* Modelos de contrato por tipo de projeto */
 .modelos-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 16px; }
 .modelos-lista a { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fff; }
