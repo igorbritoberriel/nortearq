@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Ban, ShieldCheck } from "lucide-react";
 import { BotaoImprimir } from "@/components/briefing/BotaoImprimir";
 import { EditorContrato } from "@/components/contratos/EditorContrato";
+import { TrocarModelo, type ModeloResumo } from "@/components/contratos/ModelosContrato";
 import { Pagamentos } from "@/components/contratos/Pagamentos";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -44,11 +45,14 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
   if (!data) notFound();
   const contrato = data as unknown as Contrato;
 
-  const [{ data: cliente }, { data: previa }, { data: pagamentos }, { data: projeto }] = await Promise.all([
+  const [{ data: cliente }, { data: previa }, { data: pagamentos }, { data: projeto }, { data: modelos }] = await Promise.all([
     supabase.from("clientes").select("id, nome, telefone").eq("id", contrato.cliente_id).maybeSingle(),
     supabase.rpc("previa_contrato", { p_contrato: id }),
     supabase.from("pagamentos").select("id, descricao, valor, vencimento, pago_em").eq("contrato_id", id).order("id"),
     supabase.from("projetos").select("id, nome").eq("contrato_id", id).maybeSingle(),
+    contrato.status === "rascunho"
+      ? supabase.from("modelos_contrato").select("id, nome, padrao, servicos").order("padrao", { ascending: false }).order("criado_em")
+      : Promise.resolve({ data: null }),
   ]);
   if (!cliente) notFound();
 
@@ -146,7 +150,11 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
       {contrato.status === "rascunho" ? (
         <section className="cartao secao-config nao-imprimir">
           <h2>Texto deste contrato</h2>
+          {modelos && modelos.length > 1 && (
+            <TrocarModelo contratoId={contrato.id} modelos={modelos as ModeloResumo[]} atual={contrato.modelo_id} />
+          )}
           <EditorContrato
+            key={contrato.modelo_id ?? "sem-modelo"}
             texto={contrato.corpo}
             salvar={salvarTextoContrato.bind(null, contrato.id)}
             ajuda="Ajustes valem só para este cliente. Para mudar todos os próximos, edite o modelo."

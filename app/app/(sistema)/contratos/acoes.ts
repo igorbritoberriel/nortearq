@@ -87,21 +87,124 @@ export async function marcarPagamento(id: string, pago: boolean) {
 
 // ---------- Modelo de contrato e dados do escritório ----------
 
-export async function salvarModeloContrato(corpo: string): Promise<{ ok: true } | { erro: string }> {
+export async function salvarModeloContrato(id: string, corpo: string): Promise<{ ok: true } | { erro: string }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!UUID.test(id)) return { erro: "Modelo não encontrado." };
   if (corpo.trim().length < 50) return { erro: "O modelo está curto demais." };
   if (corpo.length > LIMITE_TEXTO) return { erro: "O modelo passou do limite de 60 mil caracteres." };
 
   const { error, count } = await ctx.supabase
     .from("modelos_contrato")
     .update({ corpo, atualizado_em: new Date().toISOString() }, { count: "exact" })
-    .eq("escritorio_id", ctx.sessao.escritorio.id);
+    .eq("id", id);
   if (error || !count) {
     console.error("[contratos] salvar modelo", error?.message);
     return { erro: "Não foi possível salvar o modelo. Tente de novo." };
   }
   revalidatePath("/app/contratos/modelo");
+  return { ok: true };
+}
+
+// ---------- Vários modelos: um para cada tipo de projeto ----------
+
+// Novo modelo a partir do texto pronto de interiores ou de uma cópia do padrão.
+export async function criarModeloContrato(base: "interiores" | "copia") {
+  const ctx = await contexto();
+  if (!ctx) return;
+  const { supabase, sessao } = ctx;
+
+  let corpo: string | null = null;
+  if (base === "interiores") {
+    const { data } = await supabase.rpc("texto_contrato_interiores");
+    corpo = data as string | null;
+  } else {
+    await supabase.rpc("garantir_modelo_contrato");
+    const { data } = await supabase.from("modelos_contrato").select("corpo").eq("padrao", true).maybeSingle();
+    corpo = data?.corpo ?? null;
+  }
+  if (!corpo) return;
+
+  // Já marca o serviço "Interiores" do escritório, se existir.
+  let servicos: string[] = [];
+  if (base === "interiores") {
+    const { data } = await supabase.from("servicos").select("id, nome");
+    servicos = (data ?? []).filter((s) => /interior/i.test(s.nome)).map((s) => s.id);
+  }
+
+  const { data: novo, error } = await supabase
+    .from("modelos_contrato")
+    .insert({
+      escritorio_id: sessao.escritorio.id,
+      nome: base === "interiores" ? "Design de interiores" : "Novo modelo",
+      corpo,
+      servicos,
+    })
+    .select("id")
+    .single();
+  if (error || !novo) {
+    console.error("[contratos] criar modelo", error?.message);
+    return;
+  }
+  revalidatePath("/app/contratos/modelo");
+  redirect(`/app/contratos/modelo?id=${novo.id}`);
+}
+
+const esquemaConfigModelo = z.object({
+  nome: z.string().trim().min(2, "Dê um nome ao modelo.").max(80, "Use até 80 caracteres."),
+});
+
+export async function salvarConfigModelo(
+  id: string,
+  padrao: boolean,
+  _anterior: EstadoFormulario,
+  formData: FormData,
+): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const resultado = esquemaConfigModelo.safeParse(Object.fromEntries(formData));
+  if (!resultado.success) {
+    return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
+  }
+  const servicos = formData.getAll("servicos").filter((v): v is string => typeof v === "string" && UUID.test(v));
+  if (!padrao && servicos.length === 0) {
+    return { status: "erro", mensagem: "Marque pelo menos um serviço para este modelo.", valores };
+  }
+
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return { ...SEM_SUPABASE, valores };
+  const { error } = await ctx.supabase
+    .from("modelos_contrato")
+    .update({ nome: resultado.data.nome, servicos: padrao ? [] : servicos, atualizado_em: new Date().toISOString() })
+    .eq("id", id);
+  if (error) {
+    console.error("[contratos] config modelo", error.message);
+    return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
+  }
+  revalidatePath("/app/contratos/modelo");
+  return { status: "sucesso", mensagem: "Modelo salvo." };
+}
+
+export async function excluirModeloContrato(id: string) {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return;
+  // O banco não deixa apagar o padrão (RLS).
+  const { error } = await ctx.supabase.from("modelos_contrato").delete().eq("id", id).eq("padrao", false);
+  if (error) console.error("[contratos] excluir modelo", error.message);
+  revalidatePath("/app/contratos/modelo");
+  redirect("/app/contratos/modelo");
+}
+
+// Troca o modelo de um contrato ainda em rascunho: o texto dele é substituído.
+export async function trocarModeloContrato(contratoId: string, modeloId: string): Promise<{ ok: true } | { erro: string }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!UUID.test(contratoId) || !UUID.test(modeloId)) return { erro: "Modelo não encontrado." };
+  const { error } = await ctx.supabase.rpc("trocar_modelo_contrato", { p_contrato: contratoId, p_modelo: modeloId });
+  if (error) {
+    console.error("[contratos] trocar modelo", error.message);
+    return { erro: error.message.includes("contrato_fechado") ? "Contrato já enviado: o texto não muda mais." : "Não foi possível trocar o modelo." };
+  }
+  revalidatePath(`/app/contratos/${contratoId}`);
   return { ok: true };
 }
 

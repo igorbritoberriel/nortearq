@@ -18,6 +18,7 @@ export type Contrato = {
   aceite_navegador: string | null;
   codigo_verificacao: string | null;
   cancelado_em: string | null;
+  modelo_id: string | null;
   criado_em: string;
 };
 
@@ -42,7 +43,7 @@ export const STATUS_CONTRATO: Record<StatusContrato, string> = {
 };
 
 export const COLUNAS_CONTRATO =
-  "id, proposta_id, cliente_id, corpo, conteudo, status, enviado_em, assinado_em, aceite_nome, aceite_documento, aceite_endereco, aceite_ip, aceite_navegador, codigo_verificacao, cancelado_em, criado_em";
+  "id, proposta_id, cliente_id, corpo, conteudo, status, enviado_em, assinado_em, aceite_nome, aceite_documento, aceite_endereco, aceite_ip, aceite_navegador, codigo_verificacao, cancelado_em, modelo_id, criado_em";
 
 // Campos automáticos do modelo (RN-01.12): preenchidos pelo banco na hora do aceite.
 export const CAMPOS_CONTRATO: { campo: string; descricao: string }[] = [

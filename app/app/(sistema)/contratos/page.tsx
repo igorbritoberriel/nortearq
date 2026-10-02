@@ -54,7 +54,7 @@ export default async function ContratosPage() {
         </div>
         <Link className="botao botao-secundario" href="/app/contratos/modelo">
           <Settings2 size={18} aria-hidden="true" />
-          Modelo e dados do escritório
+          Modelos e dados do escritório
         </Link>
       </div>
 
