@@ -1,20 +1,57 @@
 # Ideias e ajustes do NorteArq
 
 Escreva aqui o que lembrar, do jeito que vier (pode ditar). O assistente lê este arquivo no começo de
-cada conversa, pergunta o que não estiver claro e move para "Feito" o que for concluído.
+cada conversa, lembra o que está pendente, pergunta o que não estiver claro e move para "Feito" o que
+for concluído. **Toda pendência entra aqui.**
+
+## Depende de você (Igor)
+- [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
+      escritório, então esse convite nunca pode ser aceito (Configurações > Equipe, no escritório dela).
+- [ ] Dados da empresa para os Termos e a Privacidade: razão social, CNPJ e e-mail de contato
+      (eu coloco em `lib/legal.ts`).
+- [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
+- [ ] Busca no INPI pelo nome "NorteArq" (classes 42 e 9); plano B: RumoArq.
+- [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
-- [ ] Pessoa em vários escritórios com seletor (como no Slack) e "acesso de suporte" autorizado pelo dono:
-      hoje uma conta = um escritório. Mudança grande, para depois.
+- [ ] Pessoa em vários escritórios com seletor (como no Slack) e "acesso de suporte" autorizado pelo
+      dono: hoje uma conta = um escritório. Mudança grande.
+- [ ] Assinatura digital com validade extra (ICP-Brasil): comparar ZapSign × Clicksign por envelope.
+      Hoje o aceite é feito no próprio sistema, com data, hora, IP e código de verificação.
+- [ ] Banco de imagens padrão do quiz: comprar licença ou usar fotos próprias/de parceiros (direitos autorais).
+- [ ] Liberar a próxima etapa só depois do pagamento? (RN-01.17; hoje só avisa)
+- [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
-- [ ] Dados da empresa nos Termos e na Privacidade: razão social, CNPJ e e-mail de contato
-      (em `lib/legal.ts`). Depois, revisão dos dois textos por advogado antes do lançamento.
-- [ ] Ícone da aba do navegador (favicon): o site ainda não tem.
+- [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
+      anonimizar e juntar, mas não exportar.
+- [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
+      (Profissional). Hoje só o espaço de arquivos e as vagas da equipe são travados.
+- [ ] Adicional "+50 GB de espaço" (R$ 19/mês): somar ao limite do plano quando for contratado.
+- [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
+
+## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Sininho novo: número zera ao abrir, abas Não lidas/Todas, X para dispensar, Limpar lidas.
+- [ ] Cliente repetido: aviso ao cadastrar, "cadastrar mesmo assim" e "Juntar com este" na ficha.
+- [ ] Sistema logado como Administrador e como Colaborador (menu e telas de cada perfil).
+- [ ] Primeiro e-mail real de lembrete de etapa parada (3 e 7 dias): ainda não houve etapa esperando.
+- [ ] Miniaturas dos arquivos antigos da Débora: são geradas quando ela abrir o projeto.
+
+## Validar com arquitetos (já funciona; confirmar se a regra está boa)
+- [ ] Preços e limites dos planos; se o plano Briefing (R$ 49) vale a pena existir.
+- [ ] Teste grátis de 14 dias, modo leitura de 30 dias, tolerância de 7 dias no atraso.
+- [ ] Filtro de compatibilidade, validade de 15 dias da proposta, link do briefing de 30 dias.
+- [ ] Quiz com no mínimo 12 imagens; fotos de referência até 20 de 10 MB.
+- [ ] Briefing detalhado depois do contrato (padrão).
+- [ ] Antes do lançamento: entrevistar 5 a 10 arquitetos e chegar a 50 inscritos na lista de espera.
 
 ## Ideias para depois
 - [ ] Fase 2 dos arquivos: cliente marca um ponto na imagem e comenta (conta como revisão);
       comparar Rev01 × Rev02 lado a lado.
+- [ ] Módulo 04, Acompanhamento de obra (a tela "Obras" ainda está em construção).
+- [ ] Módulo 05, Pós-entrega: avaliação, depoimento, arquivamento, lembrete de 6 meses.
+- [ ] WhatsApp automático (API oficial, paga) no lugar do botão de enviar.
+- [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
 - [x] Permissões: matriz única (Dono, Administrador, Colaborador) no código, nas telas e no banco; documentada na especificação (03/10/2026).
