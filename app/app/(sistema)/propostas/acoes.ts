@@ -82,7 +82,7 @@ export async function criarProposta(clienteId: string) {
   if (rascunho) redirect(`/app/propostas/${rascunho.id}`);
 
   const [{ data: cliente }, servicos, { data: listaModelos }] = await Promise.all([
-    ctx.supabase.from("clientes").select("servicos, contato:contatos(area_m2)").eq("id", clienteId).maybeSingle(),
+    ctx.supabase.from("clientes").select("servicos, contato:contatos!clientes_contato_id_fkey(area_m2)").eq("id", clienteId).maybeSingle(),
     listarServicos(),
     ctx.supabase.from("modelos_proposta").select(COLUNAS_MODELO).order("criado_em"),
   ]);

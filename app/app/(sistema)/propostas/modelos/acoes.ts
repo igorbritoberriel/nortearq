@@ -94,7 +94,7 @@ export async function aplicarModelo(propostaId: string, modeloId: string | null)
 
   const { data: p } = await ctx.supabase
     .from("propostas")
-    .select("status, cliente:clientes(servicos, contato:contatos(area_m2))")
+    .select("status, cliente:clientes(servicos, contato:contatos!clientes_contato_id_fkey(area_m2))")
     .eq("id", propostaId)
     .maybeSingle();
   if (!p || p.status !== "rascunho") return { erro: "Só dá para trocar o modelo de uma proposta em rascunho." };
