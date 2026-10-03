@@ -60,6 +60,13 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026): olhar tela por tela, como
+      especialista, e trazer a lista de problemas por prioridade antes de mexer. Achados já anotados:
+      - Proposta: o botão "Salvar como modelo" fica escondido embaixo, separado de "Salvar rascunho" e
+        "Enviar no WhatsApp".
+      - Proposta, deslocamento: com "Reembolso das despesas" marcado, o valor "R$ 150,00" foi digitado na
+        observação e entrou solto no texto que o cliente lê ("...antes da viagem. R$150,00"). A tela não
+        deixa claro onde vai o valor (talvez a intenção fosse "Taxa fixa por visita").
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
 - [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
