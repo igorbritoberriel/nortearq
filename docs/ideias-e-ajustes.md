@@ -79,6 +79,16 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Controle fiscal automatizado da cobrança no CPF** (pedido do Igor, 03/10/2026; fazer junto com ele quando o
+      primeiro escritório começar a pagar):
+      1. **Relatório financeiro no painel interno** (só o Igor vê), alimentado pelo aviso de pagamento do Asaas que
+         o sistema já recebe: quanto entrou por mês e por escritório, com taxas; botão para baixar a planilha do mês
+         pronta para o Carnê-Leão; alerta quando a receita mensal se aproximar de ~R$ 5 mil (hora de abrir a ME).
+      2. **Agente mensal** (rotina agendada do Claude Code, todo dia 1º): puxa os recebimentos do mês anterior, junta
+         as despesas dos comprovantes numa pasta, calcula o que lançar no Carnê-Leão (isento ou valor da guia),
+         guarda tudo no Google Drive (pasta por ano e mês, manter 5 anos) e manda o resumo ao Igor.
+      3. **Fica com o Igor** (uns 5 minutos por mês): lançar no Carnê-Leão Web com o login gov.br e pagar a guia, se
+         houver. Nos primeiros meses, conferir os números com o contador.
 - [ ] **Manual completo do NorteArq** (aprovado em 03/10/2026). Fonte: `docs/manual/manual.md`, atualizada a
       cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
       perguntas frequentes do cliente final (03/10/2026). A central de ajuda (menu Ajuda) e as perguntas
