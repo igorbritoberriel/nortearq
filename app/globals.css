@@ -1356,7 +1356,7 @@ p { margin: 0 0 1em; }
 .projeto-miniatura-vazia { display: grid; place-items: center; background: linear-gradient(135deg, #e8eef6, #f3ede2); color: var(--cor-norte); font-weight: 700; }
 
 /* Visualizador dos arquivos (tela cheia) */
-.vis-arquivos { display: flex; flex-direction: column; place-items: stretch; touch-action: none; }
+.vis-arquivos { display: flex; flex-direction: column; place-items: stretch; touch-action: none; background: #0b0f17; }
 .vis-topo { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #e9edf3; background: rgba(8, 12, 20, 0.6); z-index: 2; }
 .vis-titulo { display: grid; flex: 1; min-width: 0; }
 .vis-titulo strong { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1400,6 +1400,11 @@ p { margin: 0 0 1em; }
   .vis-zoom button:last-child { display: none; }
   .vis-paginas { bottom: 140px; }
   .vis-arquivos .visualizador-anterior, .vis-arquivos .visualizador-proxima { bottom: 20px; }
+}
+/* Toque: pinça e toque duplo já dão o zoom; os botões de zoom saem para não amontoar. */
+@media (pointer: coarse) {
+  .vis-zoom { display: none; }
+  .vis-paginas { bottom: 84px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cartao-arquivo-capa img, .render-abrir img { transition: none; }

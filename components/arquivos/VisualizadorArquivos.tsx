@@ -176,7 +176,7 @@ export function VisualizadorArquivos({
       <div className="vis-palco">
         {formato === "imagem" && arquivo.url ? (
           <AreaZoom key={arquivo.id} escala={escala} setEscala={setEscala} passar={passar} fechar={fechar}>
-            <ImagemArquivo arquivo={arquivo} aoExpirar={aoExpirar} />
+            <ImagemArquivo arquivo={arquivo} escala={escala} aoExpirar={aoExpirar} />
           </AreaZoom>
         ) : formato === "pdf" && arquivo.url ? (
           <PdfArquivo key={arquivo.id} url={arquivo.url} escala={escala} setEscala={setEscala} passar={passar} fechar={fechar} aoExpirar={aoExpirar} />
@@ -226,10 +226,25 @@ export function VisualizadorArquivos({
   );
 }
 
-function ImagemArquivo({ arquivo, aoExpirar }: { arquivo: ArquivoVisivel; aoExpirar?: () => void }) {
+// Abre a prévia (leve). Ao aproximar além de 150%, baixa o original por trás e troca sem piscar,
+// para os detalhes ficarem nítidos.
+function ImagemArquivo({ arquivo, escala, aoExpirar }: { arquivo: ArquivoVisivel; escala: number; aoExpirar?: () => void }) {
   const [carregada, setCarregada] = useState(false);
   const [falhou, setFalhou] = useState(false);
+  const [original, setOriginal] = useState(false);
   const tentou = useRef(false);
+  const precisaOriginal = escala > 1.5 && !!arquivo.previa && !!arquivo.url;
+
+  useEffect(() => {
+    if (!precisaOriginal || original || !arquivo.url) return;
+    const img = new Image();
+    img.onload = () => setOriginal(true);
+    img.src = arquivo.url;
+    return () => {
+      img.onload = null;
+    };
+  }, [precisaOriginal, original, arquivo.url]);
+
   if (falhou) {
     return (
       <div className="vis-sem-previa">
@@ -245,7 +260,7 @@ function ImagemArquivo({ arquivo, aoExpirar }: { arquivo: ArquivoVisivel; aoExpi
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={arquivo.previa ?? arquivo.url ?? ""}
+        src={(original ? arquivo.url : (arquivo.previa ?? arquivo.url)) ?? ""}
         alt={arquivo.nome}
         className={`vis-imagem ${carregada ? "" : "vis-carregando"}`}
         draggable={false}
@@ -322,7 +337,9 @@ function AreaZoom({
     if (!el) return;
     const roda = (e: WheelEvent) => {
       e.preventDefault();
-      zoomEm(estado.current.escala * Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY);
+      // Cada "clique" da roda aproxima no máximo ~25% (touchpads mandam passos menores, mais suaves).
+      const passo = Math.max(-100, Math.min(100, e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY));
+      zoomEm(estado.current.escala * Math.exp(-passo * 0.0022), e.clientX, e.clientY);
     };
     el.addEventListener("wheel", roda, { passive: false });
     return () => el.removeEventListener("wheel", roda);
