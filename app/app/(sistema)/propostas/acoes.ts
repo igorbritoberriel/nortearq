@@ -86,7 +86,7 @@ export async function criarProposta(clienteId: string) {
     listarServicos(),
     ctx.supabase.from("modelos_proposta").select(COLUNAS_MODELO).order("criado_em"),
   ]);
-  if (!cliente) return;
+  if (!cliente) redirect(`/app/clientes/${clienteId}?erro=proposta`);
   const servicosCliente = cliente.servicos as string[];
   const doCliente = servicos.filter((s) => servicosCliente.includes(s.id));
 
@@ -119,7 +119,7 @@ export async function criarProposta(clienteId: string) {
     .single();
   if (error) {
     console.error("[propostas] criar", error.message);
-    return;
+    redirect(`/app/clientes/${clienteId}?erro=proposta`);
   }
   revalidatePath("/app/propostas");
   redirect(`/app/propostas/${data.id}`);
@@ -185,7 +185,7 @@ export async function novaVersao(id: string) {
   const { data, error } = await ctx.supabase.rpc("nova_versao_proposta", { p_proposta: id });
   if (error || !data) {
     console.error("[propostas] nova versão", error?.message);
-    return;
+    redirect(`/app/propostas/${id}?erro=versao`);
   }
   revalidatePath("/app/propostas");
   redirect(`/app/propostas/${data}`);

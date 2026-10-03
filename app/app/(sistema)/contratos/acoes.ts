@@ -27,7 +27,7 @@ export async function gerarContrato(propostaId: string) {
   const { data, error } = await ctx.supabase.rpc("gerar_contrato", { p_proposta: propostaId });
   if (error || !data) {
     console.error("[contratos] gerar", error?.message);
-    return;
+    redirect(`/app/propostas/${propostaId}?erro=contrato`);
   }
   revalidatePath("/app", "layout");
   redirect(`/app/contratos/${data}`);

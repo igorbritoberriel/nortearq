@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BuscaPorCliente, termoDaBusca } from "@/components/BuscaPorCliente";
 import { ClipboardList, Settings2 } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { ESTILOS, STATUS_BRIEFING, type Estilo, type StatusBriefing } from "@/lib/briefing";
@@ -20,7 +21,7 @@ type LinhaBriefing = {
   cliente: { id: string; nome: string } | null;
 };
 
-export default async function BriefingsPage() {
+export default async function BriefingsPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
 
@@ -35,9 +36,13 @@ export default async function BriefingsPage() {
     );
   }
 
-  const { data: linhas, error } = await supabase
+  const busca = termoDaBusca((await searchParams).q);
+  const colunas = "id, status, estilos_principais, atualizado_em, respondido_em, cliente:clientes(id, nome)";
+  let base = supabase
     .from("briefings")
-    .select("id, status, estilos_principais, atualizado_em, respondido_em, cliente:clientes(id, nome)")
+    .select(busca ? colunas.replace("cliente:clientes(", "cliente:clientes!inner(") : colunas);
+  if (busca) base = base.ilike("cliente.nome", `%${busca}%`);
+  const { data: linhas, error } = await base
     .order("atualizado_em", { ascending: false })
     .limit(200);
   if (error) console.error("[briefings]", error.message);
@@ -58,7 +63,10 @@ export default async function BriefingsPage() {
         )}
       </div>
 
-      {briefings.length === 0 ? (
+      <BuscaPorCliente busca={busca} limpar="/app/briefings" />
+      {busca && briefings.length === 0 ? (
+        <p className="muted">Nenhum briefing de cliente com “{busca}” no nome.</p>
+      ) : briefings.length === 0 ? (
         <div className="cartao vazio">
           <ClipboardList size={36} aria-hidden="true" />
           <h2>Nenhum briefing enviado ainda</h2>

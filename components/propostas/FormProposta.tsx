@@ -23,6 +23,14 @@ import {
 type ItemForm = { servico: string; escopo: string; entregaveis: string };
 type ParcelaForm = { descricao: string; valor: string };
 
+// M16 da revisão de UX: o que cada opção significa e onde vai o valor.
+const EXPLICA_DESLOCAMENTO: Record<TipoDeslocamento, string> = {
+  incluido: "o cliente não paga nada à parte",
+  fixo: "um valor por visita, no campo de valor",
+  km: "um valor por km rodado, no campo de valor",
+  reembolso: "o cliente paga o que for gasto, com comprovante, sem valor fixo",
+};
+
 const paraTexto = (n: number | null | undefined) =>
   n === null || n === undefined ? "" : n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 
@@ -487,7 +495,10 @@ export function FormProposta({
             {(Object.keys(TIPOS_DESLOCAMENTO) as TipoDeslocamento[]).map((t) => (
               <label key={t} className="checagem">
                 <input type="radio" name="deslocamento_tipo" checked={deslocamento === t} onChange={() => setDeslocamento(t)} />
-                <span>{TIPOS_DESLOCAMENTO[t]}</span>
+                <span>
+                  {TIPOS_DESLOCAMENTO[t]}
+                  <small className="muted"> · {EXPLICA_DESLOCAMENTO[t]}</small>
+                </span>
               </label>
             ))}
           </div>
@@ -523,6 +534,12 @@ export function FormProposta({
         <Campo id="deslocamento_obs" rotulo="Observação sobre o deslocamento" opcional ajuda="Ex.: Pedágios à parte. Acima de 300 km, hospedagem por conta do cliente." erro={erros.deslocamento_obs}>
           <input id="deslocamento_obs" maxLength={500} value={deslocObs} onChange={(e) => setDeslocObs(e.target.value)} />
         </Campo>
+        {(deslocamento === "reembolso" || deslocamento === "incluido") && /R\$|\d+,\d{2}\b/.test(deslocObs) && (
+          <p className="contato-alerta">
+            A observação tem um valor em reais, mas esta opção não cobra valor fixo. Para cobrar um valor por visita, escolha
+            “Taxa fixa por visita” e use o campo de valor.
+          </p>
+        )}
         <p className="campo-ajuda proposta-deslocamento-previa">
           <strong>Como o cliente vai ler:</strong>{" "}
           {textoDeslocamento({

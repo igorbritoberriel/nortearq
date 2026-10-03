@@ -12,9 +12,9 @@ import { Aviso } from "@/components/Campo";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
 import { STATUS_CONTRATO, type StatusContrato } from "@/lib/contratos";
 import { STATUS_PROPOSTA, reais, statusVisivel, type StatusProposta } from "@/lib/propostas";
-import { DESTINOS_LINK, ETAPAS_CLIENTE, type Cliente, type LinkCliente } from "@/lib/clientes";
+import { DESTINOS_LINK, ETAPAS_CLIENTE, linkDoCliente, type Cliente, type LinkCliente } from "@/lib/clientes";
 import { formatarReais, formatarWhatsapp, linkWhatsapp, type Contato } from "@/lib/contatos";
-import { listarServicos, obterSessaoArquiteto } from "@/lib/escritorio";
+import { listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarProposta } from "../../propostas/acoes";
 import { linkDoProjeto } from "../../projetos/acoes";
@@ -31,6 +31,13 @@ const dataHora = new Intl.DateTimeFormat("pt-BR", {
   timeZone: "America/Sao_Paulo",
 });
 
+// Resposta do cliente à proposta, na linha do tempo.
+const RESPOSTA_PROPOSTA: Partial<Record<StatusProposta, string>> = {
+  aprovada: "Aprovou a proposta",
+  ajuste_pedido: "Pediu ajuste na proposta",
+  recusada: "Recusou a proposta",
+};
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function ClientePage({
@@ -38,10 +45,10 @@ export default async function ClientePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ vinculado?: string }>;
+  searchParams: Promise<{ vinculado?: string; erro?: string }>;
 }) {
   const { id } = await params;
-  const { vinculado } = await searchParams;
+  const { vinculado, erro } = await searchParams;
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
 
@@ -101,7 +108,7 @@ export default async function ClientePage({
       .maybeSingle(),
     supabase
       .from("propostas")
-      .select("id, versao, status, valor_total, validade_ate, respondida_em")
+      .select("id, versao, status, valor_total, validade_ate, respondida_em, enviada_em")
       .eq("cliente_id", id)
       .neq("status", "substituida")
       .order("criado_em", { ascending: false }),
@@ -113,13 +120,13 @@ export default async function ClientePage({
       .order("criado_em", { ascending: false }),
     supabase
       .from("projetos")
-      .select("id, nome, etapas(status)")
+      .select("id, nome, etapas(status, nome, aprovada_em)")
       .eq("cliente_id", id)
       .order("criado_em", { ascending: false })
       .limit(1)
       .maybeSingle(),
   ]);
-  const etapasProjeto = ((projetoDoCliente?.etapas ?? []) as { status: string }[]);
+  const etapasProjeto = ((projetoDoCliente?.etapas ?? []) as { status: string; nome: string; aprovada_em: string | null }[]);
   const contratos = (listaContratos ?? []) as { id: string; status: StatusContrato; assinado_em: string | null }[];
   const propostas = (listaPropostas ?? []) as {
     id: string;
@@ -128,6 +135,7 @@ export default async function ClientePage({
     valor_total: number | null;
     validade_ate: string | null;
     respondida_em: string | null;
+    enviada_em: string | null;
   }[];
 
   const historicoLinks = (links ?? []) as LinkCliente[];
@@ -138,6 +146,12 @@ export default async function ClientePage({
   const agora = Date.now();
   const linkAtivo = (destino: string) =>
     historicoLinks.some((l) => l.destino === destino && new Date(l.expira_em).getTime() > agora);
+  // Briefing ainda aberto com link valendo: dá para reenviar o mesmo (M4 da revisão de UX).
+  const tokenBriefing =
+    briefing && ["pendente", "em_andamento"].includes(briefing.status as string)
+      ? historicoLinks.find((l) => l.destino === "briefing" && new Date(l.expira_em).getTime() > agora)?.token
+      : undefined;
+  const linkAtualBriefing = tokenBriefing ? linkDoCliente(urlDoSite(), tokenBriefing, "briefing") : null;
 
   // Linha do tempo (mais recente primeiro).
   const eventos = [
@@ -145,6 +159,12 @@ export default async function ClientePage({
     { quando: cliente.criado_em, texto: pedido ? "Virou cliente" : "Cadastrado manualmente" },
     ...(briefing?.respondido_em ? [{ quando: briefing.respondido_em as string, texto: "Respondeu o briefing" }] : []),
     ...contratos.filter((c) => c.assinado_em).map((c) => ({ quando: c.assinado_em as string, texto: "Assinou o contrato" })),
+    // B2 da revisão de UX: proposta e etapas também contam a história do cliente.
+    ...propostas.filter((p) => p.enviada_em).map((p) => ({ quando: p.enviada_em as string, texto: `Proposta enviada${p.versao > 1 ? ` (versão ${p.versao})` : ""}` })),
+    ...propostas
+      .filter((p) => p.respondida_em && RESPOSTA_PROPOSTA[p.status])
+      .map((p) => ({ quando: p.respondida_em as string, texto: RESPOSTA_PROPOSTA[p.status] as string })),
+    ...etapasProjeto.filter((e) => e.aprovada_em).map((e) => ({ quando: e.aprovada_em as string, texto: `Aprovou a etapa ${e.nome}` })),
     ...historicoLinks.map((l) => ({
       quando: l.criado_em,
       texto: `Link de ${DESTINOS_LINK[l.destino].rotulo.toLowerCase()} gerado${
@@ -201,6 +221,9 @@ export default async function ClientePage({
         <ArrowLeft size={16} aria-hidden="true" />
         Clientes
       </Link>
+      {erro === "proposta" && (
+        <Aviso tipo="erro">Não foi possível criar a proposta agora. Tente de novo em instantes.</Aviso>
+      )}
       {vinculado && (
         <Aviso tipo="sucesso">
           Este pedido de orçamento era de alguém que já é seu cliente: ele foi ligado a este cadastro, sem criar outro.
@@ -302,6 +325,7 @@ export default async function ClientePage({
                 cliente={cliente.nome}
                 escritorio={sessao.escritorio.nome}
                 temLinkAtivo={linkAtivo("briefing")}
+                linkAtual={linkAtualBriefing}
               />
             </div>
             {verValores && (

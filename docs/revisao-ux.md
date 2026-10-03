@@ -70,7 +70,7 @@ O selo mostra a etapa (Proposta, Contrato...), mas não o que fazer agora.
 → Uma linha de destaque: "Próximo passo: gerar o contrato" / "enviar o briefing" / "aguardando o cliente
 assinar", com o botão certo.
 
-**M4. Na ficha, só dá para gerar um link novo, nunca reenviar o mesmo.**
+**M4. Na ficha, só dá para gerar um link novo, nunca reenviar o mesmo.** ✅ Feito (03/10/2026).
 Para mandar de novo um link que o cliente perdeu, o arquiteto precisa gerar outro, e o anterior para de
 funcionar. Se o cliente abrir a mensagem antiga, vê "Este link não vale mais".
 → "Copiar o link atual" quando ele ainda vale; "Gerar novo" só quando necessário.
@@ -83,7 +83,7 @@ A escolha vale para os próximos envios, mas está posicionada como se fosse par
 Quando a etapa está "em revisão", o comentário do cliente aparece no fim, no histórico.
 → Caixa em destaque no topo da etapa: "O cliente pediu: ...".
 
-**M7. Enviar a etapa para aprovação não confirma o que vai.**
+**M7. Enviar a etapa para aprovação não confirma o que vai.** ✅ Feito (03/10/2026).
 Arquivos enviados ficam travados e o cliente recebe e-mail na hora.
 → Confirmação curta: "Vai enviar 3 arquivos visíveis. O cliente recebe por WhatsApp e e-mail."
 
@@ -101,7 +101,7 @@ Para os arquitetos patrocinados (fase B), falta um guia dos primeiros passos.
 → Lista "Primeiros passos" até ser concluída: dados do escritório no contrato, um modelo de proposta,
 testar o próprio formulário, cadastrar o primeiro cliente, enviar o primeiro briefing.
 
-**M11. Celular: o menu do sistema empurra o conteúdo para baixo.**
+**M11. Celular: o menu do sistema empurra o conteúdo para baixo.** ✅ Feito (03/10/2026).
 Abaixo de 860 px, o menu lateral inteiro (logo, escritório, sininho, 10 itens, relatar problema e usuário)
 fica em cima de toda página.
 → Barra compacta no topo com botão de menu, e o sininho sempre visível.
@@ -114,7 +114,7 @@ Nenhum item fica destacado.
 Para quem testa, parece coisa quebrada.
 → Esconder até o módulo 04 existir, ou mostrar com o selo "Em breve".
 
-**M14. Algumas ações falham em silêncio.**
+**M14. Algumas ações falham em silêncio.** ✅ Feito (03/10/2026).
 "Virar cliente", "Nova proposta", "Gerar contrato" e "Criar nova versão" não mostram nada se der erro: o
 botão simplesmente não faz nada.
 → Mensagem de erro em cada uma.
@@ -122,7 +122,7 @@ botão simplesmente não faz nada.
 **M15. Proposta: "Salvar como modelo" fica escondido embaixo** (já anotado).  ✅ Feito (03/10/2026).
 → Junto de "Salvar rascunho" e "Enviar no WhatsApp".
 
-**M16. Proposta: valor do deslocamento digitado na observação** (já anotado).
+**M16. Proposta: valor do deslocamento digitado na observação** (já anotado). ✅ Feito (03/10/2026).
 Com "Reembolso das despesas", não há campo de valor, e o valor digitado na observação entra solto no texto.
 → Explicar em cada opção onde vai o valor ("Reembolso: o cliente paga o que for gasto, sem valor fixo") e
 avisar quando a observação tiver um valor em reais.
@@ -133,19 +133,19 @@ avisar quando a observação tiver um valor em reais.
 
 ## Baixa
 
-**B1.** Propostas, Projetos, Contratos e Briefings não têm busca por nome (só Clientes tem). Vai pesar com
+**B1.** ✅ Feito (03/10/2026). Propostas, Projetos, Contratos e Briefings não têm busca por nome (só Clientes tem). Vai pesar com
 dezenas de clientes.
 
-**B2.** A linha do tempo do cliente não mostra os eventos da proposta (enviada, aprovada) nem as etapas
+**B2.** ✅ Feito (03/10/2026). A linha do tempo do cliente não mostra os eventos da proposta (enviada, aprovada) nem as etapas
 aprovadas.
 
 **B3.** ✅ Feito (03/10/2026). Na ficha, "Arquivar ou excluir" fica acima de "Portal do cliente". A área de ações perigosas deveria
 ser a última.
 
-**B4.** Excluir pedido de orçamento usa a caixa padrão do navegador ("confirm" e "alert"), diferente do resto
+**B4.** ✅ Feito (03/10/2026). Excluir pedido de orçamento usa a caixa padrão do navegador ("confirm" e "alert"), diferente do resto
 do sistema.
 
-**B5.** "Conceder como cortesia" não pede confirmação.
+**B5.** ✅ Feito (03/10/2026). "Conceder como cortesia" não pede confirmação.
 
 **B6.** ✅ Feito (03/10/2026). Na ficha, o texto diz que todos os links valem 30 dias, mas o do projeto vale 90.
 
@@ -165,4 +165,4 @@ do sistema.
 2. ~~A2, A3 e A4 (proposta)~~ feitos, com o M15.
 3. A6 e A7 (painel).
 4. ~~M1 a M3 e M10~~ feitos, com M5, M6, M8, M9, M12, M13, B3 e B6.
-5. Resto das médias. As baixas, junto com a conferência visual no navegador.
+5. ~~Resto das médias e as baixas~~ feitos. Falta só o M17 (decisão do Igor) e a conferência visual no navegador.

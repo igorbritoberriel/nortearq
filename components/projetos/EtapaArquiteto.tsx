@@ -2,6 +2,7 @@
 
 import { useOptimistic, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FilePlus, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
+import { Confirmar } from "@/components/Confirmar";
 import { Aviso } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
@@ -360,6 +361,18 @@ export function EtapaArquiteto({
               telefone={cliente.telefone}
               cliente={cliente.nome}
               escritorio={cliente.escritorio}
+              confirmar={
+                etapa.status === "aguardando_aprovacao" ? undefined : (
+                  <p>
+                    <strong>
+                      Enviar “{etapa.nome}” com {atuais.filter((a) => a.visivel).length}{" "}
+                      {atuais.filter((a) => a.visivel).length === 1 ? "arquivo visível" : "arquivos visíveis"}?
+                    </strong>{" "}
+                    {cliente.nome.split(" ")[0]} recebe o link{cliente.telefone ? " no WhatsApp" : ""} e por e-mail. Depois
+                    do envio, esses arquivos não podem mais ser apagados (só ganhar versão nova).
+                  </p>
+                )
+              }
               rotulo={
                 etapa.status === "aguardando_aprovacao"
                   ? cliente.telefone
@@ -403,14 +416,19 @@ export function EtapaArquiteto({
               {h.excedente && !h.aditivo_id && podeCobrar && (
                 <span className="etapa-excedente">
                   Passou do limite de revisões.{" "}
-                  <button
-                    type="button"
-                    className="botao-link tabela-link"
-                    disabled={pendente}
-                    onClick={() => executar(() => concederCortesia(projetoId, h.id))}
-                  >
-                    <Gift size={14} aria-hidden="true" /> Conceder como cortesia
-                  </button>{" "}
+                  <Confirmar
+                    rotulo="Conceder como cortesia"
+                    icone={<Gift size={14} aria-hidden="true" />}
+                    classe="botao-link tabela-link"
+                    aviso={
+                      <p>
+                        <strong>Conceder esta revisão como cortesia?</strong> Ela deixa de contar no limite e não poderá ser
+                        cobrada depois.
+                      </p>
+                    }
+                    confirmar="Conceder cortesia"
+                    acao={() => concederCortesia(projetoId, h.id)}
+                  />{" "}
                   ou{" "}
                   <a className="tabela-link" href={`/app/projetos/${projetoId}?cobrar=${h.id}#aditivos`}>
                     <FilePlus size={14} aria-hidden="true" /> Cobrar como aditivo

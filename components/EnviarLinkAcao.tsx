@@ -19,6 +19,7 @@ export function EnviarLinkAcao({
   depois,
   mensagemEspecial,
   bloqueado = false,
+  confirmar,
 }: {
   acao: () => Promise<{ link: string } | { erro: string }>;
   destino: DestinoLink;
@@ -29,7 +30,9 @@ export function EnviarLinkAcao({
   depois?: string; // aviso mostrado com o link gerado
   mensagemEspecial?: "aditivo" | "portal"; // texto próprio do WhatsApp (pedir resposta de aditivo, convidar ao portal)
   bloqueado?: boolean; // falta algo antes de enviar (o motivo aparece fora do botão)
+  confirmar?: React.ReactNode; // pede confirmação antes (o que vai e o que acontece), M7 da revisão de UX
 }) {
+  const [confirmando, setConfirmando] = useState(false);
   const [pendente, iniciar] = useTransition();
   const [link, setLink] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
@@ -56,9 +59,40 @@ export function EnviarLinkAcao({
     });
   }
 
+  if (confirmar && confirmando && !link) {
+    return (
+      <div className="pagamento-form confirmar-senha" role="alertdialog">
+        <div>{confirmar}</div>
+        {erro && <Aviso tipo="erro">{erro}</Aviso>}
+        <div className="form-rodape">
+          <button type="button" className="botao botao-fantasma botao-pequeno" onClick={() => setConfirmando(false)} disabled={pendente}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className="botao botao-primario botao-pequeno"
+            onClick={() => {
+              gerar();
+            }}
+            disabled={pendente}
+            autoFocus
+          >
+            <MessageCircle size={16} aria-hidden="true" />
+            {pendente ? "Enviando..." : (rotulo ?? (telefone ? "Enviar no WhatsApp" : "Gerar link"))}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="enviar-link">
-      <button type="button" className="botao botao-primario" onClick={gerar} disabled={pendente || bloqueado}>
+      <button
+        type="button"
+        className="botao botao-primario"
+        onClick={confirmar && !link ? () => setConfirmando(true) : gerar}
+        disabled={pendente || bloqueado}
+      >
         <MessageCircle size={18} aria-hidden="true" />
         {pendente ? "Gerando link..." : (rotulo ?? (telefone ? "Enviar no WhatsApp" : "Gerar link"))}
       </button>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BuscaPorCliente, termoDaBusca } from "@/components/BuscaPorCliente";
 import { FileSignature, LayoutTemplate } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
@@ -28,7 +29,7 @@ type Linha = {
   cliente: { nome: string } | null;
 };
 
-export default async function PropostasPage() {
+export default async function PropostasPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -43,9 +44,13 @@ export default async function PropostasPage() {
   }
 
   // Versões substituídas ficam só no histórico de cada proposta.
-  const { data: linhas, error } = await supabase
+  const busca = termoDaBusca((await searchParams).q);
+  const colunas = "id, versao, status, valor_total, validade_ate, motivo_recusa, atualizado_em, cliente:clientes(nome)";
+  let base = supabase
     .from("propostas")
-    .select("id, versao, status, valor_total, validade_ate, motivo_recusa, atualizado_em, cliente:clientes(nome)")
+    .select(busca ? colunas.replace("cliente:clientes(", "cliente:clientes!inner(") : colunas);
+  if (busca) base = base.ilike("cliente.nome", `%${busca}%`);
+  const { data: linhas, error } = await base
     .neq("status", "substituida")
     .order("atualizado_em", { ascending: false })
     .limit(300);
@@ -71,7 +76,10 @@ export default async function PropostasPage() {
       </div>
       <p className="muted">Para criar uma proposta, abra a ficha do cliente e use “Nova proposta”.</p>
 
-      {propostas.length === 0 ? (
+      <BuscaPorCliente busca={busca} limpar="/app/propostas" />
+      {busca && propostas.length === 0 ? (
+        <p className="muted">Nenhuma proposta de cliente com “{busca}” no nome.</p>
+      ) : propostas.length === 0 ? (
         <div className="cartao vazio">
           <FileSignature size={36} aria-hidden="true" />
           <h2>Nenhuma proposta ainda</h2>

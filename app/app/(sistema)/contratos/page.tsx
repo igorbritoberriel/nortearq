@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BuscaPorCliente, termoDaBusca } from "@/components/BuscaPorCliente";
 import { FileSignature, Settings2 } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { STATUS_CONTRATO, type StatusContrato } from "@/lib/contratos";
@@ -21,7 +22,7 @@ type Linha = {
   pagamentos: { valor: number; pago_em: string | null }[];
 };
 
-export default async function ContratosPage() {
+export default async function ContratosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -35,9 +36,13 @@ export default async function ContratosPage() {
     );
   }
 
-  const { data: linhas, error } = await supabase
+  const busca = termoDaBusca((await searchParams).q);
+  const colunas = "id, status, assinado_em, atualizado_em, cliente:clientes(nome), proposta:propostas(valor_total), pagamentos(valor, pago_em)";
+  let base = supabase
     .from("contratos")
-    .select("id, status, assinado_em, atualizado_em, cliente:clientes(nome), proposta:propostas(valor_total), pagamentos(valor, pago_em)")
+    .select(busca ? colunas.replace("cliente:clientes(", "cliente:clientes!inner(") : colunas);
+  if (busca) base = base.ilike("cliente.nome", `%${busca}%`);
+  const { data: linhas, error } = await base
     .order("atualizado_em", { ascending: false })
     .limit(300);
   if (error) console.error("[contratos]", error.message);
@@ -64,7 +69,10 @@ export default async function ContratosPage() {
         </Link>
       )}
 
-      {contratos.length === 0 ? (
+      <BuscaPorCliente busca={busca} limpar="/app/contratos" />
+      {busca && contratos.length === 0 ? (
+        <p className="muted">Nenhum contrato de cliente com “{busca}” no nome.</p>
+      ) : contratos.length === 0 ? (
         <div className="cartao vazio">
           <FileSignature size={36} aria-hidden="true" />
           <h2>Nenhum contrato ainda</h2>

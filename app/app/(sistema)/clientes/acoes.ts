@@ -139,14 +139,14 @@ export async function salvarCliente(
 
 // RN-01.5: o contato vira cliente com todos os dados que ele já preencheu.
 // Se já existe cliente com o mesmo e-mail ou WhatsApp, o pedido é ligado a ele (sem cadastro duplicado).
-export async function converterContato(contatoId: string) {
+export async function converterContato(contatoId: string): Promise<{ erro: string } | void> {
   const ctx = await contexto();
-  if (!ctx) return;
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
   const { data, error } = await ctx.supabase.rpc("converter_contato", { p_contato_id: contatoId });
   const r = data as { id: string; existente: boolean } | null;
   if (error || !r?.id) {
     console.error("[clientes] converter", error?.message);
-    return;
+    return { erro: "Não foi possível transformar o pedido em cliente. Tente de novo." };
   }
   revalidatePath("/app", "layout");
   redirect(`/app/clientes/${r.id}${r.existente ? "?vinculado=1" : ""}`);

@@ -4,6 +4,7 @@ import { useActionState, useEffect, useOptimistic, useState, useTransition } fro
 import Link from "next/link";
 import { MessageCircle, Trash2, UserCheck, UserPlus } from "lucide-react";
 import { Aviso } from "@/components/Campo";
+import { Confirmar } from "@/components/Confirmar";
 import { converterContato } from "@/app/app/(sistema)/clientes/acoes";
 import {
   encerrarContato,
@@ -24,6 +25,7 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
   const [compativel, setCompativel] = useOptimistic(contato.compativel);
   const [estado, enviar, enviandoEncerrar] = useActionState(encerrarContato, inicial);
   const primeiroNome = contato.nome.split(" ")[0];
+  const [erroConverter, setErroConverter] = useState<string | null>(null);
 
   if (contato.status === "convertido") {
     return contato.cliente_id ? (
@@ -47,20 +49,17 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
         >
           Reabrir
         </button>
-        <button
-          type="button"
-          className="botao botao-fantasma botao-pequeno botao-texto-perigo"
-          disabled={pendente}
-          onClick={() => {
-            if (!window.confirm(`Excluir o pedido de ${contato.nome}? Use para spam ou teste. Não dá para desfazer.`)) return;
-            iniciar(async () => {
-              const r = await excluirContato(contato.id);
-              if ("erro" in r) window.alert(r.erro);
-            });
-          }}
-        >
-          <Trash2 size={16} aria-hidden="true" /> Excluir
-        </button>
+        <Confirmar
+          rotulo="Excluir"
+          icone={<Trash2 size={16} aria-hidden="true" />}
+          aviso={
+            <p>
+              <strong>Excluir o pedido de {contato.nome}?</strong> Use para spam ou teste. Não dá para desfazer.
+            </p>
+          }
+          confirmar="Excluir pedido"
+          acao={() => excluirContato(contato.id)}
+        />
       </div>
     );
   }
@@ -71,11 +70,18 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
         type="button"
         className="botao botao-primario botao-pequeno"
         disabled={pendente}
-        onClick={() => iniciar(() => converterContato(contato.id))}
+        onClick={() =>
+          iniciar(async () => {
+            setErroConverter(null);
+            const r = await converterContato(contato.id);
+            if (r && "erro" in r) setErroConverter(r.erro);
+          })
+        }
       >
         <UserPlus size={16} aria-hidden="true" />
         {pendente ? "Aguarde..." : "Virar cliente"}
       </button>
+      {erroConverter && <Aviso tipo="erro">{erroConverter}</Aviso>}
       {contato.whatsapp && (
         <a
           className="botao botao-secundario botao-pequeno"
@@ -114,20 +120,17 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
         <button type="button" className="botao botao-fantasma botao-pequeno" onClick={() => setEncerrando(true)}>
           Encerrar
         </button>
-        <button
-          type="button"
-          className="botao botao-fantasma botao-pequeno botao-texto-perigo"
-          disabled={pendente}
-          onClick={() => {
-            if (!window.confirm(`Excluir o pedido de ${contato.nome}? Use para spam ou teste. Não dá para desfazer.`)) return;
-            iniciar(async () => {
-              const r = await excluirContato(contato.id);
-              if ("erro" in r) window.alert(r.erro);
-            });
-          }}
-        >
-          <Trash2 size={16} aria-hidden="true" /> Excluir
-        </button>
+        <Confirmar
+          rotulo="Excluir"
+          icone={<Trash2 size={16} aria-hidden="true" />}
+          aviso={
+            <p>
+              <strong>Excluir o pedido de {contato.nome}?</strong> Use para spam ou teste. Não dá para desfazer.
+            </p>
+          }
+          confirmar="Excluir pedido"
+          acao={() => excluirContato(contato.id)}
+        />
         </>
       ) : (
         <form action={enviar} className="contato-encerrar">

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BuscaPorCliente, termoDaBusca } from "@/components/BuscaPorCliente";
 import { FolderKanban } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
@@ -21,7 +22,7 @@ type Linha = {
 
 const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 
-export default async function ProjetosPage() {
+export default async function ProjetosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -35,9 +36,13 @@ export default async function ProjetosPage() {
     );
   }
 
-  const { data: linhas, error } = await supabase
+  const busca = termoDaBusca((await searchParams).q);
+  const colunas = "id, nome, status, revisoes_incluidas, atualizado_em, cliente:clientes(nome), etapas(nome, ordem, status)";
+  let base = supabase
     .from("projetos")
-    .select("id, nome, status, revisoes_incluidas, atualizado_em, cliente:clientes(nome), etapas(nome, ordem, status)")
+    .select(busca ? colunas.replace("cliente:clientes(", "cliente:clientes!inner(") : colunas);
+  if (busca) base = base.ilike("cliente.nome", `%${busca}%`);
+  const { data: linhas, error } = await base
     .order("atualizado_em", { ascending: false })
     .limit(200);
   if (error) console.error("[projetos]", error.message);
@@ -59,7 +64,10 @@ export default async function ProjetosPage() {
       <h1>Projetos</h1>
       <p className="muted">Cada contrato assinado vira um projeto com as etapas padrão.</p>
 
-      {projetos.length === 0 ? (
+      <BuscaPorCliente busca={busca} limpar="/app/projetos" />
+      {busca && projetos.length === 0 ? (
+        <p className="muted">Nenhum projeto de cliente com “{busca}” no nome.</p>
+      ) : projetos.length === 0 ? (
         <div className="cartao vazio">
           <FolderKanban size={36} aria-hidden="true" />
           <h2>Nenhum projeto ainda</h2>

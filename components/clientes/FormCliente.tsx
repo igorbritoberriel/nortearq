@@ -140,6 +140,7 @@ export function EnviarLink({
   cliente,
   escritorio,
   temLinkAtivo,
+  linkAtual = null,
 }: {
   clienteId: string;
   destino: DestinoLink;
@@ -147,6 +148,7 @@ export function EnviarLink({
   cliente: string;
   escritorio: string;
   temLinkAtivo: boolean;
+  linkAtual?: string | null; // endereço do link que ainda vale (reenviar sem gerar outro)
 }) {
   const [pendente, iniciar] = useTransition();
   const [link, setLink] = useState<string | null>(null);
@@ -174,6 +176,53 @@ export function EnviarLink({
         );
       }
     });
+  }
+
+  // M4 da revisão de UX: com um link ainda valendo, reenviar o mesmo; gerar outro só se precisar.
+  if (linkAtual && !link) {
+    const texto = DESTINOS_LINK[destino].mensagem(primeiroNome, escritorio, linkAtual);
+    return (
+      <div className="enviar-link">
+        {telefone ? (
+          <a
+            className="botao botao-primario botao-pequeno"
+            href={linkWhatsapp(telefone, texto)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={16} aria-hidden="true" />
+            Reenviar o mesmo link
+          </a>
+        ) : null}
+        <button
+          type="button"
+          className={`botao botao-pequeno ${telefone ? "botao-fantasma" : "botao-secundario"}`}
+          onClick={async () => {
+            try {
+              await navigator.clipboard.writeText(texto);
+              setCopiado(true);
+              setTimeout(() => setCopiado(false), 2000);
+            } catch {
+              window.prompt("Copie a mensagem:", texto);
+            }
+          }}
+        >
+          {copiado ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
+          {copiado ? "Copiada" : "Copiar mensagem com o link"}
+        </button>
+        <button
+          type="button"
+          className="botao-link tabela-link campo-ajuda"
+          disabled={pendente}
+          onClick={() => {
+            if (window.confirm("Gerar um link novo? O link enviado antes deixa de funcionar.")) gerar();
+          }}
+        >
+          {pendente ? "Gerando..." : "Gerar link novo (desliga o anterior)"}
+        </button>
+        {erro && <Aviso tipo="erro">{erro}</Aviso>}
+      </div>
+    );
   }
 
   return (

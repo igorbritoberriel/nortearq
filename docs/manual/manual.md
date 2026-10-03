@@ -78,7 +78,10 @@ pedido, contrato para enviar, etapa em revisão), "Esperando o cliente" e
 **Primeiros passos** (dono e administrador, no topo do painel até tudo estar feito): dados do escritório no
 contrato, um modelo de proposta, o primeiro cliente, o primeiro briefing e a primeira proposta enviados.
 
-**Menu:** a tela atual fica destacada. "Obras" volta ao menu quando o módulo de obra existir.
+**Menu:** a tela atual fica destacada. "Obras" volta ao menu quando o módulo de obra existir. No celular, o
+menu fica recolhido no botão **Menu** (o sininho continua à vista) e fecha sozinho ao trocar de tela.
+
+**Busca:** Clientes, Propostas, Contratos, Projetos e Briefings têm busca pelo nome do cliente.
 
 ## 3. Equipe e perfis ✅
 
@@ -122,7 +125,7 @@ Selo "Novo" até o pedido ser visto. Em cada pedido:
 - **Responder no WhatsApp:** abre com a mensagem pronta;
 - trocar a classificação (Compatível, Fora do perfil, A avaliar);
 - **Encerrar** com motivo obrigatório (orçamento, prazo, escopo, não respondeu, outro); dá para **Reabrir**;
-- **Excluir:** para spam ou teste. Pedido que já virou cliente só sai pela ficha do cliente.
+- **Excluir:** para spam ou teste, com confirmação. Pedido que já virou cliente só sai pela ficha do cliente.
 
 **Repetições:** o mesmo WhatsApp em menos de 10 minutos é ignorado (clique duplo). A mesma pessoa reenviando
 em até 7 dias atualiza o pedido aberto, que volta a aparecer como "Novo".
@@ -148,10 +151,14 @@ terminou a configuração inicial.
   briefing, revisar o Perfil do Cliente, abrir o projeto. Em cinza quando está esperando o cliente.
 - Seção **Projeto** com as etapas aprovadas e o link (depois do contrato assinado).
 - "Arquivar ou excluir" fica por último na coluna da direita.
+- A **linha do tempo** mostra pedido, cadastro, propostas enviadas e respondidas, briefing, contrato assinado,
+  etapas aprovadas e os links gerados.
 
 **Links pelo WhatsApp** (ficha do cliente)
 - Briefing, proposta, contrato e projeto têm cada um o seu link. Um link de briefing não abre a proposta.
 - O botão abre o WhatsApp com a mensagem pronta; também dá para copiar o link.
+- Briefing ainda aberto com link valendo: **Reenviar o mesmo link** ou **Copiar mensagem com o link**, sem
+  desligar nada. "Gerar link novo" fica como opção à parte e pede confirmação.
 - Gerar um link novo **desliga o anterior do mesmo tipo**.
 - Validade: 30 dias (briefing, proposta, contrato) e 90 dias (projeto). O link não dá acesso ao portal.
 
@@ -208,7 +215,8 @@ deslocamento, o que não está incluído e validade (dias contados a partir do e
 - **Parcelas manuais:** por etapa ou datas específicas. A soma precisa bater com o total para enviar.
 
 **Deslocamento** (vira cláusula do contrato): incluído nos honorários, taxa fixa por visita, valor por km
-ou reembolso das despesas. Com cidade-sede, as visitas dentro dela não pagam deslocamento. A tela mostra
+ou reembolso das despesas (o cliente paga o que for gasto, sem valor fixo). Cada opção explica onde vai o
+valor; se a observação tiver um valor em reais numa opção sem valor fixo, a tela avisa. Com cidade-sede, as visitas dentro dela não pagam deslocamento. A tela mostra
 "Como o cliente vai ler".
 
 **Salvamento:** o rascunho salva sozinho 3 segundos depois da última alteração; o rodapé mostra "Rascunho salvo
@@ -284,8 +292,8 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
 **Etapas**
 - Padrão: Estudo preliminar → Anteprojeto → Aprovações externas → Projeto executivo → Entrega.
 - Adicionar, renomear, excluir e reordenar. Etapa aguardando o cliente ou aprovada não se move.
-- **Enviar para aprovação:** precisa de pelo menos 1 arquivo visível ao cliente. Gera o link do projeto
-  para o WhatsApp, e o cliente também recebe e-mail.
+- **Enviar para aprovação:** precisa de pelo menos 1 arquivo visível ao cliente. Pede confirmação dizendo
+  quantos arquivos vão; gera o link do projeto para o WhatsApp, e o cliente também recebe e-mail.
 - O cliente **aprova** ou **pede revisão** (comentário obrigatório). A aprovação não se desfaz: mudança
   depois dela vira aditivo.
 - Contador visível para os dois lados: "2 de 3 revisões usadas".
@@ -311,7 +319,7 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
 - Etapa esperando aprovação: o cliente recebe e-mail com 3 e com 7 dias. No de 7 dias, o escritório também é
   avisado no sininho. Reenviar a etapa recomeça a contagem.
 - Quando o cliente usa a última revisão incluída, ou passa do limite, os dois lados são avisados. Revisão
-  além do limite: o escritório escolhe **Conceder como cortesia** ou **Cobrar como aditivo**.
+  além do limite: o escritório escolhe **Conceder como cortesia** (pede confirmação) ou **Cobrar como aditivo**.
 
 **Aditivos**
 - Descrição, valor, impacto no prazo (dias), revisões e visitas extras e número de parcelas (1 a 24).

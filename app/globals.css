@@ -1522,3 +1522,20 @@ p { margin: 0 0 1em; }
 .painel-passos li.feito svg { color: var(--cor-sucesso); flex: none; }
 .painel-passos li a { text-decoration: underline; color: var(--cor-norte); }
 .painel-passo-marca { width: 18px; height: 18px; border: 2px solid var(--cor-borda); border-radius: 50%; flex: none; }
+
+/* M11: menu recolhido no celular (o checkbox #menu-movel abre e fecha; fecha sozinho ao trocar de tela) */
+.menu-movel-chave { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.menu-movel-botao { display: none; }
+@media (max-width: 860px) {
+  .app-lateral { position: sticky; top: 0; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; }
+  .app-lateral .logo { order: 1; margin: 0; }
+  .app-lateral .notif { order: 2; margin: 0 0 0 auto; }
+  .menu-movel-botao { order: 3; display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+  .menu-movel-botao:hover { background: rgba(255, 255, 255, 0.08); }
+  .menu-movel-chave:focus-visible + .menu-movel-botao { outline: 2px solid var(--cor-areia); outline-offset: 1px; }
+  .app-lateral > .app-escritorio, .app-lateral > nav, .app-lateral > .relatar-botao, .app-lateral > .app-usuario { order: 4; flex-basis: 100%; display: none; }
+  .menu-movel-chave:checked ~ .app-escritorio { display: grid; margin: 8px 0 0; }
+  .menu-movel-chave:checked ~ nav { display: flex; flex-direction: column; overflow: visible; }
+  .menu-movel-chave:checked ~ .relatar-botao { display: flex; }
+  .menu-movel-chave:checked ~ .app-usuario { display: flex; }
+}

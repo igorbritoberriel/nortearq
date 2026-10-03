@@ -70,9 +70,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todas as altas (A1 a A8);
-      médias M1, M2, M3, M5, M6, M8, M9, M10, M12, M13 e M15; baixas B3 e B6. Faltam: M4, M7, M11 (menu no
-      celular), M14, M16, M17 e as baixas B1, B2, B4, B5.
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens, menos o M17
+      (opção do momento do briefing, que depende da sua decisão, logo acima).
       Falta ainda a conferência visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
@@ -82,6 +81,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Lote 4 da revisão de UX: **menu no celular** (botão Menu, abre e fecha ao trocar de tela, sininho à vista);
+      busca nas listas; "Reenviar o mesmo link" do briefing; confirmação ao enviar etapa; aviso de valor na
+      observação do deslocamento.
 - [ ] Lote 3 da revisão de UX: faixa "próximo passo" na ficha de clientes em fases diferentes; "Primeiros passos"
       no painel (num escritório novo); menu destacado; no link do cliente, "Falar com o escritório" e "Ver e
       responder" (também no celular).
@@ -115,6 +117,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Revisão de UX, lote 4 (03/10/2026): menu recolhido no celular; reenviar o mesmo link do briefing; confirmação ao enviar etapa, excluir pedido e conceder cortesia; erros visíveis em Virar cliente, Nova proposta, Gerar contrato e Nova versão; explicação do deslocamento com aviso de valor na observação; busca pelo nome do cliente em Propostas, Projetos, Contratos e Briefings; linha do tempo com propostas e etapas.
 - [x] Revisão de UX, lote 3 (03/10/2026): próximo passo e seção Projeto na ficha do cliente; Perfil do Cliente no projeto; pedido de revisão do cliente no topo da etapa; "visível ao cliente" antes do envio de arquivos; "Falar com o escritório" e "Ver e responder" para o cliente; primeiros passos no painel; menu com a tela atual destacada e sem "Obras"; ações perigosas por último na ficha.
 - [x] Revisão de UX, proposta (03/10/2026): salvamento automático e aviso ao sair; erro no rodapé com rolagem até o campo; "Revisar e enviar" mostra a proposta como o cliente vê antes de enviar; "Salvar como modelo" no rodapé.
 - [x] Revisão de UX, primeiros ajustes (03/10/2026): contrato não sai mais com "[a preencher]" (lista do que falta e envio travado, também no banco, migração 0035); "Apagar rascunho" pede confirmação; Configurações com atalhos para os modelos no lugar da lista "Em breve".

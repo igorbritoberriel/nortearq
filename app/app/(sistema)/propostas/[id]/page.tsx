@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CopyPlus, FileSignature, MessageCircle, Trash2 } from "lucide-react";
+import { Aviso } from "@/components/Campo";
 import { Confirmar } from "@/components/Confirmar";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -32,8 +33,15 @@ const dataHora = new Intl.DateTimeFormat("pt-BR", {
 });
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default async function PropostaPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PropostaPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ erro?: string }>;
+}) {
   const { id } = await params;
+  const { erro } = await searchParams;
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -116,6 +124,13 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
         </div>
       </div>
 
+      {erro && (
+        <Aviso tipo="erro">
+          {erro === "contrato"
+            ? "Não foi possível gerar o contrato agora. Tente de novo em instantes."
+            : "Não foi possível criar a nova versão agora. Tente de novo em instantes."}
+        </Aviso>
+      )}
       {respondida && (
         <section className={`cartao resposta-cliente resposta-${proposta.status}`}>
           <h2>

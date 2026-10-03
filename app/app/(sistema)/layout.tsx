@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
 import { modulosLiberados, planoPorId, somarDias } from "@/lib/assinatura";
@@ -76,6 +76,12 @@ export default async function SistemaLayout({ children }: { children: React.Reac
     <div className="app">
       <aside className="app-lateral">
         <Logo href="/app" />
+        {/* M11 da revisão de UX: no celular, o menu fica recolhido atrás deste botão. */}
+        <input type="checkbox" id="menu-movel" className="menu-movel-chave" aria-label="Abrir o menu" />
+        <label htmlFor="menu-movel" className="menu-movel-botao" aria-hidden="true">
+          <Menu size={20} />
+          <span>Menu</span>
+        </label>
         {sessao && (
           <div className="app-escritorio">
             <strong>{sessao.escritorio.nome}</strong>
