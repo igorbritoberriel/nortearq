@@ -60,6 +60,13 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Manual completo do NorteArq** (pedido do Igor, 03/10/2026). O "Manual-NorteArq.pdf" é de 01/10 e
+      não cobre ~40 novidades. Proposta (aguardando aprovação):
+      1) Manual de suporte (para o Igor): tela por tela, regras, quem pode o quê, e "como resolver"
+         as dúvidas dos clientes (ex.: "o link não abre" → venceu, gerar um novo).
+      2) Central de ajuda dentro do sistema, para os arquitetos (fase dos patrocinados).
+      3) Perguntas frequentes curtas na área do cliente final.
+      Fonte em texto no projeto, atualizada a cada entrega; PDF gerado no fim da Fase 2 (depois da revisão de UX).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026): olhar tela por tela, como
       especialista, e trazer a lista de problemas por prioridade antes de mexer. Achados já anotados:
       - Proposta: o botão "Salvar como modelo" fica escondido embaixo, separado de "Salvar rascunho" e
