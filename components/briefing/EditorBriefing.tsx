@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, ImagePlus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ImagePlus, Pencil, Trash2 } from "lucide-react";
+import { EditarPergunta } from "@/components/briefing/EditarPergunta";
 import { Aviso, Campo } from "@/components/Campo";
 import {
   alternarPergunta,
@@ -56,7 +57,9 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
   // A tela muda na hora (estado local) e o salvamento roda por trás, sem travar os botões.
   const [lista, setLista] = useState(perguntas);
   const [pendente, iniciar] = useTransition();
+  const [editando, setEditando] = useState<string | null>(null);
   const { agendar, status, ocupado } = useSalvarEmFila();
+  const proprias = lista.filter((p) => !p.padrao).length;
   const grupos = agrupar(lista);
 
   // Dados novos do servidor (ex.: pergunta criada) só entram quando não há nada para salvar.
@@ -121,6 +124,15 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
                   <button
                     type="button"
                     className="botao-icone"
+                    onClick={() => setEditando(editando === p.id ? null : p.id)}
+                    aria-label={`Editar: ${p.texto}`}
+                    title="Editar"
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    className="botao-icone"
                     disabled={i === 0}
                     onClick={() => mover(p.id, -1)}
                     aria-label={`Subir: ${p.texto}`}
@@ -146,11 +158,13 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
                         if (confirm(`Apagar a pergunta "${p.texto}"?`)) iniciar(() => excluirPergunta(p.id));
                       }}
                       aria-label={`Apagar: ${p.texto}`}
+                      title="Apagar"
                     >
                       <Trash2 size={16} aria-hidden="true" />
                     </button>
                   )}
                 </div>
+                {editando === p.id && <EditarPergunta pergunta={p} fechar={() => setEditando(null)} />}
               </li>
             ))}
           </ol>
@@ -158,8 +172,19 @@ export function EditorPerguntas({ perguntas }: { perguntas: PerguntaModelo[] }) 
       ))}
 
       <section className="cartao secao-config">
-        <h2>Nova pergunta</h2>
-        <NovaPergunta />
+        <div className="titulo-com-acao">
+          <h2>Nova pergunta</h2>
+          <span className={`muted ${proprias >= 90 ? "texto-alerta" : ""}`}>{proprias} de 100 perguntas suas</span>
+        </div>
+        <p className="campo-ajuda">
+          Até 40 perguntas por grupo: briefing longo demais cansa o cliente. Perguntas padrão não se apagam, só se desligam
+          (quadradinho) ou se editam (lápis).
+        </p>
+        {proprias >= 100 ? (
+          <Aviso tipo="erro">Você chegou a 100 perguntas próprias. Apague ou reaproveite uma antes de criar outra.</Aviso>
+        ) : (
+          <NovaPergunta />
+        )}
       </section>
     </>
   );

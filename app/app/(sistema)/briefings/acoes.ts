@@ -112,10 +112,73 @@ export async function criarPergunta(_anterior: EstadoFormulario, formData: FormD
   });
   if (error) {
     console.error("[editor] criar pergunta", error.message);
-    return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
+    return { status: "erro", mensagem: erroPergunta(error.message), valores };
   }
   revalidatePath("/app/briefings/editor");
   return { status: "sucesso", mensagem: "Pergunta adicionada. Ela vale para os próximos briefings." };
+}
+
+// Limites e regras do editor (migração 0027), com mensagens claras.
+const ERROS_PERGUNTA: Record<string, string> = {
+  limite_perguntas: "Você chegou a 100 perguntas próprias. Apague ou reaproveite uma antes de criar outra.",
+  limite_grupo: "Este grupo já tem 40 perguntas. Um briefing longo demais cansa o cliente: reaproveite ou apague alguma.",
+  pergunta_repetida: "Já existe uma pergunta igual neste grupo.",
+  padrao_so_texto: "Nas perguntas padrão dá para mudar só o texto e a explicação.",
+  opcoes_invalidas: "Use até 20 opções, cada uma com até 80 caracteres.",
+  texto_invalido: "A pergunta precisa ter de 3 a 300 caracteres.",
+};
+function erroPergunta(mensagem: string) {
+  const codigo = Object.keys(ERROS_PERGUNTA).find((c) => mensagem.includes(c));
+  return codigo ? ERROS_PERGUNTA[codigo] : "Não foi possível salvar. Tente de novo.";
+}
+
+// Editar uma pergunta no lugar. Padrão: só texto e explicação. Briefings já enviados não mudam (RN-02.12).
+export async function editarPergunta(
+  id: string,
+  padrao: boolean,
+  _anterior: EstadoFormulario,
+  formData: FormData,
+): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return { ...SEM_SUPABASE, valores };
+
+  const texto = String(formData.get("texto") ?? "").trim();
+  const ajuda = String(formData.get("ajuda") ?? "").trim() || null;
+  const erros: Record<string, string> = {};
+  if (texto.length < 3 || texto.length > 300) erros.texto = "Escreva a pergunta (3 a 300 caracteres).";
+  if (ajuda && ajuda.length > 300) erros.ajuda = "Use até 300 caracteres.";
+
+  let dados: Record<string, unknown> = { texto, ajuda };
+  if (!padrao) {
+    const tipo = String(formData.get("tipo_resposta") ?? "");
+    if (!(tipo in TIPOS_RESPOSTA)) erros.tipo_resposta = "Escolha o tipo.";
+    const usaOpcoes = tipo === "escolha" || tipo === "multipla";
+    const opcoes = String(formData.get("opcoes") ?? "")
+      .split("\n")
+      .map((o) => o.trim())
+      .filter(Boolean);
+    if (usaOpcoes && opcoes.length < 2) erros.opcoes = "Escreva pelo menos 2 opções, uma por linha.";
+    if (opcoes.length > 20) erros.opcoes = "Use até 20 opções.";
+    dados = { ...dados, tipo_resposta: tipo, opcoes: usaOpcoes ? opcoes : null };
+  }
+  if (Object.keys(erros).length) return { status: "erro", mensagem: "Confira os campos destacados.", erros, valores };
+
+  const { error } = await ctx.supabase.from("briefing_perguntas").update(dados).eq("id", id);
+  if (error) {
+    console.error("[editor] editar pergunta", error.message);
+    return { status: "erro", mensagem: erroPergunta(error.message), valores };
+  }
+  revalidatePath("/app/briefings/editor");
+  return { status: "sucesso", mensagem: "Pergunta salva. Vale para os próximos briefings." };
+}
+
+// Texto original do modelo NorteArq de uma pergunta padrão.
+export async function textoOriginal(id: string): Promise<{ texto: string; ajuda: string | null } | null> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return null;
+  const { data } = await ctx.supabase.rpc("texto_original_pergunta", { p_pergunta: id });
+  return (data as { texto: string; ajuda: string | null } | null) ?? null;
 }
 
 // Liga/desliga a pergunta. A tela já mudou na hora; aqui só grava (sem recarregar a página).

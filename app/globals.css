@@ -1270,3 +1270,8 @@ p { margin: 0 0 1em; }
 .botao-texto-perigo { color: var(--cor-erro); }
 .filtro-arquivados { margin: 0; align-self: center; }
 .confirmar-senha { width: 100%; max-width: 480px; }
+
+/* Editar pergunta do briefing */
+
+.editar-pergunta { grid-column: 1 / -1; margin-top: 4px; }
+.texto-alerta { color: var(--cor-erro) !important; font-weight: 600; }
