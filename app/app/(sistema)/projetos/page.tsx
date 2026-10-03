@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FolderKanban } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
+import { assinarCaminhos } from "@/lib/arquivos";
 import { STATUS_ETAPA, type StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -42,6 +43,17 @@ export default async function ProjetosPage() {
   if (error) console.error("[projetos]", error.message);
   const projetos = (linhas ?? []) as unknown as Linha[];
 
+  // Capa de cada projeto (render escolhido ou o mais recente): só a miniatura, para a lista carregar rápido.
+  const { data: capasBrutas } = projetos.length
+    ? await supabase.rpc("capas_dos_projetos", { p_projetos: projetos.map((p) => p.id) })
+    : { data: [] };
+  const capas = (capasBrutas ?? []) as { projeto_id: string; miniatura: string | null; caminho: string }[];
+  const urls = await assinarCaminhos(
+    supabase.storage.from("projetos"),
+    capas.map((c) => c.miniatura ?? c.caminho),
+  );
+  const capaDe = new Map(capas.map((c) => [c.projeto_id, urls[c.miniatura ?? c.caminho] ?? null]));
+
   return (
     <div className="pagina-app pagina-larga">
       <h1>Projetos</h1>
@@ -75,10 +87,22 @@ export default async function ProjetosPage() {
                 return (
                   <tr key={p.id}>
                     <td>
-                      <Link className="tabela-link" href={`/app/projetos/${p.id}`}>
-                        {p.nome}
-                      </Link>
-                      <small className="muted">{p.cliente?.nome}</small>
+                      <span className="projeto-linha">
+                        {capaDe.get(p.id) ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img className="projeto-miniatura" src={capaDe.get(p.id)!} alt="" loading="lazy" />
+                        ) : (
+                          <span className="projeto-miniatura projeto-miniatura-vazia" aria-hidden="true">
+                            {p.nome.trim()[0]?.toUpperCase()}
+                          </span>
+                        )}
+                        <span>
+                          <Link className="tabela-link" href={`/app/projetos/${p.id}`}>
+                            {p.nome}
+                          </Link>
+                          <small className="muted">{p.cliente?.nome}</small>
+                        </span>
+                      </span>
                     </td>
                     <td>
                       {atual ? (

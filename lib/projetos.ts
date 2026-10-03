@@ -12,6 +12,9 @@ export type ArquivoProjeto = {
   tamanho: number | null;
   criado_em: string;
   visivel_cliente?: boolean;
+  categoria?: "prancha" | "render" | "documento" | "outro";
+  miniatura?: string | null;
+  previa?: string | null;
 };
 
 export type EtapaPublica = {
@@ -31,6 +34,8 @@ export type ProjetoPublico = {
   nome: string;
   revisoes_incluidas: number;
   revisoes_usadas: number;
+  // Capa do projeto (migração 0029): render escolhido pelo arquiteto ou o mais recente já enviado.
+  capa?: { id: string; nome: string; caminho: string; miniatura: string | null; previa: string | null } | null;
   etapas: EtapaPublica[];
   // Visão do cliente dos pagamentos do contrato (migração 0015).
   pagamentos?: {
@@ -71,17 +76,12 @@ export const STATUS_ETAPA: Record<StatusEtapa, string> = {
   aprovada: "Aprovada",
 };
 
-// RN-03.13: o limite do plano grátis do Supabase é 50 MB por arquivo (a especificação prevê 200 MB).
+// RN-03.14: 50 MB por arquivo, o máximo do plano grátis do Supabase (200 MB quando o armazenamento for pago).
 export const TAMANHO_MAXIMO_ARQUIVO = 50 * 1024 * 1024;
 
 // "Rev01", "Rev02"... (RN-03.11)
 export function rotuloVersao(versao: number) {
   return `Rev${String(versao).padStart(2, "0")}`;
-}
-
-// PDF e imagens abrem no navegador; DWG, SKP e outros só baixam (RN-03.13).
-export function abreNaTela(tipo: string | null) {
-  return !!tipo && (tipo === "application/pdf" || tipo.startsWith("image/"));
 }
 
 export function formatarTamanho(bytes: number | null) {

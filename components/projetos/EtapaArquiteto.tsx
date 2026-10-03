@@ -4,36 +4,23 @@ import { useOptimistic, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FilePlus, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
 import { Aviso } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
+import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
 import {
   alternarVisibilidade,
   concederCortesia,
   enviarEtapa,
+  espacoDoPlano,
   excluirArquivo,
   excluirEtapa,
+  mudarCategoria,
   registrarArquivo,
   renomearEtapa,
 } from "@/app/app/(sistema)/projetos/acoes";
-import {
-  STATUS_ETAPA,
-  TAMANHO_MAXIMO_ARQUIVO,
-  formatarTamanho,
-  nomeSeguro,
-  rotuloVersao,
-  versoesAtuais,
-  type StatusEtapa,
-} from "@/lib/projetos";
+import { CATEGORIAS, formatarEspaco, sugerirCategoria, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
+import { enviarDerivados, gerarDerivados } from "@/lib/miniaturas";
+import { STATUS_ETAPA, TAMANHO_MAXIMO_ARQUIVO, nomeSeguro, rotuloVersao, versoesAtuais, type StatusEtapa } from "@/lib/projetos";
 import { criarClienteNavegador } from "@/lib/supabase/client";
 import { useOrdemEtapas } from "./ListaEtapas";
-
-export type ArquivoArquiteto = {
-  id: string;
-  nome: string;
-  versao: number;
-  tamanho_bytes: number | null;
-  visivel_cliente: boolean;
-  criado_em: string;
-  url: string | null;
-};
 
 export type DecisaoArquiteto = {
   id: string;
@@ -63,7 +50,7 @@ export function EtapaArquiteto({
 }: {
   projetoId: string;
   etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
-  arquivos: ArquivoArquiteto[];
+  arquivos: ArquivoVisivel[];
   historico: DecisaoArquiteto[];
   cliente: { nome: string; telefone: string | null; escritorio: string };
 }) {
@@ -78,10 +65,20 @@ export function EtapaArquiteto({
   // Mudanças aparecem na hora (useOptimistic) e voltam atrás sozinhas se o servidor recusar.
   const [otimista, aplicar] = useOptimistic(
     { arquivos, apagada: false },
-    (estado, m: { tipo: "visivel"; id: string; visivel: boolean } | { tipo: "apagar"; id: string } | { tipo: "apagar-etapa" }) => {
+    (
+      estado,
+      m:
+        | { tipo: "visivel"; id: string; visivel: boolean }
+        | { tipo: "categoria"; id: string; categoria: Categoria }
+        | { tipo: "apagar"; id: string }
+        | { tipo: "apagar-etapa" },
+    ) => {
       if (m.tipo === "apagar-etapa") return { ...estado, apagada: true };
       if (m.tipo === "apagar") return { ...estado, arquivos: estado.arquivos.filter((a) => a.id !== m.id) };
-      return { ...estado, arquivos: estado.arquivos.map((a) => (a.id === m.id ? { ...a, visivel_cliente: m.visivel } : a)) };
+      if (m.tipo === "categoria") {
+        return { ...estado, arquivos: estado.arquivos.map((a) => (a.id === m.id ? { ...a, categoria: m.categoria } : a)) };
+      }
+      return { ...estado, arquivos: estado.arquivos.map((a) => (a.id === m.id ? { ...a, visivel: m.visivel } : a)) };
     },
   );
   const lista = otimista.arquivos;
@@ -89,7 +86,7 @@ export function EtapaArquiteto({
   const aberta = etapa.status === "pendente" || etapa.status === "em_andamento" || etapa.status === "revisao";
   const atuais = versoesAtuais(lista);
   const anteriores = lista.filter((a) => !atuais.includes(a)).sort((x, y) => y.criado_em.localeCompare(x.criado_em));
-  const temVisivel = lista.some((a) => a.visivel_cliente);
+  const temVisivel = lista.some((a) => a.visivel);
 
   function executar(
     acao: () => Promise<{ ok: true } | { erro: string } | void>,
@@ -103,17 +100,30 @@ export function EtapaArquiteto({
     });
   }
 
+  // Para cada arquivo: confere o espaço do plano, gera miniatura/prévia no navegador, sobe tudo e registra.
   async function enviarArquivos(lista: FileList | null) {
     const supabase = criarClienteNavegador();
     if (!lista?.length || !supabase) return;
     setErro(null);
     const todos = Array.from(lista);
+    const espaco = await espacoDoPlano();
+    let usado = espaco?.usado ?? 0;
     for (const [i, arquivo] of todos.entries()) {
       if (arquivo.size > TAMANHO_MAXIMO_ARQUIVO) {
         setErro(`${arquivo.name}: acima de 50 MB.`);
         continue;
       }
-      setProgresso(`Enviando ${i + 1} de ${todos.length}: ${arquivo.name}`);
+      if (espaco && usado + arquivo.size > espaco.limite) {
+        setErro(
+          `O espaço do seu plano acabou (${formatarEspaco(usado)} de ${formatarEspaco(espaco.limite)}). ` +
+            "Apague arquivos que não usa ou mude de plano.",
+        );
+        break;
+      }
+      const passo = `${i + 1} de ${todos.length}: ${arquivo.name}`;
+      setProgresso(`Preparando ${passo}`);
+      const derivados = await gerarDerivados(arquivo, arquivo.name);
+      setProgresso(`Enviando ${passo}`);
       const caminho = `${projetoId}/${etapa.id}/${crypto.randomUUID()}-${nomeSeguro(arquivo.name)}`;
       const { error } = await supabase.storage.from("projetos").upload(caminho, arquivo, {
         contentType: arquivo.type || "application/octet-stream",
@@ -122,66 +132,93 @@ export function EtapaArquiteto({
         setErro(`${arquivo.name}: não foi possível enviar (${error.message}).`);
         continue;
       }
+      const extras = derivados ? await enviarDerivados(supabase.storage, caminho, derivados) : null;
       const r = await registrarArquivo(projetoId, etapa.id, {
         nome: arquivo.name,
         caminho,
         tamanho: arquivo.size,
         tipo: arquivo.type,
         visivel,
+        categoria: sugerirCategoria(arquivo.name),
+        miniatura: extras?.miniatura ?? null,
+        previa: extras?.previa ?? null,
+        derivadosBytes: extras?.bytes ?? 0,
       });
-      if ("erro" in r) setErro(`${arquivo.name}: ${r.erro}`);
+      if ("erro" in r) {
+        setErro(`${arquivo.name}: ${r.erro}`);
+        if (r.erro.includes("espaço")) break;
+      } else {
+        usado += arquivo.size + (extras?.bytes ?? 0);
+      }
     }
     setProgresso(null);
   }
 
-  const linhaArquivo = (a: ArquivoArquiteto) => (
-    <li key={a.id} className={a.visivel_cliente ? "" : "arquivo-interno"}>
-      <span className="arquivo-nome">
-        {a.url ? (
-          <a className="tabela-link" href={a.url} target="_blank" rel="noopener noreferrer">
-            {a.nome}
-          </a>
-        ) : (
-          a.nome
-        )}
-        <small className="muted">
-          {rotuloVersao(a.versao)} · {formatarTamanho(a.tamanho_bytes)} · {dataHora.format(new Date(a.criado_em))}
-          {!a.visivel_cliente && " · interno"}
-        </small>
-      </span>
-      <span className="editor-botoes">
-        <button
-          type="button"
-          className="botao-icone"
-          onClick={() =>
-            executar(() => alternarVisibilidade(projetoId, a.id, !a.visivel_cliente), {
-              tipo: "visivel",
-              id: a.id,
-              visivel: !a.visivel_cliente,
-            })
-          }
-          aria-label={a.visivel_cliente ? `Esconder ${a.nome} do cliente` : `Mostrar ${a.nome} ao cliente`}
-          title={a.visivel_cliente ? "Visível ao cliente" : "Só você vê"}
-        >
-          {a.visivel_cliente ? <Eye size={16} aria-hidden="true" /> : <EyeOff size={16} aria-hidden="true" />}
-        </button>
-        {aberta && (
+  const cartao = (a: ArquivoVisivel, grupo: ArquivoVisivel[]) => (
+    <CartaoArquivo
+      key={a.id}
+      arquivo={a}
+      lista={grupo}
+      apagado={!a.visivel}
+      selo={a.visivel ? undefined : "Interno"}
+      detalhe={
+        <>
+          {" · "}
+          {dataHora.format(new Date(a.criado_em))}
+          {a.visivel && etapa.enviada_em && !a.enviado && <span className="arquivo-novo"> · vai no próximo envio</span>}
+        </>
+      }
+      acoes={
+        <>
+          <select
+            className="cartao-arquivo-tipo"
+            aria-label={`Tipo de ${a.nome}`}
+            value={a.categoria}
+            disabled={pendente}
+            onChange={(e) => {
+              const categoria = e.target.value as Categoria;
+              executar(() => mudarCategoria(projetoId, a.id, categoria), { tipo: "categoria", id: a.id, categoria });
+            }}
+          >
+            {(Object.keys(CATEGORIAS) as Categoria[]).map((c) => (
+              <option key={c} value={c}>
+                {CATEGORIAS[c]}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
             className="botao-icone"
-            disabled={pendente}
-            onClick={() => {
-              if (confirm(`Apagar ${a.nome} (${rotuloVersao(a.versao)})?`)) {
-                executar(() => excluirArquivo(projetoId, a.id), { tipo: "apagar", id: a.id });
-              }
-            }}
-            aria-label={`Apagar ${a.nome}`}
+            onClick={() =>
+              executar(() => alternarVisibilidade(projetoId, a.id, !a.visivel), {
+                tipo: "visivel",
+                id: a.id,
+                visivel: !a.visivel,
+              })
+            }
+            aria-label={a.visivel ? `Esconder ${a.nome} do cliente` : `Mostrar ${a.nome} ao cliente`}
+            title={a.visivel ? "Visível ao cliente" : "Só o escritório vê"}
           >
-            <Trash2 size={16} aria-hidden="true" />
+            {a.visivel ? <Eye size={16} aria-hidden="true" /> : <EyeOff size={16} aria-hidden="true" />}
           </button>
-        )}
-      </span>
-    </li>
+          {aberta && (
+            <button
+              type="button"
+              className="botao-icone"
+              disabled={pendente}
+              onClick={() => {
+                if (confirm(`Apagar ${a.nome} (${rotuloVersao(a.versao)})?`)) {
+                  executar(() => excluirArquivo(projetoId, a.id), { tipo: "apagar", id: a.id });
+                }
+              }}
+              aria-label={`Apagar ${a.nome}`}
+            >
+              <Trash2 size={16} aria-hidden="true" />
+            </button>
+          )}
+        </>
+      }
+    />
   );
 
   if (otimista.apagada) return null;
@@ -261,14 +298,14 @@ export function EtapaArquiteto({
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
 
       {atuais.length > 0 ? (
-        <ul className="arquivos">{atuais.map(linhaArquivo)}</ul>
+        <ul className="grade-arquivos">{atuais.map((a) => cartao(a, atuais))}</ul>
       ) : (
         <p className="muted">Nenhum arquivo ainda.</p>
       )}
       {anteriores.length > 0 && (
         <details className="arquivos-anteriores">
           <summary>Versões anteriores ({anteriores.length})</summary>
-          <ul className="arquivos">{anteriores.map(linhaArquivo)}</ul>
+          <ul className="grade-arquivos grade-arquivos-pequena">{anteriores.map((a) => cartao(a, anteriores))}</ul>
         </details>
       )}
 

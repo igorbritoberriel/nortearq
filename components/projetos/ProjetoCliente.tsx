@@ -1,16 +1,13 @@
-import { Check, Download, ExternalLink, Receipt } from "lucide-react";
+import { Check, Receipt } from "lucide-react";
+import { baixarArquivoCliente } from "@/app/c/[token]/projeto/acoes";
+import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
+import { CapaProjeto, GaleriaRenders } from "@/components/arquivos/GaleriaRenders";
+import { ProvedorArquivos } from "@/components/arquivos/ProvedorArquivos";
 import { RespostaAditivo } from "@/components/projetos/RespostaAditivo";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
 import { SITUACOES_EXTERNAS, STATUS_ADITIVO, resumoAditivo } from "@/lib/aditivos";
-import {
-  STATUS_ETAPA,
-  abreNaTela,
-  formatarTamanho,
-  rotuloVersao,
-  versoesAtuais,
-  type ArquivoProjeto,
-  type ProjetoPublico,
-} from "@/lib/projetos";
+import { assinarCaminhos, rendersAtuais, type ArquivoVisivel } from "@/lib/arquivos";
+import { STATUS_ETAPA, versoesAtuais, type ProjetoPublico } from "@/lib/projetos";
 import { dataCurta, reais } from "@/lib/propostas";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -41,36 +38,40 @@ export async function ProjetoCliente({
   }
   const projeto = bruto as ProjetoPublico;
 
-  // O banco só devolveu arquivos visíveis deste projeto: aqui só geramos os endereços temporários.
-  const caminhos = projeto.etapas.flatMap((e) => e.arquivos.map((a) => a.caminho));
-  const urls: Record<string, string> = {};
+  // O banco só devolveu os arquivos já enviados a ele (visíveis, até o último envio de cada etapa):
+  // aqui só geramos os endereços temporários do original, da miniatura e da prévia.
   const admin = criarClienteAdmin();
-  if (admin && caminhos.length) {
-    const { data: assinadas } = await admin.storage.from("projetos").createSignedUrls(caminhos, 60 * 60);
-    for (const a of assinadas ?? []) if (a.path && a.signedUrl) urls[a.path] = a.signedUrl;
-  }
+  const urls = admin
+    ? await assinarCaminhos(
+        admin.storage.from("projetos"),
+        projeto.etapas.flatMap((e) => e.arquivos.flatMap((a) => [a.caminho, a.miniatura, a.previa])),
+      )
+    : {};
+  const todos: ArquivoVisivel[] = projeto.etapas.flatMap((e) =>
+    e.arquivos.map((a) => ({
+      id: a.id,
+      nome: a.nome,
+      versao: a.versao,
+      tipo: a.tipo,
+      tamanho: a.tamanho,
+      criado_em: a.criado_em,
+      categoria: a.categoria ?? "outro",
+      etapa_id: e.id,
+      etapa: e.nome,
+      url: urls[a.caminho] ?? null,
+      miniatura: a.miniatura ? (urls[a.miniatura] ?? null) : null,
+      previa: a.previa ? (urls[a.previa] ?? null) : null,
+    })),
+  );
+  const renders = rendersAtuais(todos);
+  const capa = (projeto.capa && todos.find((a) => a.id === projeto.capa!.id)) || null;
 
   const aprovadas = projeto.etapas.filter((e) => e.status === "aprovada").length;
   const aguardando = projeto.etapas.filter((e) => e.status === "aguardando_aprovacao");
 
-  const arquivo = (a: ArquivoProjeto) => (
-    <li key={a.id}>
-      {urls[a.caminho] ? (
-        <a className="arquivo-link" href={urls[a.caminho]} target="_blank" rel="noopener noreferrer" download={abreNaTela(a.tipo) ? undefined : a.nome}>
-          {abreNaTela(a.tipo) ? <ExternalLink size={16} aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}
-          {a.nome}
-        </a>
-      ) : (
-        <span>{a.nome}</span>
-      )}
-      <small className="muted">
-        {rotuloVersao(a.versao)} · {formatarTamanho(a.tamanho)}
-      </small>
-    </li>
-  );
-
   return (
-    <>
+    <ProvedorArquivos todos={todos} baixar={baixarArquivoCliente.bind(null, token)}>
+      {capa && <CapaProjeto nome={projeto.nome} capa={capa} lista={renders.length ? renders : [capa]} />}
       <p className="muted">Olá, {clienteNome}! Aqui você acompanha o seu projeto com o {escritorioNome}.</p>
       <h1>{projeto.nome}</h1>
 
@@ -97,10 +98,13 @@ export async function ProjetoCliente({
         </p>
       )}
 
+      <GaleriaRenders renders={renders} capaId={capa?.id ?? null} />
+
       <ol className="etapas-cliente">
         {projeto.etapas.map((e) => {
-          const atuais = versoesAtuais(e.arquivos);
-          const anteriores = e.arquivos.filter((a) => !atuais.includes(a));
+          const daEtapa = todos.filter((a) => a.etapa_id === e.id);
+          const atuais = versoesAtuais(daEtapa);
+          const anteriores = daEtapa.filter((a) => !atuais.includes(a));
           return (
             <li key={e.id} className={`publico-form etapa-cliente etapa-${e.status}`}>
               <div className="etapa-topo">
@@ -112,11 +116,21 @@ export async function ProjetoCliente({
               </div>
               {e.aprovada_em && <p className="campo-ajuda">Aprovada em {data.format(new Date(e.aprovada_em))}.</p>}
 
-              {atuais.length > 0 && <ul className="arquivos arquivos-cliente">{atuais.map(arquivo)}</ul>}
+              {atuais.length > 0 && (
+                <ul className="grade-arquivos">
+                  {atuais.map((a) => (
+                    <CartaoArquivo key={a.id} arquivo={a} lista={atuais} />
+                  ))}
+                </ul>
+              )}
               {anteriores.length > 0 && (
                 <details className="arquivos-anteriores">
                   <summary>Versões anteriores ({anteriores.length})</summary>
-                  <ul className="arquivos arquivos-cliente">{anteriores.map(arquivo)}</ul>
+                  <ul className="grade-arquivos grade-arquivos-pequena">
+                    {anteriores.map((a) => (
+                      <CartaoArquivo key={a.id} arquivo={a} lista={anteriores} />
+                    ))}
+                  </ul>
                 </details>
               )}
 
@@ -228,6 +242,6 @@ export async function ProjetoCliente({
           </p>
         </section>
       )}
-    </>
+    </ProvedorArquivos>
   );
 }

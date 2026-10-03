@@ -5,16 +5,20 @@ import { ArrowLeft } from "lucide-react";
 import { Pagamentos } from "@/components/contratos/Pagamentos";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
-import { EtapaArquiteto, type ArquivoArquiteto, type DecisaoArquiteto } from "@/components/projetos/EtapaArquiteto";
+import { CapaProjeto, GaleriaRenders } from "@/components/arquivos/GaleriaRenders";
+import { MiniaturasPendentes, type Pendente } from "@/components/arquivos/MiniaturasPendentes";
+import { ProvedorArquivos } from "@/components/arquivos/ProvedorArquivos";
+import { EtapaArquiteto, type DecisaoArquiteto } from "@/components/projetos/EtapaArquiteto";
 import { ListaEtapas } from "@/components/projetos/ListaEtapas";
 import { Aditivos, AprovacoesExternas } from "@/components/projetos/Aditivos";
 import { COLUNAS_ADITIVO, type Aditivo, type AprovacaoExterna } from "@/lib/aditivos";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { carregarPagamentos } from "@/lib/pagamentos";
+import { assinarCaminhos, formatarEspaco, formatoDe, rendersAtuais, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
 import type { StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { linkDoProjeto } from "../acoes";
+import { baixarArquivo, definirCapa, linkDoProjeto } from "../acoes";
 
 export const metadata: Metadata = { title: "Projeto" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,23 +43,26 @@ export default async function ProjetoPage({
 
   const { data: projeto } = await supabase
     .from("projetos")
-    .select("id, nome, contrato_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
+    .select("id, nome, contrato_id, capa_arquivo_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
     .eq("id", id)
     .maybeSingle();
   if (!projeto) notFound();
   const cliente = projeto.cliente as unknown as { id: string; nome: string; telefone: string | null };
 
-  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro] = await Promise.all([
+  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro, { data: espaco }] = await Promise.all([
     supabase.from("etapas").select("id, nome, ordem, status, enviada_em, aprovada_em").eq("projeto_id", id).order("ordem").order("id"),
     supabase
       .from("arquivos")
-      .select("id, etapa_id, nome, versao, caminho_storage, tamanho_bytes, visivel_cliente, criado_em")
+      .select(
+        "id, etapa_id, nome, versao, caminho_storage, tamanho_bytes, tipo, visivel_cliente, criado_em, categoria, miniatura_caminho, previa_caminho, miniatura_tentada_em",
+      )
       .eq("projeto_id", id)
       .order("criado_em"),
     supabase.rpc("revisoes_usadas", { p_projeto: id }),
     projeto.contrato_id
       ? carregarPagamentos(supabase, projeto.contrato_id)
       : Promise.resolve({ pagamentos: [], eventos: [] }),
+    supabase.rpc("meu_espaco"),
   ]);
   const etapas = (etapasBrutas ?? []) as Etapa[];
   const arquivos = arquivosBrutos ?? [];
@@ -68,14 +75,55 @@ export default async function ProjetoPage({
         .order("decidido_em")
     : { data: [] };
 
-  // Endereços temporários para abrir os arquivos (bucket privado).
-  const urls: Record<string, string> = {};
-  if (arquivos.length) {
-    const { data: assinadas } = await supabase.storage
-      .from("projetos")
-      .createSignedUrls(arquivos.map((a) => a.caminho_storage as string), 60 * 60);
-    for (const a of assinadas ?? []) if (a.path && a.signedUrl) urls[a.path] = a.signedUrl;
-  }
+  // Endereços temporários (bucket privado): original, miniatura e prévia.
+  const urls = await assinarCaminhos(
+    supabase.storage.from("projetos"),
+    arquivos.flatMap((a) => [a.caminho_storage, a.miniatura_caminho, a.previa_caminho]),
+  );
+  const etapaPorId = new Map(etapas.map((e) => [e.id, e]));
+  const todos: ArquivoVisivel[] = arquivos
+    .filter((a) => a.etapa_id && etapaPorId.has(a.etapa_id))
+    .map((a) => {
+      const etapa = etapaPorId.get(a.etapa_id)!;
+      return {
+        id: a.id,
+        nome: a.nome,
+        versao: a.versao,
+        tipo: a.tipo,
+        tamanho: a.tamanho_bytes,
+        criado_em: a.criado_em,
+        categoria: a.categoria as Categoria,
+        etapa_id: etapa.id,
+        etapa: etapa.nome,
+        url: urls[a.caminho_storage] ?? null,
+        miniatura: a.miniatura_caminho ? (urls[a.miniatura_caminho] ?? null) : null,
+        previa: a.previa_caminho ? (urls[a.previa_caminho] ?? null) : null,
+        visivel: a.visivel_cliente,
+        // O cliente vê o que foi criado até o último envio da etapa.
+        enviado: !!etapa.enviada_em && new Date(a.criado_em) <= new Date(etapa.enviada_em),
+      };
+    });
+
+  // Capa: a escolhida (se ainda é render visível) ou o render visível mais recente.
+  const renders = rendersAtuais(todos);
+  const capa =
+    todos.find((a) => a.id === projeto.capa_arquivo_id && a.categoria === "render" && a.visivel) ??
+    renders.find((r) => r.visivel) ??
+    null;
+
+  // Arquivos antigos sem miniatura (imagem e PDF): o navegador gera uma vez, em segundo plano.
+  const dezMinutos = Date.now() - 10 * 60 * 1000;
+  const pendentes: Pendente[] = arquivos
+    .filter(
+      (a) =>
+        !a.miniatura_caminho &&
+        formatoDe(a.nome, a.tipo) !== "outro" &&
+        urls[a.caminho_storage] &&
+        (!a.miniatura_tentada_em || new Date(a.miniatura_tentada_em).getTime() < dezMinutos),
+    )
+    .map((a) => ({ id: a.id, nome: a.nome, tipo: a.tipo, caminho: a.caminho_storage, url: urls[a.caminho_storage] }));
+  const espacoPlano = espaco as { usado: number; limite: number } | null;
+  const pctEspaco = espacoPlano?.limite ? espacoPlano.usado / espacoPlano.limite : 0;
 
   // RN-03.10: as revisões são contadas em ordem; as que passam do limite (e não são cortesia) ficam marcadas.
   let contador = 0;
@@ -105,12 +153,15 @@ export default async function ProjetoPage({
   const passou = revisoesUsadas > projeto.revisoes_incluidas;
 
   return (
+    <ProvedorArquivos todos={todos} baixar={baixarArquivo.bind(null, id)}>
     <div className="pagina-app pagina-larga">
+      <MiniaturasPendentes projetoId={id} pendentes={pendentes} />
       <Link href="/app/projetos" className="voltar">
         <ArrowLeft size={16} aria-hidden="true" />
         Projetos
       </Link>
-      <div className="titulo-com-acao">
+      <div className="titulo-com-acao projeto-cabecalho">
+        <CapaProjeto nome={projeto.nome} capa={capa} lista={renders.length ? renders : capa ? [capa] : []} />
         <div>
           <h1>{projeto.nome}</h1>
           <p className="muted ficha-contato">
@@ -144,7 +195,34 @@ export default async function ProjetoPage({
           <span className="muted">Visitas incluídas</span>
           <strong>{projeto.visitas_incluidas}</strong>
         </div>
+        {espacoPlano && (
+          <div className={`cartao ${pctEspaco >= 0.8 ? "projeto-alerta" : ""}`}>
+            <span className="muted">Espaço do plano</span>
+            <strong>
+              {formatarEspaco(espacoPlano.usado)} de {formatarEspaco(espacoPlano.limite)}
+            </strong>
+            <span className="medidor" aria-hidden="true">
+              <span style={{ width: `${Math.min(100, Math.round(pctEspaco * 100))}%` }} />
+            </span>
+            {pctEspaco >= 0.8 && (
+              <small className="campo-ajuda">
+                {pctEspaco >= 1 ? "O espaço acabou: apague arquivos ou" : "Quase cheio. Se precisar,"}{" "}
+                <Link className="tabela-link" href="/app/assinatura">
+                  mude de plano
+                </Link>
+                .
+              </small>
+            )}
+          </div>
+        )}
       </div>
+
+      <GaleriaRenders
+        renders={renders}
+        capaId={capa?.id ?? null}
+        escolhidaId={projeto.capa_arquivo_id}
+        definirCapa={definirCapa.bind(null, id)}
+      />
 
       <section className="cartao secao-config">
         <h2>Link do cliente</h2>
@@ -171,19 +249,7 @@ export default async function ProjetoPage({
             <EtapaArquiteto
               projetoId={id}
               etapa={e}
-              arquivos={arquivos
-                .filter((a) => a.etapa_id === e.id)
-                .map(
-                  (a): ArquivoArquiteto => ({
-                    id: a.id,
-                    nome: a.nome,
-                    versao: a.versao,
-                    tamanho_bytes: a.tamanho_bytes,
-                    visivel_cliente: a.visivel_cliente,
-                    criado_em: a.criado_em,
-                    url: urls[a.caminho_storage] ?? null,
-                  }),
-                )}
+              arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
               cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
             />
@@ -216,5 +282,6 @@ export default async function ProjetoPage({
         </section>
       )}
     </div>
+    </ProvedorArquivos>
   );
 }

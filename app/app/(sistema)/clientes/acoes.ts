@@ -185,6 +185,17 @@ async function apagarArquivos(caminhos: string[]) {
   if (admin && caminhos.length) await admin.storage.from("briefings").remove(caminhos);
 }
 
+// Arquivos dos projetos do cliente (original, miniatura e prévia): saem do Storage quando o cliente é excluído.
+async function arquivosDosProjetos(supabase: NonNullable<Awaited<ReturnType<typeof contexto>>>["supabase"], clienteId: string) {
+  const { data: projetos } = await supabase.from("projetos").select("id").eq("cliente_id", clienteId);
+  if (!projetos?.length) return [];
+  const { data } = await supabase
+    .from("arquivos")
+    .select("caminho_storage, miniatura_caminho, previa_caminho")
+    .in("projeto_id", projetos.map((p) => p.id));
+  return (data ?? []).flatMap((a) => [a.caminho_storage, a.miniatura_caminho, a.previa_caminho]).filter((c): c is string => !!c);
+}
+
 const SENHA_ERRADA = "Senha incorreta. Digite a senha que você usa para entrar no NorteArq.";
 
 // Excluir: só sem contrato assinado nem pagamento (o banco confere). Pede a senha de quem está logado.
@@ -193,9 +204,15 @@ export async function excluirCliente(id: string, senha: string): Promise<{ erro:
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
   if (!(await confirmarSenha(ctx.sessao.email, senha))) return { erro: SENHA_ERRADA };
   const caminhos = await arquivosDoBriefing(ctx.supabase, id);
+  const doProjeto = await arquivosDosProjetos(ctx.supabase, id);
   const { error } = await ctx.supabase.rpc("excluir_cliente", { p_cliente: id });
   if (error) return { erro: erroRemocao(error.message) };
   await apagarArquivos(caminhos);
+  const admin = criarClienteAdmin();
+  // O Storage aceita até 1.000 caminhos por pedido.
+  for (let i = 0; admin && i < doProjeto.length; i += 1000) {
+    await admin.storage.from("projetos").remove(doProjeto.slice(i, i + 1000));
+  }
   revalidatePath("/app", "layout");
   redirect("/app/clientes");
 }

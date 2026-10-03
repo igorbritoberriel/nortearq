@@ -7,6 +7,7 @@ import { avisarEtapaEnviada } from "@/lib/avisos";
 import { linkDoCliente } from "@/lib/clientes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
+import { CATEGORIAS, nomeParaBaixar, type Categoria } from "@/lib/arquivos";
 import { TAMANHO_MAXIMO_ARQUIVO } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -23,11 +24,21 @@ type Resultado = { ok: true } | { erro: string };
 
 const atualizar = (projetoId: string) => revalidatePath(`/app/projetos/${projetoId}`);
 
-// Depois que o navegador sobe o arquivo para o Storage (pasta do projeto, protegida pelo RLS).
+// Depois que o navegador sobe o arquivo (e a miniatura/prévia) para o Storage (pasta do projeto, protegida pelo RLS).
 export async function registrarArquivo(
   projetoId: string,
   etapaId: string,
-  arquivo: { nome: string; caminho: string; tamanho: number; tipo: string; visivel: boolean },
+  arquivo: {
+    nome: string;
+    caminho: string;
+    tamanho: number;
+    tipo: string;
+    visivel: boolean;
+    categoria: Categoria;
+    miniatura: string | null;
+    previa: string | null;
+    derivadosBytes: number;
+  },
 ): Promise<Resultado> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
@@ -42,15 +53,36 @@ export async function registrarArquivo(
     p_tamanho: arquivo.tamanho,
     p_tipo: arquivo.tipo || null,
     p_visivel: arquivo.visivel,
+    p_categoria: arquivo.categoria,
+    p_miniatura: arquivo.miniatura,
+    p_previa: arquivo.previa,
+    p_derivados_bytes: arquivo.derivadosBytes,
   });
   if (error) {
     console.error("[projeto] registrar arquivo", error.message);
-    await ctx.supabase.storage.from("projetos").remove([arquivo.caminho]);
-    if (error.message.includes("etapa_fechada")) return { erro: "Esta etapa já foi aprovada. Mudanças viram aditivo." };
-    return { erro: "Não foi possível salvar o arquivo. Tente de novo." };
+    await ctx.supabase.storage
+      .from("projetos")
+      .remove([arquivo.caminho, arquivo.miniatura, arquivo.previa].filter((c): c is string => !!c));
+    return { erro: erroArquivo(error.message) };
   }
   atualizar(projetoId);
   return { ok: true };
+}
+
+function erroArquivo(mensagem: string) {
+  if (mensagem.includes("etapa_fechada")) return "Esta etapa já foi aprovada. Mudanças viram aditivo.";
+  if (mensagem.includes("espaco_esgotado")) return "O espaço do seu plano acabou. Apague arquivos que não usa ou mude de plano.";
+  if (mensagem.includes("assinatura_pendente")) return "Sua assinatura está pendente: o sistema está só para consulta.";
+  if (mensagem.includes("capa_invalida")) return "Só um render visível ao cliente pode ser a capa.";
+  return "Não foi possível salvar. Tente de novo.";
+}
+
+// Espaço usado do plano ("12,4 GB de 30 GB"). Antes de enviar, o navegador confere se cabe.
+export async function espacoDoPlano(): Promise<{ usado: number; limite: number } | null> {
+  const ctx = await contexto();
+  if (!ctx) return null;
+  const { data } = await ctx.supabase.rpc("meu_espaco");
+  return (data as { usado: number; limite: number } | null) ?? null;
 }
 
 export async function alternarVisibilidade(projetoId: string, arquivoId: string, visivel: boolean) {
@@ -61,17 +93,99 @@ export async function alternarVisibilidade(projetoId: string, arquivoId: string,
   atualizar(projetoId);
 }
 
-// Só enquanto a etapa não foi enviada ao cliente (o banco confere).
+export async function mudarCategoria(projetoId: string, arquivoId: string, categoria: Categoria): Promise<Resultado> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(arquivoId) || !(categoria in CATEGORIAS)) return { erro: "Arquivo não encontrado." };
+  const { error } = await ctx.supabase.rpc("mudar_categoria_arquivo", { p_arquivo: arquivoId, p_categoria: categoria });
+  if (error) {
+    console.error("[projeto] categoria", error.message);
+    return { erro: erroArquivo(error.message) };
+  }
+  atualizar(projetoId);
+  return { ok: true };
+}
+
+// Capa do projeto (null = volta para o render mais recente).
+export async function definirCapa(projetoId: string, arquivoId: string | null): Promise<Resultado> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(projetoId) || (arquivoId !== null && !UUID.test(arquivoId))) return { erro: "Arquivo não encontrado." };
+  const { error } = await ctx.supabase.rpc("definir_capa", { p_projeto: projetoId, p_arquivo: arquivoId });
+  if (error) {
+    console.error("[projeto] capa", error.message);
+    return { erro: erroArquivo(error.message) };
+  }
+  atualizar(projetoId);
+  revalidatePath("/app/projetos");
+  return { ok: true };
+}
+
+// Baixar o original com o nome certo ("Planta baixa - Rev02.pdf"), não o nome técnico do Storage.
+export async function baixarArquivo(projetoId: string, arquivoId: string): Promise<{ url: string } | { erro: string }> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(arquivoId)) return { erro: "Arquivo não encontrado." };
+  const { data: a } = await ctx.supabase
+    .from("arquivos")
+    .select("nome, versao, caminho_storage")
+    .eq("id", arquivoId)
+    .eq("projeto_id", projetoId)
+    .maybeSingle();
+  if (!a) return { erro: "Arquivo não encontrado." };
+  const { data } = await ctx.supabase.storage
+    .from("projetos")
+    .createSignedUrl(a.caminho_storage as string, 60 * 5, { download: nomeParaBaixar(a.nome as string, a.versao as number) });
+  return data?.signedUrl ? { url: data.signedUrl } : { erro: "Não foi possível baixar agora. Tente de novo." };
+}
+
+// Miniaturas dos arquivos antigos: o navegador reserva (uma pessoa por vez), gera, sobe e registra.
+export async function reservarMiniatura(arquivoId: string): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(arquivoId)) return false;
+  const { data } = await ctx.supabase.rpc("reservar_miniatura", { p_arquivo: arquivoId });
+  return data === true;
+}
+
+export async function registrarMiniatura(
+  projetoId: string,
+  arquivoId: string,
+  derivados: { miniatura: string; previa: string | null; bytes: number } | null, // null = não deu para gerar
+): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(arquivoId)) return false;
+  const { error } = await ctx.supabase.rpc("registrar_miniatura", {
+    p_arquivo: arquivoId,
+    p_miniatura: derivados?.miniatura ?? null,
+    p_previa: derivados?.previa ?? null,
+    p_bytes: derivados?.bytes ?? 0,
+  });
+  if (error) {
+    console.error("[projeto] miniatura", error.message);
+    if (derivados) {
+      await ctx.supabase.storage.from("projetos").remove([derivados.miniatura, derivados.previa].filter((c): c is string => !!c));
+    }
+    return false;
+  }
+  return true; // o navegador atualiza a página uma vez, no fim do lote
+}
+
+// Só enquanto a etapa não foi enviada ao cliente (o banco confere). Miniatura e prévia saem junto.
 export async function excluirArquivo(projetoId: string, arquivoId: string): Promise<Resultado> {
   const ctx = await contexto();
   if (!ctx || !UUID.test(arquivoId)) return { erro: "Arquivo não encontrado." };
-  const { data, error } = await ctx.supabase.from("arquivos").delete().eq("id", arquivoId).select("caminho_storage");
+  const { data, error } = await ctx.supabase
+    .from("arquivos")
+    .delete()
+    .eq("id", arquivoId)
+    .select("caminho_storage, miniatura_caminho, previa_caminho");
   if (error || !data?.length) {
     console.error("[projeto] excluir arquivo", error?.message);
     return { erro: "Este arquivo já foi enviado ao cliente e não pode ser apagado. Envie uma versão nova." };
   }
-  await ctx.supabase.storage.from("projetos").remove([data[0].caminho_storage as string]);
+  const { caminho_storage, miniatura_caminho, previa_caminho } = data[0];
+  await ctx.supabase.storage
+    .from("projetos")
+    .remove([caminho_storage, miniatura_caminho, previa_caminho].filter((c): c is string => !!c));
   atualizar(projetoId);
+  revalidatePath("/app/projetos");
   return { ok: true };
 }
 

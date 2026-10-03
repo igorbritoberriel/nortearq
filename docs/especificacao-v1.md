@@ -282,9 +282,25 @@ prefeitura) → Projeto executivo → Entrega.
 
 **Regras: arquivos**
 - **RN-03.11** ✅ Uma versão nova nunca apaga a anterior (Rev01, Rev02…).
-- **RN-03.12** ✅ O arquiteto escolhe se cada arquivo é **visível ao cliente** ou interno.
-- **RN-03.13** 🟡 Formatos: PDF, JPG e PNG abrem na tela. DWG, SKP e outros ficam só para baixar.
-- **RN-03.14** 🟡 Limite de 200 MB por arquivo. O total conta no espaço do plano.
+- **RN-03.12** ✅ O arquiteto escolhe se cada arquivo é **visível ao cliente** ou interno. O cliente só vê
+  o que já foi **enviado**: arquivo visível de etapa enviada, criado até o último envio. Arquivo novo de
+  uma etapa em andamento ou em revisão aparece para ele quando a etapa for enviada de novo.
+- **RN-03.13** ✅ Formatos: PDF, JPG, PNG e WEBP abrem num visualizador na própria página (zoom, pinça,
+  páginas do PDF, troca de revisão, Baixar e Abrir em nova aba). DWG, SKP e outros mostram um ícone e
+  ficam só para baixar. O download sai com o nome original ("Planta baixa - Rev02.pdf").
+- **RN-03.14** ✅ Limite de 50 MB por arquivo (o máximo do plano grátis do Supabase; 200 MB quando o
+  armazenamento for pago). O total, com miniaturas e prévias, conta no espaço do plano
+  (2 / 30 / 150 GB) e o banco recusa o envio quando passa. Aviso a partir de 80%.
+- **RN-03.18** ✅ Cada arquivo tem um tipo: Prancha técnica, Render 3D, Documento ou Outro, sugerido pela
+  extensão e trocado com um clique. (Foto da obra entra com o módulo 04.)
+- **RN-03.19** ✅ Miniaturas geradas no navegador ao enviar (imagem até 640 px; PDF pela primeira página)
+  e uma prévia de 2.400 px para imagens grandes, que é o que o visualizador abre. Os arquivos antigos
+  ganham miniatura uma vez, em segundo plano, quando o arquiteto abre o projeto.
+- **RN-03.20** ✅ **Renders do projeto:** mural com a versão atual de cada render, de todas as etapas.
+  **Capa do projeto:** um render visível escolhido pelo arquiteto; se for apagado, escondido ou deixar de
+  ser render, vale o render visível mais recente; sem render, capa neutra com as iniciais.
+- **RN-03.21** 🟡 Fase 2: o cliente marca um ponto na imagem e comenta (conta como revisão) e
+  comparação lado a lado entre revisões.
 
 **Regras: aditivos e aprovações externas**
 - **RN-03.15** ✅ O aditivo tem descrição, valor e impacto no prazo. O cliente aprova ou recusa.
