@@ -70,7 +70,7 @@ export default function PropostaExemploPage() {
           <RespostaProposta
             token="exemplo"
             escritorio="Studio Ana Arquitetura"
-            parcelamento={{ total: 18000, entradaPct: 30, maximo: 12 }}
+            parcelamento={{ total: 18000, entradaPct: 30, maximo: 12, descontoAvista: 5 }}
             demonstracao
           />
         </div>

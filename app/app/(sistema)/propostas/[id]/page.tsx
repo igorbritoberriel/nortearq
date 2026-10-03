@@ -112,8 +112,10 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
           {proposta.parcelas_escolhidas && (
             <p>
               <strong>Pagamento escolhido:</strong>{" "}
-              {proposta.parcelas_escolhidas === 1 ? "saldo em parcela única" : `saldo em ${proposta.parcelas_escolhidas}x`}
-              {proposta.entrada_pct ? `, com entrada de ${proposta.entrada_pct}%` : ""}.
+              {proposta.avista
+                ? `à vista, com ${String(proposta.desconto_avista_pct ?? 0).replace(".", ",")}% de desconto`
+                : `${proposta.parcelas_escolhidas === 1 ? "saldo em parcela única" : `saldo em ${proposta.parcelas_escolhidas}x`}${proposta.entrada_pct ? `, com entrada de ${proposta.entrada_pct}%` : ""}`}
+              .
             </p>
           )}
           {proposta.motivo_recusa && (

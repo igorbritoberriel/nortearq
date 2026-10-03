@@ -66,7 +66,9 @@ export default async function ConfiguracoesPage() {
           Na proposta, o cliente escolhe em quantas vezes quer pagar o saldo, até o máximo que você aceita. As parcelas são
           calculadas sozinhas.
         </p>
-        <FormParcelamento entradaPct={escritorio.parcelamento_entrada_pct} maximo={escritorio.parcelamento_max} />
+        <FormParcelamento entradaPct={escritorio.parcelamento_entrada_pct} maximo={escritorio.parcelamento_max}
+          descontoAvista={Number(escritorio.desconto_avista_pct ?? 0)}
+        />
       </section>
 
       <section className="cartao secao-config" id="briefing">

@@ -94,7 +94,12 @@ export default async function PropostaClientePage({ params }: { params: Promise<
             escritorio={escritorio.nome}
             parcelamento={
               proposta.modo_pagamento === "parcelado" && proposta.valor_total
-                ? { total: proposta.valor_total, entradaPct: proposta.entrada_pct ?? 0, maximo: proposta.parcelas_max ?? 1 }
+                ? {
+                    total: proposta.valor_total,
+                    entradaPct: proposta.entrada_pct ?? 0,
+                    maximo: proposta.parcelas_max ?? 1,
+                    descontoAvista: proposta.desconto_avista_pct ?? null,
+                  }
                 : null
             }
           />

@@ -19,6 +19,8 @@ export type ConteudoProposta = {
   modo_pagamento: ModoPagamento;
   entrada_pct: number | null;
   parcelas_max: number | null;
+  desconto_avista_pct?: number | null; // 0021: desconto para pagamento à vista
+  avista?: boolean; // o cliente escolheu à vista
   parcelas_escolhidas: number | null;
   forma_pagamento: string | null;
   prazo: string | null;
@@ -103,7 +105,7 @@ export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
 };
 
 export const COLUNAS_PROPOSTA =
-  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, parcelas_escolhidas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
+  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, desconto_avista_pct, avista, parcelas_escolhidas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
 
 // RN-01.8: enviada e vencida aparece como expirada (o banco não muda o status sozinho).
 export function statusVisivel(p: { status: StatusProposta; validade_ate: string | null }): StatusProposta | "expirada" {
@@ -153,6 +155,11 @@ export function lerReais(texto: string): number | null {
   if (!limpo) return null;
   const n = Number(limpo.includes(",") ? limpo.replace(/\./g, "").replace(",", ".") : limpo.replace(/\.(?=\d{3}(\D|$))/g, ""));
   return Number.isFinite(n) ? Math.round(n * 100) / 100 : null;
+}
+
+// Valor à vista com desconto, em centavos exatos (o banco calcula igual: valor_avista).
+export function valorAvista(total: number, pct: number) {
+  return Math.round(total * (100 - pct)) / 100;
 }
 
 export function reais(valor: number | null | undefined) {

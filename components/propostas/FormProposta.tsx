@@ -9,7 +9,7 @@ import { linkWhatsapp } from "@/lib/contatos";
 import {
   TIPOS_DESLOCAMENTO,
   lerReais,
-  opcoesParcelamento,
+  opcoesParcelamento, valorAvista,
   reais,
   textoDeslocamento,
   type ModoPagamento,
@@ -44,6 +44,9 @@ export function FormProposta({
   const [modo, setModo] = useState<ModoPagamento>(proposta.modo_pagamento);
   const [entradaPct, setEntradaPct] = useState(String(proposta.entrada_pct ?? 30));
   const [parcelasMax, setParcelasMax] = useState(String(proposta.parcelas_max ?? 12));
+  const [descontoAvista, setDescontoAvista] = useState(
+    proposta.desconto_avista_pct ? String(proposta.desconto_avista_pct).replace(".", ",") : "",
+  );
   const [parcelas, setParcelas] = useState<ParcelaForm[]>(
     proposta.parcelas.map((p) => ({ descricao: p.descricao, valor: paraTexto(p.valor) })),
   );
@@ -71,6 +74,7 @@ export function FormProposta({
   const pctNumero = Number(entradaPct.replace(",", "."));
   const previaParcelado = valorTotal && Number.isFinite(pctNumero) ? opcoesParcelamento(valorTotal, pctNumero, Number(parcelasMax) || 1) : [];
   const primeiroNome = cliente.nome.split(" ")[0];
+  const pctDesconto = Number(descontoAvista.replace(",", ".")) || 0;
 
   function dados(): DadosProposta {
     return {
@@ -89,6 +93,7 @@ export function FormProposta({
       modo_pagamento: modo,
       entrada_pct: modo === "parcelado" ? (Number.isFinite(pctNumero) && entradaPct.trim() !== "" ? pctNumero : null) : null,
       parcelas_max: modo === "parcelado" ? Number(parcelasMax) || null : null,
+      desconto_avista_pct: modo === "parcelado" && pctDesconto > 0 ? pctDesconto : null,
       forma_pagamento: formaPagamento,
       prazo,
       revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
@@ -293,9 +298,27 @@ export function FormProposta({
                 </select>
               </Campo>
             </div>
+            <Campo
+              id="desconto_avista_pct"
+              rotulo="Desconto para pagamento à vista (%)"
+              opcional
+              ajuda="Valor todo na assinatura do contrato. Em branco, sem a opção à vista com desconto."
+              erro={erros.desconto_avista_pct}
+            >
+              <input
+                id="desconto_avista_pct"
+                inputMode="decimal"
+                placeholder="5"
+                value={descontoAvista}
+                onChange={(e) => setDescontoAvista(e.target.value)}
+              />
+            </Campo>
             {previaParcelado.length > 0 ? (
               <div className="proposta-deslocamento-previa campo-ajuda">
                 <strong>O cliente vai escolher entre:</strong>{" "}
+                {pctDesconto > 0 && pctDesconto <= 30 && valorTotal
+                  ? `à vista ${reais(valorAvista(valorTotal, pctDesconto))} (economia de ${reais(valorTotal - valorAvista(valorTotal, pctDesconto))}) · ou `
+                  : ""}
                 {previaParcelado[0].entrada > 0 && `entrada de ${reais(previaParcelado[0].entrada)} + `}
                 {previaParcelado
                   .map((o) => (o.n === 1 ? `à vista ${reais(Math.round((valorTotal! - o.entrada) * 100) / 100)}` : `${o.n}x de ${reais(o.parcela)}`))

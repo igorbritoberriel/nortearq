@@ -4,16 +4,26 @@ import { useActionState, useState } from "react";
 import { Aviso, Campo } from "@/components/Campo";
 import { salvarParcelamento } from "@/app/app/(sistema)/configuracoes/acoes";
 import type { EstadoFormulario } from "@/lib/formulario";
-import { opcoesParcelamento, reais } from "@/lib/propostas";
+import { opcoesParcelamento, reais, valorAvista } from "@/lib/propostas";
 
 const inicial: EstadoFormulario = { status: "inicial" };
 
 // Entrada padrão e até quantas vezes o escritório aceita parcelar. O cliente escolhe ao aprovar a proposta.
-export function FormParcelamento({ entradaPct, maximo }: { entradaPct: number; maximo: number }) {
+export function FormParcelamento({
+  entradaPct,
+  maximo,
+  descontoAvista,
+}: {
+  entradaPct: number;
+  maximo: number;
+  descontoAvista: number;
+}) {
   const [estado, enviar, enviando] = useActionState(salvarParcelamento, inicial);
   const erro = estado.erros ?? {};
   const [pct, setPct] = useState(String(entradaPct));
   const [max, setMax] = useState(String(maximo));
+  const [desconto, setDesconto] = useState(descontoAvista ? String(descontoAvista).replace(".", ",") : "");
+  const pctDesconto = Math.min(30, Math.max(0, Number(desconto.replace(",", ".")) || 0));
   const exemplo = opcoesParcelamento(10000, Number(pct.replace(",", ".")) || 0, Number(max) || 1);
   const ultima = exemplo[exemplo.length - 1];
 
@@ -41,8 +51,27 @@ export function FormParcelamento({ entradaPct, maximo }: { entradaPct: number; m
           </select>
         </Campo>
       </div>
+      <Campo
+        id="desconto_avista_pct"
+        rotulo="Desconto para pagamento à vista (%)"
+        opcional
+        ajuda="Valor todo de uma vez, na assinatura do contrato. Em branco ou 0, a opção à vista com desconto não aparece."
+        erro={erro.desconto_avista_pct}
+      >
+        <input
+          id="desconto_avista_pct"
+          name="desconto_avista_pct"
+          inputMode="decimal"
+          placeholder="5"
+          value={desconto}
+          onChange={(e) => setDesconto(e.target.value)}
+        />
+      </Campo>
       <p className="campo-ajuda proposta-deslocamento-previa">
-        <strong>Exemplo numa proposta de R$ 10.000:</strong> entrada de {reais(ultima.entrada)} e o saldo de 1x até{" "}
+        <strong>Exemplo numa proposta de R$ 10.000:</strong>{" "}
+        {pctDesconto > 0
+          ? `à vista, o cliente paga ${reais(valorAvista(10000, pctDesconto))} e economiza ${reais(10000 - valorAvista(10000, pctDesconto))}; ou `
+          : ""} entrada de {reais(ultima.entrada)} e o saldo de 1x até{" "}
         {ultima.n}x{ultima.n > 1 ? ` (${ultima.n}x de ${reais(ultima.parcela)})` : ""}. O cliente escolhe ao aprovar.
       </p>
       <div className="form-rodape">

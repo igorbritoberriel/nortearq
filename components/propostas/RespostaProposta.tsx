@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { CircleCheck, MessageSquareText, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { responderProposta, type AcaoResposta } from "@/app/c/[token]/proposta/acoes";
-import { MOTIVOS_RECUSA, opcoesParcelamento, reais, type MotivoRecusa } from "@/lib/propostas";
+import { MOTIVOS_RECUSA, opcoesParcelamento, reais, valorAvista, type MotivoRecusa } from "@/lib/propostas";
 
 const CONFIRMACOES: Record<AcaoResposta, { titulo: string; texto: (e: string) => string }> = {
   aprovar: { titulo: "Proposta aprovada!", texto: (e) => `O ${e} vai preparar o contrato e enviar para você.` },
@@ -21,13 +21,16 @@ export function RespostaProposta({
 }: {
   token: string;
   escritorio: string;
-  parcelamento?: { total: number; entradaPct: number; maximo: number } | null;
+  parcelamento?: { total: number; entradaPct: number; maximo: number; descontoAvista?: number | null } | null;
   demonstracao?: boolean; // pré-visualização: nada é gravado
 }) {
   const [acao, setAcao] = useState<AcaoResposta | null>(null);
   const [comentario, setComentario] = useState("");
   const [motivo, setMotivo] = useState<MotivoRecusa | "">("");
-  const [vezes, setVezes] = useState<number | null>(parcelamento?.maximo === 1 ? 1 : null);
+  const descontoAvista = parcelamento?.descontoAvista ?? 0;
+  const [vezes, setVezes] = useState<number | null>(parcelamento?.maximo === 1 && !descontoAvista ? 1 : null);
+  const [avista, setAvista] = useState(false);
+  const valorComDesconto = parcelamento && descontoAvista > 0 ? valorAvista(parcelamento.total, descontoAvista) : null;
   const opcoes = parcelamento ? opcoesParcelamento(parcelamento.total, parcelamento.entradaPct, parcelamento.maximo) : [];
   const [erro, setErro] = useState<string | null>(null);
   const [feito, setFeito] = useState<AcaoResposta | null>(null);
@@ -48,7 +51,14 @@ export function RespostaProposta({
     iniciar(async () => {
       const resultado = demonstracao
         ? ({ ok: true } as const)
-        : await responderProposta(token, escolhida, comentario, motivo || null, escolhida === "aprovar" ? vezes : null);
+        : await responderProposta(
+            token,
+            escolhida,
+            comentario,
+            motivo || null,
+            escolhida === "aprovar" ? vezes : null,
+            escolhida === "aprovar" && avista,
+          );
       if ("erro" in resultado) setErro(resultado.erro);
       else {
         setFeito(escolhida);
@@ -81,6 +91,26 @@ export function RespostaProposta({
           {parcelamento && (
             <fieldset className="parcelamento-escolha">
               <legend>Como você quer pagar?</legend>
+              {valorComDesconto !== null && (
+                <label className={`avista-opcao ${avista ? "escolhida" : ""}`}>
+                  <input
+                    type="radio"
+                    name="parcelas"
+                    checked={avista}
+                    onChange={() => {
+                      setAvista(true);
+                      setVezes(null);
+                    }}
+                  />
+                  <span className="avista-selo">Mais vantajoso</span>
+                  <strong>À vista: {reais(valorComDesconto)}</strong>
+                  <span>
+                    {String(descontoAvista).replace(".", ",")}% de desconto · você economiza{" "}
+                    {reais(parcelamento!.total - valorComDesconto)}. Pagamento único na assinatura do contrato.
+                  </span>
+                </label>
+              )}
+              {valorComDesconto !== null && <p className="campo-ajuda avista-ou">ou parcelado:</p>}
               {opcoes[0].entrada > 0 && (
                 <p className="campo-ajuda">
                   Entrada de {reais(opcoes[0].entrada)} ({parcelamento.entradaPct}%) na assinatura do contrato, e o saldo em:
@@ -88,9 +118,18 @@ export function RespostaProposta({
               )}
               <div className="parcelamento-opcoes">
                 {opcoes.map((o) => (
-                  <label key={o.n} className={`parcelamento-opcao ${vezes === o.n ? "escolhida" : ""}`}>
-                    <input type="radio" name="parcelas" value={o.n} checked={vezes === o.n} onChange={() => setVezes(o.n)} />
-                    <strong>{o.n === 1 ? "À vista" : `${o.n}x`}</strong>
+                  <label key={o.n} className={`parcelamento-opcao ${!avista && vezes === o.n ? "escolhida" : ""}`}>
+                    <input
+                      type="radio"
+                      name="parcelas"
+                      value={o.n}
+                      checked={!avista && vezes === o.n}
+                      onChange={() => {
+                        setAvista(false);
+                        setVezes(o.n);
+                      }}
+                    />
+                    <strong>{o.n === 1 ? (o.entrada > 0 ? "Saldo em 1x" : "1x") : `${o.n}x`}</strong>
                     <span>{o.n === 1 ? reais(Math.round((parcelamento.total - o.entrada) * 100) / 100) : `de ${reais(o.parcela)}`}</span>
                   </label>
                 ))}
@@ -107,7 +146,7 @@ export function RespostaProposta({
               type="button"
               className="botao botao-marca"
               onClick={() => confirmar("aprovar")}
-              disabled={pendente || (!!parcelamento && !vezes)}
+              disabled={pendente || (!!parcelamento && !vezes && !avista)}
             >
               {pendente ? "Enviando..." : "Confirmar aprovação"}
             </button>

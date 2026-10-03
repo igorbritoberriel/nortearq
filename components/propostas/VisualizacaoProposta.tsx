@@ -1,5 +1,5 @@
 import { CalendarClock, Car, Eye, PencilRuler, Wallet } from "lucide-react";
-import { type ConteudoProposta, dataCurta, opcoesParcelamento, reais, somaParcelas, textoDeslocamento } from "@/lib/propostas";
+import { type ConteudoProposta, dataCurta, opcoesParcelamento, reais, valorAvista, somaParcelas, textoDeslocamento } from "@/lib/propostas";
 
 // A proposta como o cliente lê (RN-01.6). Usada no link do cliente e na pré-visualização do arquiteto.
 export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta }) {
@@ -40,6 +40,12 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
       <section className="proposta-bloco">
         <h2>Investimento</h2>
         <p className="proposta-total">{reais(p.valor_total)}</p>
+        {aEscolher && !!p.desconto_avista_pct && p.desconto_avista_pct > 0 && (
+          <p className="proposta-texto avista-destaque">
+            <strong>À vista: {reais(valorAvista(p.valor_total!, p.desconto_avista_pct))}</strong> (
+            {String(p.desconto_avista_pct).replace(".", ",")}% de desconto, pagamento único na assinatura do contrato). Ou:
+          </p>
+        )}
         {aEscolher && (
           <>
             <p className="proposta-texto">
@@ -52,7 +58,7 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
               <ul className="parcelamento-lista">
                 {opcoes.map((o) => (
                   <li key={o.n}>
-                    <strong>{o.n === 1 ? "À vista" : `${o.n}x`}</strong>{" "}
+                    <strong>{o.n === 1 ? (o.entrada > 0 ? "Saldo em 1x" : "1x") : `${o.n}x`}</strong>{" "}
                     {o.n === 1 ? reais(Math.round((p.valor_total! - o.entrada) * 100) / 100) : `de ${reais(o.parcela)}`}
                   </li>
                 ))}
@@ -62,7 +68,13 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
         )}
         {p.parcelas_escolhidas && (
           <p className="proposta-texto">
-            <strong>Forma escolhida:</strong> {p.parcelas_escolhidas === 1 ? "saldo em parcela única" : `saldo em ${p.parcelas_escolhidas}x`}.
+            <strong>Forma escolhida:</strong>{" "}
+            {p.avista
+              ? `à vista, com ${String(p.desconto_avista_pct ?? 0).replace(".", ",")}% de desconto`
+              : p.parcelas_escolhidas === 1
+                ? "saldo em parcela única"
+                : `saldo em ${p.parcelas_escolhidas}x`}
+            .
           </p>
         )}
         {p.parcelas.length > 0 && (

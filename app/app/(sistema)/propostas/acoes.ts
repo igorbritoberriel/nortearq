@@ -42,6 +42,7 @@ const esquema = z.object({
   modo_pagamento: z.enum(["manual", "parcelado"]),
   entrada_pct: z.number("Informe a entrada.").min(0, "Mínimo de 0%.").max(90, "Máximo de 90%.").nullable(),
   parcelas_max: z.number().int().min(1).max(24).nullable(),
+  desconto_avista_pct: z.number("Informe o desconto.").min(0, "Mínimo de 0%.").max(30, "Máximo de 30%.").nullable(),
   forma_pagamento: textoOpcional(1000),
   prazo: textoOpcional(300),
   revisoes_incluidas: z.number().int().min(0).max(50),
@@ -96,6 +97,7 @@ export async function criarProposta(clienteId: string) {
       modo_pagamento: "parcelado",
       entrada_pct: ctx.sessao.escritorio.parcelamento_entrada_pct,
       parcelas_max: ctx.sessao.escritorio.parcelamento_max,
+      desconto_avista_pct: Number(ctx.sessao.escritorio.desconto_avista_pct ?? 0) || null,
     })
     .select("id")
     .single();
