@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
-import { modulosLiberados, somarDias } from "@/lib/assinatura";
+import { modulosLiberados, planoPorId, somarDias } from "@/lib/assinatura";
 import { diasDeTeste, obterSessaoArquiteto } from "@/lib/escritorio";
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
@@ -24,6 +24,22 @@ export default async function SistemaLayout({ children }: { children: React.Reac
   const menu = MENU_ARQUITETO.filter((item) => !liberados || liberados.includes(item.modulo));
 
   const e = sessao?.escritorio;
+
+  // Linha do plano no menu: no teste vale o Profissional (ou o plano já escolhido para depois do teste).
+  const nomePlano =
+    planoPorId(e?.plano === "trial" ? (e?.plano_escolhido ?? "profissional") : e?.plano)?.nome ?? "Profissional";
+  const detalhePlano =
+    sessao?.situacao === "teste"
+      ? dias === 0
+        ? "teste grátis termina hoje"
+        : `teste grátis, ${dias} ${dias === 1 ? "dia" : "dias"}`
+      : sessao?.situacao === "tolerancia"
+        ? "pagamento em atraso"
+        : sessao?.situacao === "leitura"
+          ? "modo leitura"
+          : null;
+  const alertaPlano =
+    sessao?.situacao === "tolerancia" || sessao?.situacao === "leitura" || (sessao?.situacao === "teste" && dias !== null && dias <= 3);
   const faixa =
     !sessao || !e
       ? null
@@ -51,11 +67,15 @@ export default async function SistemaLayout({ children }: { children: React.Reac
         {sessao && (
           <div className="app-escritorio">
             <strong>{sessao.escritorio.nome}</strong>
-            {dias !== null && sessao.situacao === "teste" && (
-              <Link href="/app/assinatura" className={`app-teste ${dias <= 3 ? "app-teste-fim" : ""}`}>
-                {dias === 0 ? "Teste grátis termina hoje" : `Teste grátis: ${dias} ${dias === 1 ? "dia" : "dias"}`}
-              </Link>
-            )}
+            {/* Plano numa linha só, clicável; o alerta só aparece quando importa. */}
+            <Link
+              href="/app/assinatura"
+              className={`app-plano ${alertaPlano ? "app-plano-alerta" : ""}`}
+              title="Plano e assinatura"
+            >
+              <strong>{nomePlano}</strong>
+              {detalhePlano && <span> · {detalhePlano}</span>}
+            </Link>
           </div>
         )}
         {sessao && notificacoes && (

@@ -1242,3 +1242,11 @@ p { margin: 0 0 1em; }
 .modelos-proposta details { margin: 8px 0; }
 .modelos-proposta summary { cursor: pointer; font-weight: 600; }
 .editar-modelo { margin-top: 10px; }
+
+/* Plano no menu lateral (uma linha, clicável) */
+.app-plano { font-size: 0.82rem; color: #c8d3e0; line-height: 1.35; border-radius: 4px; }
+.app-plano strong { color: var(--cor-areia); font-weight: 700; }
+.app-plano:hover { color: #fff; }
+.app-plano:hover strong { text-decoration: underline; }
+.app-plano:focus-visible { outline: 2px solid var(--cor-areia); outline-offset: 2px; }
+.app-plano-alerta span { color: #f2b8b5; font-weight: 600; }
