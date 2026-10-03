@@ -30,6 +30,15 @@ for concluído. **Toda pendência entra aqui.**
       C) abertura ao mercado com os casos de sucesso.
       Para a fase B o sistema precisa de: conta patrocinada (90 dias, sem cobrança), botão "relatar
       problema ou sugestão", aviso automático de erros e um painel interno de uso.
+- [ ] **Agente de parcerias (marketing do NorteArq)** (ideia do Igor, 03/10/2026), para a fase B:
+      1) o assistente define os perfis ideais de arquiteto patrocinado e monta a lista de candidatos;
+      2) um agente com todo o conhecimento do NorteArq conversa com cada um como o marketing da empresa,
+         tira dúvidas, oferece a parceria de 3 meses e conduz até a assinatura do termo de parceria;
+      3) o Igor acompanha as conversas e aprova cada parceria antes de fechar.
+      A definir: canais (e-mail, Instagram, WhatsApp, LinkedIn), quanto o agente envia sozinho e quanto
+      passa por aprovação, o texto do termo de parceria e como a assinatura acontece.
+      Cuidados: Instagram e WhatsApp proíbem mensagens automáticas em massa (risco de bloqueio da conta);
+      o primeiro contato deve ser personalizado e respeitar a LGPD (dado público e opção de não receber mais).
 - [ ] **Preço de lançamento** (proposta de 03/10/2026, aguardando aprovação): piloto grátis da esposa em
       troca de depoimento; "Plano Fundador" R$ 47/mês com preço travado para os 30 primeiros; preço de
       tabela R$ 97 continua visível; Profissional com 2 pessoas; tirar o plano Briefing do lançamento.
