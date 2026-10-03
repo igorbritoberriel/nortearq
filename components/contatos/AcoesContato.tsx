@@ -2,11 +2,12 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import Link from "next/link";
-import { MessageCircle, UserCheck, UserPlus } from "lucide-react";
+import { MessageCircle, Trash2, UserCheck, UserPlus } from "lucide-react";
 import { Aviso } from "@/components/Campo";
 import { converterContato } from "@/app/app/(sistema)/clientes/acoes";
 import {
   encerrarContato,
+  excluirContato,
   marcarVistos,
   reabrirContato,
   reclassificarContato,
@@ -45,6 +46,20 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
           onClick={() => iniciar(() => reabrirContato(contato.id, contato.compativel))}
         >
           Reabrir
+        </button>
+        <button
+          type="button"
+          className="botao botao-fantasma botao-pequeno botao-texto-perigo"
+          disabled={pendente}
+          onClick={() => {
+            if (!window.confirm(`Excluir o pedido de ${contato.nome}? Use para spam ou teste. Não dá para desfazer.`)) return;
+            iniciar(async () => {
+              const r = await excluirContato(contato.id);
+              if ("erro" in r) window.alert(r.erro);
+            });
+          }}
+        >
+          <Trash2 size={16} aria-hidden="true" /> Excluir
         </button>
       </div>
     );
@@ -95,9 +110,25 @@ export function AcoesContato({ contato, escritorio }: { contato: Contato; escrit
       </label>
 
       {!encerrando ? (
+        <>
         <button type="button" className="botao botao-fantasma botao-pequeno" onClick={() => setEncerrando(true)}>
           Encerrar
         </button>
+        <button
+          type="button"
+          className="botao botao-fantasma botao-pequeno botao-texto-perigo"
+          disabled={pendente}
+          onClick={() => {
+            if (!window.confirm(`Excluir o pedido de ${contato.nome}? Use para spam ou teste. Não dá para desfazer.`)) return;
+            iniciar(async () => {
+              const r = await excluirContato(contato.id);
+              if ("erro" in r) window.alert(r.erro);
+            });
+          }}
+        >
+          <Trash2 size={16} aria-hidden="true" /> Excluir
+        </button>
+        </>
       ) : (
         <form action={enviar} className="contato-encerrar">
           <input type="hidden" name="id" value={contato.id} />

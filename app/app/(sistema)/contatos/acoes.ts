@@ -69,3 +69,19 @@ export async function marcarVistos(ids: string[]) {
   const validos = ids.filter((id) => z.uuid().safeParse(id).success).slice(0, 200);
   await supabase.from("contatos").update({ visto_em: new Date().toISOString() }).in("id", validos).is("visto_em", null);
 }
+
+// Excluir pedido de orçamento (spam, teste). Quem já virou cliente se exclui pela ficha do cliente.
+export async function excluirContato(id: string): Promise<{ erro: string } | { ok: true }> {
+  const supabase = await cliente();
+  if (!supabase) return { erro: SEM_SUPABASE.mensagem! };
+  const { error } = await supabase.rpc("excluir_contato", { p_contato: id });
+  if (error) {
+    return {
+      erro: error.message.includes("contato_virou_cliente")
+        ? "Este pedido já virou cliente: exclua pela ficha do cliente."
+        : "Não foi possível excluir. Tente de novo.",
+    };
+  }
+  revalidatePath("/app", "layout");
+  return { ok: true };
+}

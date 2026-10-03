@@ -1262,3 +1262,10 @@ p { margin: 0 0 1em; }
 .equipe-bloqueada { display: grid; gap: 10px; justify-items: start; }
 .equipe-bloqueada p { margin: 0; }
 .equipe > .botao { justify-self: start; }
+
+/* Arquivar e excluir */
+.remover-cliente { display: grid; gap: 8px; justify-items: start; }
+.remover-cliente .pagamento-form { width: 100%; }
+.botao-perigo { background: var(--cor-erro) !important; color: #fff !important; }
+.botao-texto-perigo { color: var(--cor-erro); }
+.filtro-arquivados { margin: 0; align-self: center; }

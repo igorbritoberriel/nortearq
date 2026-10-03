@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ETAPAS_CLIENTE, linkDoCliente, type DestinoLink, type EtapaCliente } from "@/lib/clientes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 // Clientes do escritório. O banco (RLS) garante que cada escritório só mexe nos seus.
@@ -137,4 +138,80 @@ export async function gerarLink(
   }
   revalidatePath(`/app/clientes/${clienteId}`);
   return { link: linkDoCliente(urlDoSite(), data as string, destino) };
+}
+
+// ---------- Arquivar, excluir e anonimizar (migração 0026) ----------
+
+const ERROS_REMOCAO: Record<string, string> = {
+  sem_permissao: "Só o dono ou um administrador pode fazer isso.",
+  somente_dono: "Só o dono do escritório pode anonimizar um cliente.",
+  tem_contrato_ou_pagamento:
+    "Este cliente tem contrato assinado ou pagamento registrado: esses documentos precisam ficar guardados. Use Arquivar.",
+  cliente_nao_encontrado: "Cliente não encontrado.",
+};
+const erroRemocao = (m: string) =>
+  ERROS_REMOCAO[Object.keys(ERROS_REMOCAO).find((c) => m.includes(c)) ?? ""] ?? "Não foi possível concluir. Tente de novo.";
+
+// Arquivar: some da lista, mas nada é apagado (desarquivar traz de volta).
+export async function arquivarCliente(id: string, arquivar: boolean): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx) return false;
+  const { error } = await ctx.supabase
+    .from("clientes")
+    .update({ arquivado_em: arquivar ? new Date().toISOString() : null })
+    .eq("id", id);
+  if (error) console.error("[clientes] arquivar", error.message);
+  revalidatePath("/app/clientes", "layout");
+  return !error;
+}
+
+// Fotos e arquivos do briefing guardados no Storage (caminhos dentro das respostas).
+async function arquivosDoBriefing(supabase: NonNullable<Awaited<ReturnType<typeof contexto>>>["supabase"], clienteId: string) {
+  const { data } = await supabase.from("briefings").select("respostas").eq("cliente_id", clienteId);
+  const caminhos: string[] = [];
+  for (const b of data ?? []) {
+    for (const valor of Object.values((b.respostas ?? {}) as Record<string, unknown>)) {
+      if (Array.isArray(valor)) {
+        for (const v of valor) if (typeof v === "string" && /^[0-9a-f-]{36}\/.+\.(jpg|png|webp|pdf)$/i.test(v)) caminhos.push(v);
+      }
+    }
+  }
+  return caminhos;
+}
+
+async function apagarArquivos(caminhos: string[]) {
+  const admin = criarClienteAdmin();
+  if (admin && caminhos.length) await admin.storage.from("briefings").remove(caminhos);
+}
+
+// Excluir: só sem contrato assinado nem pagamento (o banco confere). Pede o nome digitado.
+export async function excluirCliente(id: string, confirmacao: string): Promise<{ erro: string } | void> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  const { data: cliente } = await ctx.supabase.from("clientes").select("nome").eq("id", id).maybeSingle();
+  if (!cliente) return { erro: "Cliente não encontrado." };
+  if (confirmacao.trim().toLowerCase() !== cliente.nome.trim().toLowerCase()) {
+    return { erro: "Digite o nome do cliente exatamente como aparece para confirmar." };
+  }
+  const caminhos = await arquivosDoBriefing(ctx.supabase, id);
+  const { error } = await ctx.supabase.rpc("excluir_cliente", { p_cliente: id });
+  if (error) return { erro: erroRemocao(error.message) };
+  await apagarArquivos(caminhos);
+  revalidatePath("/app", "layout");
+  redirect("/app/clientes");
+}
+
+// LGPD (RG-9): troca os dados pessoais por "removido"; contrato e valores ficam (obrigação legal).
+export async function anonimizarCliente(id: string): Promise<{ erro: string } | { ok: true }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  const caminhos = await arquivosDoBriefing(ctx.supabase, id);
+  const { data: usuario, error } = await ctx.supabase.rpc("anonimizar_cliente", { p_cliente: id });
+  if (error) return { erro: erroRemocao(error.message) };
+  await apagarArquivos(caminhos);
+  // Login do portal do cliente deixa de existir.
+  const admin = criarClienteAdmin();
+  if (admin && usuario) await admin.auth.admin.deleteUser(usuario as string).catch(() => null);
+  revalidatePath("/app", "layout");
+  return { ok: true };
 }

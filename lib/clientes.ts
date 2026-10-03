@@ -15,6 +15,8 @@ export type Cliente = {
   etapa: EtapaCliente;
   contato_id: string | null;
   usuario_id: string | null;
+  arquivado_em?: string | null; // 0026
+  anonimizado_em?: string | null;
   criado_em: string;
 };
 

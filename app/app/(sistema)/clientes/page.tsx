@@ -14,7 +14,7 @@ const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", 
 export default async function ClientesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; etapa?: string }>;
+  searchParams: Promise<{ q?: string; etapa?: string; arquivados?: string }>;
 }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
@@ -30,16 +30,19 @@ export default async function ClientesPage({
     );
   }
 
-  const { q, etapa } = await searchParams;
+  const { q, etapa, arquivados } = await searchParams;
+  const verArquivados = arquivados === "1";
   const busca = (q ?? "").trim().slice(0, 80);
   const etapaValida = etapa && etapa in ETAPAS_CLIENTE ? (etapa as EtapaCliente) : null;
 
   let consulta = supabase
     .from("clientes")
-    .select("id, nome, telefone, email, etapa, servicos, criado_em")
+    .select("id, nome, telefone, email, etapa, servicos, criado_em, arquivado_em")
     .order("criado_em", { ascending: false })
     .limit(300);
   if (etapaValida) consulta = consulta.eq("etapa", etapaValida);
+  // Arquivados (0026) ficam fora da lista, a não ser que o filtro peça.
+  consulta = verArquivados ? consulta.not("arquivado_em", "is", null) : consulta.is("arquivado_em", null);
   if (busca) {
     // Vírgula e parênteses quebram o filtro "or" do Supabase: ficam de fora da busca.
     const termo = busca.replace(/[,()%*\\]/g, " ");
@@ -78,6 +81,10 @@ export default async function ClientesPage({
             ))}
           </select>
         </label>
+        <label className="checagem filtro-arquivados">
+          <input type="checkbox" name="arquivados" value="1" defaultChecked={verArquivados} />
+          <span>Só arquivados</span>
+        </label>
         <button className="botao botao-secundario" type="submit">
           Filtrar
         </button>
@@ -86,7 +93,7 @@ export default async function ClientesPage({
       {clientes.length === 0 ? (
         <div className="cartao vazio">
           <Users size={36} aria-hidden="true" />
-          {busca || etapaValida ? (
+          {busca || etapaValida || verArquivados ? (
             <p className="muted">Nenhum cliente encontrado com esse filtro.</p>
           ) : (
             <>

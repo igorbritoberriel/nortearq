@@ -5,6 +5,7 @@ import { ArrowLeft, FilePlus2, MessageCircle } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
+import { RemoverCliente } from "@/components/clientes/RemoverCliente";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
 import { STATUS_CONTRATO, type StatusContrato } from "@/lib/contratos";
 import { STATUS_PROPOSTA, reais, statusVisivel, type StatusProposta } from "@/lib/propostas";
@@ -48,11 +49,13 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
 
   const { data: linha } = await supabase
     .from("clientes")
-    .select("id, nome, documento, telefone, email, endereco_imovel, servicos, observacoes, etapa, contato_id, usuario_id, criado_em")
+    .select("id, nome, documento, telefone, email, endereco_imovel, servicos, observacoes, etapa, contato_id, usuario_id, arquivado_em, anonimizado_em, criado_em")
     .eq("id", id)
     .maybeSingle();
   if (!linha) notFound();
   const cliente = linha as Cliente;
+  // Arquivar/excluir (0026): com contrato assinado ou pagamento, só arquivar.
+  const { data: registroLegal } = await supabase.rpc("cliente_tem_registro_legal", { p_cliente: id });
 
   const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: projetoDoCliente }] =
     await Promise.all([
@@ -278,6 +281,19 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
                 </li>
               ))}
             </ol>
+          </section>
+
+          <section className="cartao secao-config">
+            <h2>{cliente.arquivado_em ? "Cliente arquivado" : "Arquivar ou excluir"}</h2>
+            <RemoverCliente
+              clienteId={cliente.id}
+              nome={cliente.nome}
+              arquivado={!!cliente.arquivado_em}
+              anonimizado={!!cliente.anonimizado_em}
+              temRegistroLegal={!!registroLegal}
+              podeExcluir={sessao.membro.papel !== "colaborador"}
+              dono={sessao.membro.papel === "dono"}
+            />
           </section>
 
           <section className="cartao secao-config">
