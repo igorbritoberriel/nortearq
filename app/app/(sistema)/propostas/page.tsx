@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { FileSignature } from "lucide-react";
+import { FileSignature, LayoutTemplate } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
 import {
@@ -62,7 +62,13 @@ export default async function PropostasPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <h1>Propostas</h1>
+      <div className="titulo-com-acao">
+        <h1>Propostas</h1>
+        <Link className="botao botao-secundario" href="/app/propostas/modelos">
+          <LayoutTemplate size={18} aria-hidden="true" />
+          Modelos de proposta
+        </Link>
+      </div>
       <p className="muted">Para criar uma proposta, abra a ficha do cliente e use “Nova proposta”.</p>
 
       {propostas.length === 0 ? (

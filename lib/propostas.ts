@@ -21,6 +21,8 @@ export type ConteudoProposta = {
   parcelas_max: number | null;
   desconto_avista_pct?: number | null; // 0021: desconto para pagamento à vista
   avista?: boolean; // o cliente escolheu à vista
+  modelo_origem?: string | null; // 0023: de qual modelo a proposta começou
+  modelo_aplicado_em?: string | null;
   parcelas_escolhidas: number | null;
   forma_pagamento: string | null;
   prazo: string | null;
@@ -105,7 +107,7 @@ export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
 };
 
 export const COLUNAS_PROPOSTA =
-  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, desconto_avista_pct, avista, parcelas_escolhidas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
+  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, desconto_avista_pct, avista, modelo_origem, modelo_aplicado_em, parcelas_escolhidas, forma_pagamento, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
 
 // RN-01.8: enviada e vencida aparece como expirada (o banco não muda o status sozinho).
 export function statusVisivel(p: { status: StatusProposta; validade_ate: string | null }): StatusProposta | "expirada" {

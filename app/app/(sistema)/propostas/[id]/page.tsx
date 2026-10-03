@@ -5,6 +5,7 @@ import { ArrowLeft, CopyPlus, FileSignature, MessageCircle, Trash2 } from "lucid
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { FormProposta } from "@/components/propostas/FormProposta";
+import type { ModeloResumoProposta } from "@/components/propostas/ModelosProposta";
 import { VisualizacaoProposta } from "@/components/propostas/VisualizacaoProposta";
 import { listarServicos, obterSessaoArquiteto } from "@/lib/escritorio";
 import {
@@ -43,7 +44,7 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
   if (!data) notFound();
   const proposta = data as unknown as Proposta;
 
-  const [{ data: cliente }, { data: versoes }, servicos, { data: contrato }] = await Promise.all([
+  const [{ data: cliente }, { data: versoes }, servicos, { data: contrato }, { data: modelos }] = await Promise.all([
     supabase.from("clientes").select("id, nome, telefone").eq("id", proposta.cliente_id).maybeSingle(),
     supabase
       .from("propostas")
@@ -52,6 +53,7 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
       .order("versao", { ascending: false }),
     listarServicos(),
     supabase.from("contratos").select("id, status").eq("proposta_id", id).neq("status", "cancelado").maybeSingle(),
+    supabase.from("modelos_proposta").select("id, nome, servicos").order("criado_em"),
   ]);
   if (!cliente) notFound();
 
@@ -173,6 +175,9 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
 
       {rascunho ? (
         <FormProposta
+          key={proposta.modelo_aplicado_em ?? "inicial"}
+          modelos={(modelos ?? []) as ModeloResumoProposta[]}
+          servicosEscritorio={servicos.filter((s) => s.ativo).map((s) => ({ id: s.id, nome: s.nome }))}
           proposta={proposta}
           cliente={{ nome: cliente.nome, telefone: cliente.telefone }}
           escritorio={sessao.escritorio.nome}

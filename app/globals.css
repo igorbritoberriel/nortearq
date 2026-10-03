@@ -1229,3 +1229,16 @@ p { margin: 0 0 1em; }
 .avista-selo { justify-self: start; padding: 2px 10px; border-radius: 999px; background: var(--cor-marca, var(--cor-norte)); color: var(--cor-marca-texto, #fff); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
 .avista-ou { margin: 4px 0 8px; }
 .avista-destaque { padding: 10px 12px; border-left: 3px solid var(--cor-marca, var(--cor-norte)); background: var(--cor-fundo); }
+
+/* Modelos de proposta */
+.barra-modelo { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; border: 1px dashed var(--cor-borda); border-radius: var(--raio); background: var(--cor-fundo); font-size: 0.92rem; }
+.barra-modelo > span:first-child { display: inline-flex; align-items: center; gap: 6px; }
+.barra-modelo-trocar { display: inline-flex; gap: 6px; align-items: center; }
+.barra-modelo select { padding: 7px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; font-size: 0.9rem; background: #fff; }
+.proposta-salvar-modelo { margin-top: 16px; display: grid; gap: 8px; justify-items: start; }
+.salvar-modelo { width: 100%; max-width: 640px; }
+.salvar-modelo h3 { margin: 0; }
+.modelos-proposta { list-style: none; margin: 16px 0; padding: 0; display: grid; gap: 14px; }
+.modelos-proposta details { margin: 8px 0; }
+.modelos-proposta summary { cursor: pointer; font-weight: 600; }
+.editar-modelo { margin-top: 10px; }

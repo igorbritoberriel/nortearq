@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Check, Copy, MessageCircle, Plus, Trash2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
+import { BarraModelo, SalvarComoModelo, type ModeloResumoProposta } from "@/components/propostas/ModelosProposta";
 import { DESTINOS_LINK } from "@/lib/clientes";
 import { linkWhatsapp } from "@/lib/contatos";
 import {
@@ -29,11 +30,15 @@ export function FormProposta({
   cliente,
   escritorio,
   servicos,
+  modelos = [],
+  servicosEscritorio = [],
 }: {
   proposta: Proposta;
   cliente: { nome: string; telefone: string | null };
   escritorio: string;
   servicos: string[];
+  modelos?: ModeloResumoProposta[];
+  servicosEscritorio?: { id: string; nome: string }[];
 }) {
   const [titulo, setTitulo] = useState(proposta.titulo);
   const [apresentacao, setApresentacao] = useState(proposta.escopo ?? "");
@@ -189,6 +194,7 @@ export function FormProposta({
   }
 
   return (
+    <>
     <form
       className="form-proposta"
       noValidate
@@ -200,6 +206,7 @@ export function FormProposta({
       }}
     >
       {mensagem && <Aviso tipo={mensagem.tipo}>{mensagem.texto}</Aviso>}
+      <BarraModelo propostaId={proposta.id} origem={proposta.modelo_origem ?? null} modelos={modelos} />
 
       <section className="cartao secao-config">
         <h2>Apresentação</h2>
@@ -469,5 +476,15 @@ export function FormProposta({
         </button>
       </div>
     </form>
+    <div className="proposta-salvar-modelo">
+      <SalvarComoModelo
+        propostaId={proposta.id}
+        servicos={servicosEscritorio}
+        servicosDaProposta={itens.map((i) => i.servico)}
+        modelos={modelos}
+        salvarAntes={salvar}
+      />
+    </div>
+    </>
   );
 }

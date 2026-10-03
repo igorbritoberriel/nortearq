@@ -6,6 +6,7 @@ import { z } from "zod";
 import { linkDoCliente } from "@/lib/clientes";
 import { listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE } from "@/lib/formulario";
+import { COLUNAS_MODELO, combinarModelos, semNulos, type ModeloProposta } from "@/lib/modelos-proposta";
 import { somaParcelas } from "@/lib/propostas";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -80,12 +81,24 @@ export async function criarProposta(clienteId: string) {
     .maybeSingle();
   if (rascunho) redirect(`/app/propostas/${rascunho.id}`);
 
-  const [{ data: cliente }, servicos] = await Promise.all([
-    ctx.supabase.from("clientes").select("servicos").eq("id", clienteId).maybeSingle(),
+  const [{ data: cliente }, servicos, { data: listaModelos }] = await Promise.all([
+    ctx.supabase.from("clientes").select("servicos, contato:contatos(area_m2)").eq("id", clienteId).maybeSingle(),
     listarServicos(),
+    ctx.supabase.from("modelos_proposta").select(COLUNAS_MODELO).order("criado_em"),
   ]);
   if (!cliente) return;
-  const doCliente = servicos.filter((s) => (cliente.servicos as string[]).includes(s.id));
+  const servicosCliente = cliente.servicos as string[];
+  const doCliente = servicos.filter((s) => servicosCliente.includes(s.id));
+
+  // Modelos dos serviços do cliente (um por serviço; Arquitetura + Interiores viram uma proposta só).
+  const modelos = ((listaModelos ?? []) as unknown as ModeloProposta[]).filter((m) =>
+    m.servicos.some((id) => servicosCliente.includes(id)),
+  );
+  const escolhidos = servicosCliente
+    .map((id) => modelos.find((m) => m.servicos.includes(id)))
+    .filter((m, i, lista): m is ModeloProposta => !!m && lista.indexOf(m) === i);
+  const area = Number((cliente.contato as unknown as { area_m2: number | null } | null)?.area_m2) || null;
+  const doModelo = escolhidos.length ? combinarModelos(escolhidos, area) : null;
 
   const { data, error } = await ctx.supabase
     .from("propostas")
@@ -98,6 +111,9 @@ export async function criarProposta(clienteId: string) {
       entrada_pct: ctx.sessao.escritorio.parcelamento_entrada_pct,
       parcelas_max: ctx.sessao.escritorio.parcelamento_max,
       desconto_avista_pct: Number(ctx.sessao.escritorio.desconto_avista_pct ?? 0) || null,
+      ...(doModelo
+        ? { ...semNulos(doModelo.conteudo), modelo_origem: doModelo.origem, modelo_aplicado_em: new Date().toISOString() }
+        : {}),
     })
     .select("id")
     .single();
