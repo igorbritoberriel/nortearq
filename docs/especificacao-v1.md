@@ -88,9 +88,37 @@ automática de visitas, IA.
 | Papel | O que faz | Como acessa |
 |---|---|---|
 | **Arquiteto (dono)** | Configura o escritório, atende clientes, gerencia tudo e paga a assinatura | `/app` com login |
-| **Equipe** (plano Escritório) | Mesmo acesso do dono, exceto plano e pagamento | `/app` com login |
+| **Equipe** (plano Escritório) | Administrador ou Colaborador (matriz abaixo) | `/app` com login |
 | **Cliente final** | Pede orçamento, responde briefing, aprova proposta, etapas e aditivos | Links sem login; depois `/portal` com login |
 | **Admin NorteArq** | Suporte, planos, banco de imagens padrão | Painel interno (fora da V1) |
+
+### Matriz de permissões da equipe ✅
+Fonte única no código: `lib/permissoes.ts` (menu, páginas e botões). A trava de verdade está no banco
+(RLS e funções, migrações 0015, 0024, 0026, 0032 e 0033), testada com os três perfis.
+
+| Ação | Dono | Administrador | Colaborador |
+|---|:-:|:-:|:-:|
+| Clientes: cadastrar, editar, arquivar, enviar links | ✅ | ✅ | ✅ |
+| Briefings: enviar e ver respostas | ✅ | ✅ | ✅ |
+| Projetos: etapas, arquivos, capa, envio para aprovação, aprovações externas | ✅ | ✅ | ✅ |
+| Pedidos de orçamento (mostram o investimento do cliente) | ✅ | ✅ | ❌ |
+| Propostas, contratos, pagamentos, aditivos e recibos (valores) | ✅ | ✅ | ❌ |
+| Revisão além do limite: conceder cortesia ou cobrar como aditivo | ✅ | ✅ | ❌ |
+| Excluir cliente e juntar cadastros repetidos | ✅ | ✅ | ❌ |
+| Configurar o escritório (marca, serviços, faixa de preço, modelos, editor de briefing) | ✅ | ✅ | ❌ (só vê) |
+| Estornar pagamento | ✅ | ❌ | ❌ |
+| Anonimizar cliente (LGPD) | ✅ | ❌ | ❌ |
+| Equipe: convidar, mudar perfil, remover | ✅ | ❌ | ❌ |
+| Plano e assinatura | ✅ | ❌ | ❌ |
+
+Notificações seguem a mesma regra: o Colaborador só recebe as de briefing e de etapa. Ações sem volta
+(excluir, anonimizar, juntar, estornar, cancelar contrato, remover membro) pedem a senha de quem está logado.
+
+**Duplicidade (migração 0032):** CPF/CNPJ não repete no mesmo escritório; e-mail ou WhatsApp repetido mostra
+aviso ("abrir o existente" ou "cadastrar mesmo assim"); cadastros repetidos podem ser juntados; o mesmo
+pedido de orçamento reenviado em até 7 dias atualiza o anterior; converter pedido liga ao cliente que já
+existe; nomes de etapas, modelos e serviços não repetem. Uma conta pertence a um escritório só: convidar
+quem já tem escritório é recusado na hora.
 
 ---
 
