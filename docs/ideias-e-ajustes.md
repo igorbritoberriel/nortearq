@@ -8,6 +8,17 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 (fonte em `docs/plano/plano-de-fases.html`; atualizado a cada fase concluída).
 
 ## Depende de você (Igor)
+- [ ] **Empresa e conta central** (decidido em 03/10/2026): empresa **Berriel Labs Tecnologia Ltda.** (um nome
+      para todos os SaaS; NorteArq é o primeiro produto), e-mail central **contas@berriellabs.com.br** dono de todas
+      as contas. Passos, na ordem:
+      1. Busca no INPI (busca.inpi.gov.br → Marca → Radical): "NorteArq", "Norte Arq" e "Berriel Labs", classes 42 e 9.
+      2. Registrar com CPF no registro.br: berriellabs.com.br e nortearq.com.br (cerca de R$ 40/ano cada); se quiser,
+         nortearq.com e berriellabs.com (livres em 03/10/2026).
+      3. Criar contas@berriellabs.com.br (Cloudflare Email Routing para receber, grátis; Zoho Mail grátis para enviar),
+         gerenciador de senhas (Bitwarden) e verificação em duas etapas em tudo.
+      4. Eu ligo o domínio à Vercel pelo Cloudflare e configuro o Resend.
+      5. CNPJ (ME no Simples Nacional, com contador; MEI não permite software) antes de cobrar o primeiro escritório.
+      6. Pedido de marca no INPI (cerca de R$ 150 por classe com desconto; conferir a tabela).
 - [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
       configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
       final (etapa enviada, lembretes, contrato, limite de revisões). No meu computador a chave não existe.
@@ -17,14 +28,11 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       30 dias, teste de restauração (cerca de 1 hora). A rotina também evita o Supabase grátis "dormir".
 - [ ] Ao cobrar o primeiro escritório de fora (antes da Fase 3): Supabase Pro (US$ 25/mês) e Vercel Pro
       (US$ 20/mês), juntos perto de R$ 260/mês. Até lá, tudo no plano grátis.
-- [ ] Registrar o domínio (ex.: nortearq.com.br) e apontar para a Vercel: link "nortearq.vercel.app"
-      no WhatsApp do cliente passa pouca confiança.
 - [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
       escritório, então esse convite nunca pode ser aceito (Configurações > Equipe, no escritório dela).
-- [ ] Dados da empresa para os Termos e a Privacidade: razão social, CNPJ e e-mail de contato
-      (eu coloco em `lib/legal.ts`).
+- [ ] Dados da empresa para os Termos e a Privacidade: razão social (Berriel Labs Tecnologia Ltda.), CNPJ e
+      e-mail de contato, quando o CNPJ sair (eu coloco em `lib/legal.ts`).
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
-- [ ] Busca no INPI pelo nome "NorteArq" (classes 42 e 9); plano B: RumoArq.
 - [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
