@@ -188,6 +188,9 @@ export async function gerarLink(
     const { error } = await ctx.supabase.rpc("preparar_briefing", { p_cliente_id: clienteId });
     if (error) {
       console.error("[clientes] preparar briefing", error.message);
+      if (error.message.includes("limite_briefings")) {
+        return { erro: "Você chegou aos 15 briefings deste mês do plano Briefing. O limite volta no dia 1º, ou mude de plano em Plano e assinatura." };
+      }
       return { erro: "Não foi possível preparar o briefing. Tente de novo." };
     }
   }

@@ -73,14 +73,15 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens, menos o M17
       (opção do momento do briefing, que depende da sua decisão, logo acima).
       Falta ainda a conferência visual no navegador (prints).
-- [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
-      anonimizar e juntar, mas não exportar.
-- [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
-      (Profissional). Hoje só o espaço de arquivos e as vagas da equipe são travados.
+- [ ] Botão "Concluir projeto" (marcar como entregue): hoje um projeto libera a vaga do limite quando todas
+      as etapas são aprovadas; não existe como encerrar um projeto que parou no meio (cliente desistiu). Entra
+      junto com o módulo 05, Pós-entrega.
 - [ ] Adicional "+50 GB de espaço" (R$ 19/mês): somar ao limite do plano quando for contratado.
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Ficha do cliente → "Exportar dados do cliente": baixar e abrir o arquivo de um cliente de teste.
+      Proposta enviada: "Salvar como modelo" embaixo da proposta.
 - [ ] Lote 4 da revisão de UX: **menu no celular** (botão Menu, abre e fecha ao trocar de tela, sininho à vista);
       busca nas listas; "Reenviar o mesmo link" do briefing; confirmação ao enviar etapa; aviso de valor na
       observação do deslocamento.
@@ -117,6 +118,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Lote 5 (03/10/2026): exportar dados do cliente (LGPD); limites dos planos travados no banco (15 briefings/mês no Briefing, 15 projetos em andamento no Profissional, migração 0036) com aviso no painel; "Salvar como modelo" também em propostas enviadas e aprovadas.
 - [x] Revisão de UX, lote 4 (03/10/2026): menu recolhido no celular; reenviar o mesmo link do briefing; confirmação ao enviar etapa, excluir pedido e conceder cortesia; erros visíveis em Virar cliente, Nova proposta, Gerar contrato e Nova versão; explicação do deslocamento com aviso de valor na observação; busca pelo nome do cliente em Propostas, Projetos, Contratos e Briefings; linha do tempo com propostas e etapas.
 - [x] Revisão de UX, lote 3 (03/10/2026): próximo passo e seção Projeto na ficha do cliente; Perfil do Cliente no projeto; pedido de revisão do cliente no topo da etapa; "visível ao cliente" antes do envio de arquivos; "Falar com o escritório" e "Ver e responder" para o cliente; primeiros passos no painel; menu com a tela atual destacada e sem "Obras"; ações perigosas por último na ficha.
 - [x] Revisão de UX, proposta (03/10/2026): salvamento automático e aviso ao sair; erro no rodapé com rolagem até o campo; "Revisar e enviar" mostra a proposta como o cliente vê antes de enviar; "Salvar como modelo" no rodapé.

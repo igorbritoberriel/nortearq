@@ -454,6 +454,15 @@ export default async function ClientePage({
           {/* Ações perigosas por último (B3 da revisão de UX). */}
           <section className="cartao secao-config">
             <h2>{cliente.arquivado_em ? "Cliente arquivado" : "Arquivar ou excluir"}</h2>
+            {verValores && (
+              <p className="campo-ajuda">
+                Se o cliente pedir os dados dele (LGPD):{" "}
+                <a className="tabela-link" href={`/app/clientes/${cliente.id}/exportar`} download>
+                  Exportar dados do cliente
+                </a>
+                .
+              </p>
+            )}
             <RemoverCliente
               clienteId={cliente.id}
               nome={cliente.nome}

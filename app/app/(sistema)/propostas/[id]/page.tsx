@@ -7,7 +7,7 @@ import { Confirmar } from "@/components/Confirmar";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { FormProposta } from "@/components/propostas/FormProposta";
-import type { ModeloResumoProposta } from "@/components/propostas/ModelosProposta";
+import { SalvarComoModelo, type ModeloResumoProposta } from "@/components/propostas/ModelosProposta";
 import { VisualizacaoProposta } from "@/components/propostas/VisualizacaoProposta";
 import { listarServicos, obterSessaoArquiteto } from "@/lib/escritorio";
 import {
@@ -126,9 +126,20 @@ export default async function PropostaPage({
 
       {erro && (
         <Aviso tipo="erro">
-          {erro === "contrato"
-            ? "Não foi possível gerar o contrato agora. Tente de novo em instantes."
-            : "Não foi possível criar a nova versão agora. Tente de novo em instantes."}
+          {erro === "limite_projetos" ? (
+            <>
+              Você chegou a 15 projetos em andamento, o limite do plano Profissional. Um projeto libera a vaga quando todas
+              as etapas são aprovadas. Para mais projetos ao mesmo tempo,{" "}
+              <Link className="tabela-link" href="/app/assinatura">
+                mude para o plano Escritório
+              </Link>
+              .
+            </>
+          ) : erro === "contrato" ? (
+            "Não foi possível gerar o contrato agora. Tente de novo em instantes."
+          ) : (
+            "Não foi possível criar a nova versão agora. Tente de novo em instantes."
+          )}
         </Aviso>
       )}
       {respondida && (
@@ -213,9 +224,20 @@ export default async function PropostaPage({
           servicos={servicos.filter((s) => s.ativo).map((s) => s.nome)}
         />
       ) : (
-        <div className="cartao proposta-previa">
-          <VisualizacaoProposta proposta={proposta} />
-        </div>
+        <>
+          <div className="cartao proposta-previa">
+            <VisualizacaoProposta proposta={proposta} />
+          </div>
+          {/* Proposta enviada ou aprovada também vira modelo (ex.: a que o cliente aprovou). */}
+          <div className="proposta-salvar-modelo">
+            <SalvarComoModelo
+              propostaId={proposta.id}
+              servicos={servicos.filter((s) => s.ativo).map((s) => ({ id: s.id, nome: s.nome }))}
+              servicosDaProposta={proposta.itens.map((i) => i.servico)}
+              modelos={(modelos ?? []) as ModeloResumoProposta[]}
+            />
+          </div>
+        </>
       )}
 
       {(versoes ?? []).length > 1 && (

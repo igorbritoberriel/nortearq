@@ -94,7 +94,7 @@ export function SalvarComoModelo({
   servicos: Servico[];
   servicosDaProposta: string[]; // nomes dos serviços nos itens da proposta
   modelos: ModeloResumoProposta[];
-  salvarAntes: () => Promise<boolean>;
+  salvarAntes?: () => Promise<boolean>; // rascunho: grava antes (o modelo copia o que está no banco)
   // Controlado de fora (botão no rodapé da proposta): sem isso, o próprio componente mostra o botão.
   aberto?: boolean;
   aoMudar?: (aberto: boolean) => void;
@@ -142,7 +142,7 @@ export function SalvarComoModelo({
         const dados = new FormData(e.currentTarget);
         // Primeiro salva o rascunho (o modelo copia o que está gravado).
         iniciar(async () => {
-          if (await salvarAntes()) enviar(dados);
+          if (await (salvarAntes?.() ?? true)) enviar(dados);
         });
       }}
     >

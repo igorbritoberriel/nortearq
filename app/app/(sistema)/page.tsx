@@ -155,6 +155,16 @@ export default async function PainelPage() {
     : [];
   const faltamPassos = passos.filter((p) => !p.feito).length;
 
+  // Limites do plano (migração 0036): aviso a partir de 2 vagas do fim.
+  const { data: usoBruto } = await supabase.rpc("uso_do_plano");
+  const uso = usoBruto as { projetos: number; limite_projetos: number | null; briefings_mes: number; limite_briefings: number | null } | null;
+  const avisoLimite =
+    uso?.limite_projetos && uso.projetos >= uso.limite_projetos - 2
+      ? `${uso.projetos} de ${uso.limite_projetos} projetos em andamento no seu plano.${uso.projetos >= uso.limite_projetos ? " Novos contratos só depois que um projeto tiver todas as etapas aprovadas." : ""}`
+      : uso?.limite_briefings && uso.briefings_mes >= uso.limite_briefings - 2
+        ? `${uso.briefings_mes} de ${uso.limite_briefings} briefings usados neste mês.${uso.briefings_mes >= uso.limite_briefings ? " Novos briefings só no dia 1º." : ""}`
+        : null;
+
   const semContrato = (aprovadas.data ?? []).filter(
     (p) => !((p.contratos ?? []) as { status: string }[]).some((c) => c.status !== "cancelado"),
   );
@@ -309,6 +319,16 @@ export default async function PainelPage() {
         </p>
       )}
 
+      {avisoLimite && (
+        <p className="contato-alerta aviso-com-acao">
+          <span>{avisoLimite}</span>
+          {pode(papel, "gerir_assinatura") && (
+            <Link className="botao botao-secundario botao-pequeno" href="/app/assinatura">
+              Ver planos
+            </Link>
+          )}
+        </p>
+      )}
       {faltamPassos > 0 && (
         <section className="cartao painel-passos" aria-labelledby="primeiros-passos">
           <h2 id="primeiros-passos">

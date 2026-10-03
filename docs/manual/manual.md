@@ -166,6 +166,9 @@ terminou a configuração inicial.
 - **Arquivar:** some da lista, nada é apagado; desarquivar traz de volta.
 - **Excluir** (dono ou administrador, com senha): apaga o cliente e os arquivos dele. Não é possível se houver
   contrato assinado ou pagamento registrado: nesse caso, arquivar.
+- **Exportar dados do cliente** (dono e administrador, LGPD): baixa um arquivo com tudo o que o escritório
+  guarda dele (cadastro, pedido, briefing com perguntas e respostas, propostas, contratos com o aceite,
+  projetos com etapas, aprovações, aditivos e pagamentos, links enviados). Arquivos e fotos vão listados pelo nome.
 - **Anonimizar** (só o Dono, com senha, LGPD): troca os dados pessoais por "removido", apaga as fotos do
   briefing e o acesso ao portal. Contrato e valores ficam guardados (obrigação legal).
 
@@ -236,7 +239,8 @@ data, hora e IP; o escritório é avisado.
 - **Expirada:** passada a validade, o link mostra que a proposta venceu e o cliente não consegue aprovar.
 
 **Modelos** (Propostas → Modelos)
-- **Salvar como modelo** (no rodapé da proposta, ao lado de Salvar rascunho): modelo novo ou substituindo um existente. Nome não repete.
+- **Salvar como modelo** (no rodapé do rascunho, ao lado de Salvar rascunho, e embaixo das propostas já
+  enviadas ou aprovadas): modelo novo ou substituindo um existente. Nome não repete.
 - Valor no modelo: em branco ("cada projeto é um preço"), fixo, ou por m² (calculado com a área que o
   cliente informou no pedido de orçamento).
 - Num rascunho: **Trocar modelo…** (substitui o conteúdo) ou **Em branco**.
@@ -379,6 +383,10 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
   modo leitura antes da suspensão.
 - Em qualquer situação, **o cliente final continua acessando os projetos**.
 - Equipe num plano sem equipe: os membros ficam sem acesso até o escritório voltar ao plano Escritório.
+- **Limites travados no banco:** plano Briefing, 15 briefings novos por mês (volta no dia 1º); plano
+  Profissional e teste grátis, 15 projetos em andamento. Um projeto está "em andamento" enquanto tiver etapa
+  não aprovada: aprovou todas, a vaga volta. No limite, o que trava é gerar contrato novo (a assinatura do
+  cliente nunca é bloqueada). O painel avisa a 2 vagas do fim. Nada é perdido ao passar do limite.
 
 ## 13. Suporte: relatar problema, telas de erro e painel interno ✅
 
@@ -469,5 +477,8 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Não consigo editar o contrato" | Contrato já enviado ao cliente | Cancelar (com senha) e gerar outro a partir da proposta |
 | "O cliente não consegue assinar" | CPF/CNPJ com dígito errado, nome sem sobrenome ou endereço curto | Pedir para conferir os dados destacados na tela |
 | "Registrei o pagamento errado" | O registro é definitivo | O Dono estorna (motivo + senha) e registra de novo |
+| "Não consigo gerar o contrato" (limite de projetos) | 15 projetos em andamento no plano Profissional | Aprovar as etapas de projetos terminados, ou plano Escritório |
+| "Não consigo enviar o briefing" (limite) | 15 briefings no mês no plano Briefing | Esperar o dia 1º ou mudar de plano |
+| "O cliente pediu os dados dele" | Direito do titular (LGPD) | Ficha do cliente → Exportar dados do cliente |
 | "Não consigo excluir o cliente" | Tem contrato assinado ou pagamento registrado | Arquivar |
 | "O cliente não consegue entrar no portal" | Não criou o acesso, ou esqueceu a senha | Mandar o link do projeto (o convite aparece nele); "Esqueci a senha" |
