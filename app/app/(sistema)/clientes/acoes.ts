@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ETAPAS_CLIENTE, linkDoCliente, type DestinoLink, type EtapaCliente } from "@/lib/clientes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
+import { confirmarSenha } from "@/lib/confirmar-senha";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -184,15 +185,13 @@ async function apagarArquivos(caminhos: string[]) {
   if (admin && caminhos.length) await admin.storage.from("briefings").remove(caminhos);
 }
 
-// Excluir: só sem contrato assinado nem pagamento (o banco confere). Pede o nome digitado.
-export async function excluirCliente(id: string, confirmacao: string): Promise<{ erro: string } | void> {
+const SENHA_ERRADA = "Senha incorreta. Digite a senha que você usa para entrar no NorteArq.";
+
+// Excluir: só sem contrato assinado nem pagamento (o banco confere). Pede a senha de quem está logado.
+export async function excluirCliente(id: string, senha: string): Promise<{ erro: string } | void> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
-  const { data: cliente } = await ctx.supabase.from("clientes").select("nome").eq("id", id).maybeSingle();
-  if (!cliente) return { erro: "Cliente não encontrado." };
-  if (confirmacao.trim().toLowerCase() !== cliente.nome.trim().toLowerCase()) {
-    return { erro: "Digite o nome do cliente exatamente como aparece para confirmar." };
-  }
+  if (!(await confirmarSenha(ctx.sessao.email, senha))) return { erro: SENHA_ERRADA };
   const caminhos = await arquivosDoBriefing(ctx.supabase, id);
   const { error } = await ctx.supabase.rpc("excluir_cliente", { p_cliente: id });
   if (error) return { erro: erroRemocao(error.message) };
@@ -202,9 +201,10 @@ export async function excluirCliente(id: string, confirmacao: string): Promise<{
 }
 
 // LGPD (RG-9): troca os dados pessoais por "removido"; contrato e valores ficam (obrigação legal).
-export async function anonimizarCliente(id: string): Promise<{ erro: string } | { ok: true }> {
+export async function anonimizarCliente(id: string, senha: string): Promise<{ erro: string } | { ok: true }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!(await confirmarSenha(ctx.sessao.email, senha))) return { erro: SENHA_ERRADA };
   const caminhos = await arquivosDoBriefing(ctx.supabase, id);
   const { data: usuario, error } = await ctx.supabase.rpc("anonimizar_cliente", { p_cliente: id });
   if (error) return { erro: erroRemocao(error.message) };

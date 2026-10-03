@@ -26,7 +26,7 @@ export function RemoverCliente({
 }) {
   const [pendente, iniciar] = useTransition();
   const [modo, setModo] = useState<"nada" | "excluir" | "anonimizar">("nada");
-  const [confirmacao, setConfirmacao] = useState("");
+  const [senha, setSenha] = useState("");
   const [aviso, setAviso] = useState<{ tipo: "erro" | "sucesso"; texto: string } | null>(null);
 
   return (
@@ -65,20 +65,33 @@ export function RemoverCliente({
               <p>
                 <strong>Excluir de vez?</strong> Apaga o cliente, propostas, briefing, fotos e links. Não dá para desfazer.
               </p>
-              <Campo id="confirmar-exclusao" rotulo={`Para confirmar, digite o nome: ${nome}`}>
-                <input id="confirmar-exclusao" value={confirmacao} onChange={(e) => setConfirmacao(e.target.value)} autoComplete="off" />
+              <Campo id="confirmar-exclusao" rotulo="Para confirmar, digite a sua senha do NorteArq">
+                <input
+                  id="confirmar-exclusao"
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  autoComplete="current-password"
+                />
               </Campo>
               <div className="form-rodape">
-                <button type="button" className="botao botao-fantasma botao-pequeno" onClick={() => setModo("nada")}>
+                <button
+                  type="button"
+                  className="botao botao-fantasma botao-pequeno"
+                  onClick={() => {
+                    setModo("nada");
+                    setSenha("");
+                  }}
+                >
                   Cancelar
                 </button>
                 <button
                   type="button"
                   className="botao botao-primario botao-pequeno botao-perigo"
-                  disabled={pendente || confirmacao.trim().toLowerCase() !== nome.trim().toLowerCase()}
+                  disabled={pendente || senha.length < 6}
                   onClick={() =>
                     iniciar(async () => {
-                      const r = await excluirCliente(clienteId, confirmacao);
+                      const r = await excluirCliente(clienteId, senha);
                       if (r?.erro) setAviso({ tipo: "erro", texto: r.erro });
                     })
                   }
@@ -103,19 +116,40 @@ export function RemoverCliente({
               fotos do briefing são apagados, e o acesso ao portal é removido. Contrato assinado, valores e datas ficam guardados
               por obrigação legal. Não dá para desfazer.
             </p>
+            <Campo id="confirmar-anonimizar" rotulo="Para confirmar, digite a sua senha do NorteArq">
+              <input
+                id="confirmar-anonimizar"
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                autoComplete="current-password"
+              />
+            </Campo>
             <div className="form-rodape">
-              <button type="button" className="botao botao-fantasma botao-pequeno" onClick={() => setModo("nada")}>
+              <button
+                type="button"
+                className="botao botao-fantasma botao-pequeno"
+                onClick={() => {
+                  setModo("nada");
+                  setSenha("");
+                }}
+              >
                 Cancelar
               </button>
               <button
                 type="button"
                 className="botao botao-primario botao-pequeno botao-perigo"
-                disabled={pendente}
+                disabled={pendente || senha.length < 6}
                 onClick={() =>
                   iniciar(async () => {
-                    const r = await anonimizarCliente(clienteId);
-                    setAviso("erro" in r ? { tipo: "erro", texto: r.erro } : { tipo: "sucesso", texto: "Dados pessoais removidos." });
+                    const r = await anonimizarCliente(clienteId, senha);
+                    if ("erro" in r) {
+                      setAviso({ tipo: "erro", texto: r.erro });
+                      return;
+                    }
+                    setAviso({ tipo: "sucesso", texto: "Dados pessoais removidos." });
                     setModo("nada");
+                    setSenha("");
                   })
                 }
               >
