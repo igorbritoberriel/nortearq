@@ -4,6 +4,16 @@ Escreva aqui o que lembrar, do jeito que vier (pode ditar). O assistente lê est
 cada conversa, pergunta o que não estiver claro e move para "Feito" o que for concluído.
 
 ## Para conversar / decidir
+- [ ] **Duplicidade e permissões em tudo** (pedido em 03/10/2026, a partir da tela de Equipe).
+      Revisar o sistema inteiro como as empresas grandes fazem e trazer proposta antes de mexer:
+      - Duplicidade: impedir cadastro repetido (mesmo e-mail/CPF de cliente, mesmo convite enviado
+        duas vezes, mesmo membro em dois escritórios, contato que já é cliente, nomes repetidos de
+        etapas/modelos/perguntas) e decidir em cada caso se bloqueia, avisa ou junta.
+      - Equipe: o que acontece ao convidar alguém que já tem conta ou escritório próprio no NorteArq
+        (ex.: o convite para igorbritoberriel@gmail.com no escritório da Débora).
+      - Permissões: conferir, tela por tela e ação por ação, o que Dono, Administrador e Colaborador
+        podem ver e fazer, e se o banco trava (não só a tela esconde).
+      - Referências para comparar: Google Workspace, Slack, Notion, Asana, Pipedrive.
 
 ## A fazer
 - [ ] Dados da empresa nos Termos e na Privacidade: razão social, CNPJ e e-mail de contato
