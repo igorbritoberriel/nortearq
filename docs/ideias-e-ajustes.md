@@ -60,10 +60,15 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
-- [ ] **Manual completo do NorteArq** (aprovado em 03/10/2026, em andamento). Fonte: `docs/manual/manual.md`,
-      atualizada a cada entrega (regra no CLAUDE.md). Já escritos: equipe e perfis, clientes repetidos,
-      arquivos, notificações, plano, suporte e o "Como resolver" com 12 dúvidas. Faltam os capítulos da
-      jornada, briefing, proposta, contrato, pagamentos e área do cliente. PDF completo depois da revisão de UX.
+- [ ] **Manual completo do NorteArq** (aprovado em 03/10/2026). Fonte: `docs/manual/manual.md`, atualizada a
+      cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
+      perguntas frequentes do cliente final (03/10/2026). Falta: gerar o PDF depois da revisão de UX e levar a
+      versão curta para uma central de ajuda dentro do sistema.
+- [ ] **A opção "Quando o cliente responde o briefing detalhado?" não faz nada** (achado ao escrever o manual,
+      03/10/2026). Ela é salva nas Configurações e no passo 4 da configuração inicial, mas o sistema não usa a
+      escolha: o link de briefing pode ser mandado a qualquer momento pela ficha do cliente. Decidir: tirar a
+      opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
+      contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026): olhar tela por tela, como
       especialista, e trazer a lista de problemas por prioridade antes de mexer. Achados já anotados:
       - Proposta: o botão "Salvar como modelo" fica escondido embaixo, separado de "Salvar rascunho" e
