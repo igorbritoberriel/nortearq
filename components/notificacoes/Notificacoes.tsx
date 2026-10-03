@@ -11,7 +11,8 @@ import {
   marcarNotificacoesVistas,
   marcarTodasLidas,
 } from "@/app/app/notificacoes";
-import { agrupar, type GrupoNotificacao, type Notificacao, type TipoNotificacao } from "@/lib/notificacoes";
+import { agrupar, type GrupoNotificacao } from "@/lib/notificacoes-grupos";
+import type { Notificacao, TipoNotificacao } from "@/lib/notificacoes";
 import { criarClienteNavegador } from "@/lib/supabase/client";
 
 // Sininho do menu + aviso discreto no canto da tela quando o cliente faz algo. Como GitHub, Linear e Slack:
