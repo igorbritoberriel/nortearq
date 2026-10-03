@@ -69,13 +69,11 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       escolha: o link de briefing pode ser mandado a qualquer momento pela ficha do cliente. Decidir: tirar a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
-- [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026): olhar tela por tela, como
-      especialista, e trazer a lista de problemas por prioridade antes de mexer. Achados já anotados:
-      - Proposta: o botão "Salvar como modelo" fica escondido embaixo, separado de "Salvar rascunho" e
-        "Enviar no WhatsApp".
-      - Proposta, deslocamento: com "Reembolso das despesas" marcado, o valor "R$ 150,00" foi digitado na
-        observação e entrou solto no texto que o cliente lê ("...antes da viagem. R$150,00"). A tela não
-        deixa claro onde vai o valor (talvez a intenção fosse "Taxa fixa por visita").
+- [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. **Aguardando a
+      sua aprovação para mexer.** Mais graves: contrato pode ser enviado com "[a preencher]"; erro da proposta
+      aparece longe dos botões; proposta perde o que não foi salvo; painel esquece pedidos já vistos e não
+      mostra "proposta aprovada, falta o contrato". Falta ainda a conferência visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
 - [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
