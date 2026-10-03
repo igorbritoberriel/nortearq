@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>NorteArq · Plano de fases e checklist</title>
+<!-- Fonte do PDF "NorteArq-Plano-de-fases.pdf". Atualize aqui e gere de novo (Chromium, A4). -->
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  :root { --norte: #1f3a5f; --norte2: #132640; --areia: #c9a46a; --fundo: #f7f5f1; --borda: #e3dfd6;
+          --texto: #1d1d1b; --suave: #5f5e5a; --ok: #2f7d4f; --okf: #e3f1e8; --meio: #b7791f; --meiof: #fbf0dc;
+          --falta: #8a8f98; --faltaf: #eef0f3; --voce: #7c3aed; --vocef: #efe7fd; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--texto); font-size: 10.5pt; line-height: 1.45; }
+  h1, h2, h3 { margin: 0; line-height: 1.2; }
+  h2 { font-size: 17pt; color: var(--norte); margin-bottom: 4px; }
+  h3 { font-size: 11.5pt; color: var(--norte2); margin: 14px 0 6px; }
+  p { margin: 0 0 8px; }
+  .muted { color: var(--suave); }
+  .pagina { page-break-after: always; }
+  .pagina:last-child { page-break-after: auto; }
+
+  /* Capa */
+  .capa { height: 265mm; display: flex; flex-direction: column; justify-content: space-between;
+          background: linear-gradient(160deg, var(--norte) 0%, var(--norte2) 70%); color: #fff; padding: 22mm 18mm; border-radius: 6px; }
+  .capa .marca { font-size: 15pt; letter-spacing: .5px; } .capa .marca b { color: var(--areia); }
+  .capa h1 { font-size: 34pt; font-weight: 700; margin: 8px 0 10px; }
+  .capa .sub { font-size: 13pt; opacity: .85; max-width: 140mm; }
+  .capa .onde { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 10px; padding: 14px 16px; }
+  .capa .onde b { color: var(--areia); }
+  .capa .rodape { font-size: 9.5pt; opacity: .7; }
+
+  /* Selos */
+  .selo { display: inline-block; min-width: 18px; padding: 1px 7px; border-radius: 999px; font-size: 8.3pt; font-weight: 700; white-space: nowrap; }
+  .s-ok { background: var(--okf); color: var(--ok); }
+  .s-meio { background: var(--meiof); color: var(--meio); }
+  .s-falta { background: var(--faltaf); color: var(--falta); }
+  .s-voce { background: var(--vocef); color: var(--voce); }
+  .legenda { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 9pt; margin: 6px 0 12px; }
+
+  /* Linha do tempo */
+  .trilha { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin: 14px 0 6px; }
+  .marco { position: relative; border: 1px solid var(--borda); border-radius: 8px; padding: 9px 8px 10px; background: #fff; min-height: 128px; }
+  .marco .n { font-size: 8pt; font-weight: 700; color: var(--suave); text-transform: uppercase; letter-spacing: .5px; }
+  .marco .t { font-weight: 700; font-size: 9.6pt; margin: 2px 0 6px; color: var(--norte2); }
+  .marco .d { font-size: 8.2pt; color: var(--suave); line-height: 1.35; }
+  .marco.feito { border-color: #b9dcc6; background: #f5fbf7; }
+  .marco.agora { border: 2px solid var(--voce); background: #faf7ff; }
+  .marco.agora { padding-top: 16px; }
+  .marco.agora::before { content: "VOCÊ ESTÁ AQUI"; position: absolute; top: -8px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+                         background: var(--voce); color: #fff; font-size: 6.5pt; font-weight: 700; padding: 1px 6px; border-radius: 999px; }
+  .barra { height: 6px; border-radius: 999px; background: var(--faltaf); overflow: hidden; margin-top: 8px; }
+  .barra span { display: block; height: 100%; background: var(--ok); }
+  .marco.agora .barra span { background: var(--voce); }
+  .pct { font-size: 8pt; font-weight: 700; color: var(--suave); margin-top: 3px; }
+
+  /* Resumo numérico */
+  .numeros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
+  .numero { border: 1px solid var(--borda); border-radius: 8px; padding: 10px; text-align: center; }
+  .numero b { display: block; font-size: 19pt; color: var(--norte); }
+  .numero span { font-size: 8.6pt; color: var(--suave); }
+
+  /* Fases */
+  .fase-topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; border-bottom: 2px solid var(--norte); padding-bottom: 6px; margin-bottom: 8px; }
+  .fase-topo .meta { text-align: right; font-size: 9pt; color: var(--suave); min-width: 120px; }
+  .fase-topo .meta .barra { width: 120px; margin-left: auto; }
+  .objetivo { background: var(--fundo); border-left: 4px solid var(--areia); padding: 8px 10px; border-radius: 4px; margin: 6px 0 4px; font-size: 9.8pt; }
+  ul.check { list-style: none; margin: 0; padding: 0; }
+  ul.check li { display: grid; grid-template-columns: 22px 1fr; gap: 6px; padding: 4px 0; border-bottom: 1px dashed var(--borda); break-inside: avoid; }
+  ul.check li:last-child { border-bottom: 0; }
+  .cx { width: 15px; height: 15px; border-radius: 3px; border: 1.6px solid var(--falta); margin-top: 2px; display: grid; place-items: center; font-size: 10px; font-weight: 700; }
+  .cx.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .cx.meio { border-color: var(--meio); background: var(--meiof); color: var(--meio); }
+  .cx.voce { border-color: var(--voce); background: var(--vocef); color: var(--voce); }
+  li .det { display: block; font-size: 8.6pt; color: var(--suave); }
+  .duas { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+  .saida { margin-top: 10px; border: 1.5px solid var(--ok); border-radius: 8px; padding: 9px 12px; background: #f5fbf7; break-inside: avoid; }
+  .saida b { color: var(--ok); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.4pt; margin: 6px 0 10px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--borda); vertical-align: top; }
+  th { background: var(--fundo); color: var(--norte2); font-size: 8.8pt; text-transform: uppercase; letter-spacing: .3px; }
+  .passos { counter-reset: p; list-style: none; padding: 0; margin: 8px 0; }
+  .passos li { counter-increment: p; position: relative; padding: 8px 10px 8px 40px; border: 1px solid var(--borda); border-radius: 8px; margin-bottom: 7px; break-inside: avoid; }
+  .passos li::before { content: counter(p); position: absolute; left: 10px; top: 8px; width: 22px; height: 22px; border-radius: 50%;
+                       background: var(--norte); color: #fff; font-weight: 700; font-size: 10pt; display: grid; place-items: center; }
+  .caixa { border: 1px solid var(--borda); border-radius: 8px; padding: 10px 12px; margin: 8px 0; break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============ CAPA ============ -->
+<section class="pagina capa">
+  <div>
+    <div class="marca">Norte<b>Arq</b></div>
+    <h1>Plano de fases<br>e checklist</h1>
+    <p class="sub">Do zero até onde estamos e aonde queremos chegar: tudo o que foi feito, o que falta
+      em cada fase e o critério para passar para a próxima.</p>
+  </div>
+  <div class="onde">
+    <b>Onde estamos (03/10/2026):</b> o produto da primeira versão está construído (Fase 1 quase completa).
+    O próximo passo é o <b>piloto fechado com a sua esposa</b> (Fase 2), usando com clientes reais até
+    cumprir o critério de pronto. Depois vêm os arquitetos patrocinados e, só então, a abertura ao mercado.
+  </div>
+  <div class="rodape">Documento vivo: as pendências do dia a dia ficam em docs/ideias-e-ajustes.md;
+    este PDF é a visão geral, atualizada a cada fase.</div>
+</section>
+
+<!-- ============ VISÃO GERAL ============ -->
+<section class="pagina">
+  <h2>Visão geral do caminho</h2>
+  <p class="muted">Cada fase só começa quando a anterior cumpre o seu critério de saída.</p>
+  <div class="legenda">
+    <span><span class="selo s-ok">feito</span></span>
+    <span><span class="selo s-meio">em andamento / parcial</span></span>
+    <span><span class="selo s-falta">falta</span></span>
+    <span><span class="selo s-voce">depende do Igor</span></span>
+  </div>
+
+  <div class="trilha">
+    <div class="marco feito"><div class="n">Fase 0</div><div class="t">Ideia e especificação</div>
+      <div class="d">Pesquisa, regras, planos, telas, site com lista de espera.</div>
+      <div class="barra"><span style="width:70%"></span></div><div class="pct">70%</div></div>
+    <div class="marco feito"><div class="n">Fase 1</div><div class="t">Construção da V1</div>
+      <div class="d">Sistema do arquiteto, área do cliente, cobrança da assinatura.</div>
+      <div class="barra"><span style="width:94%"></span></div><div class="pct">94%</div></div>
+    <div class="marco agora"><div class="n">Fase 2</div><div class="t">Piloto fechado</div>
+      <div class="d">Sua esposa usa com clientes reais até o critério de pronto.</div>
+      <div class="barra"><span style="width:5%"></span></div><div class="pct">5%</div></div>
+    <div class="marco"><div class="n">Fase 3</div><div class="t">Patrocinados</div>
+      <div class="d">5 a 8 arquitetos, 3 meses grátis, em troca de retorno e divulgação.</div>
+      <div class="barra"><span style="width:0%"></span></div><div class="pct">0%</div></div>
+    <div class="marco"><div class="n">Fase 4</div><div class="t">Abertura</div>
+      <div class="d">Plano Fundador, casos de sucesso, lista de espera.</div>
+      <div class="barra"><span style="width:0%"></span></div><div class="pct">0%</div></div>
+    <div class="marco"><div class="n">Fase 5</div><div class="t">Crescimento</div>
+      <div class="d">Obra, pós-entrega, cobrança do cliente, WhatsApp automático.</div>
+      <div class="barra"><span style="width:0%"></span></div><div class="pct">0%</div></div>
+    <div class="marco"><div class="n">Fase 6</div><div class="t">Adicionais</div>
+      <div class="d">Página do arquiteto, IA, loja de modelos, indicação.</div>
+      <div class="barra"><span style="width:0%"></span></div><div class="pct">0%</div></div>
+  </div>
+
+  <div class="numeros">
+    <div class="numero"><b>44</b><span>entregas publicadas (commits) em 3 dias</span></div>
+    <div class="numero"><b>33</b><span>migrações do banco aplicadas</span></div>
+    <div class="numero"><b>4</b><span>módulos da V1 prontos (00 a 03)</span></div>
+    <div class="numero"><b>3</b><span>itens técnicos urgentes antes do piloto</span></div>
+  </div>
+
+  <h3>A promessa que guia todas as decisões</h3>
+  <div class="objetivo"><b>"Seu cliente explica o que quer sozinho. Você só projeta."</b> O NorteArq organiza a
+    relação com o cliente (captação, briefing, proposta, contrato, aprovações, revisões e portal), sempre com a
+    marca do escritório. Não é um sistema de gestão financeira: timer de horas, DRE e contas a pagar ficam de fora
+    de propósito (decisão de 03/10/2026, ver a análise do concorrente COP).</div>
+
+  <h3>As 3 urgências de agora</h3>
+  <ul class="check">
+    <li><span class="cx voce">!</span><span><b>E-mail para o cliente:</b> conferir na Vercel a chave do Resend e verificar um domínio próprio.
+      <span class="det">Sem isso, avisos de etapa, lembretes e contrato assinado não chegam ao cliente.</span></span></li>
+    <li><span class="cx voce">!</span><span><b>Cópia de segurança:</b> Supabase no plano Pro (US$ 25/mês).
+      <span class="det">Com clientes reais, o plano grátis não tem backup.</span></span></li>
+    <li><span class="cx voce">!</span><span><b>Domínio próprio</b> (ex.: nortearq.com.br) apontando para a Vercel.
+      <span class="det">Link "nortearq.vercel.app" no WhatsApp do cliente passa pouca confiança.</span></span></li>
+  </ul>
+</section>
+
+<!-- ============ FASE 0 ============ -->
+<section class="pagina">
+  <div class="fase-topo"><div><span class="selo s-ok">Fase 0</span><h2>Ideia, pesquisa e especificação</h2></div>
+    <div class="meta">70% concluída<div class="barra"><span style="width:70%"></span></div></div></div>
+  <div class="objetivo"><b>Objetivo:</b> saber exatamente o que construir e para quem, antes de gastar tempo programando.</div>
+  <ul class="check">
+    <li><span class="cx ok">✓</span><span>Especificação completa da V1: regras (RN-xx), papéis, jornada, planos, avisos, telas e modelo de dados
+      <span class="det">docs/especificacao-v1.md</span></span></li>
+    <li><span class="cx ok">✓</span><span>Planos e módulos definidos (Briefing, Profissional, Escritório)</span></li>
+    <li><span class="cx ok">✓</span><span>Site de vendas com página de preços e formulário de lista de espera</span></li>
+    <li><span class="cx ok">✓</span><span>Análise do concorrente COP, com comparativo e o que não copiar
+      <span class="det">docs/concorrentes/cop.md</span></span></li>
+    <li><span class="cx ok">✓</span><span>Guia em PDF "do zero ao app no ar com o Claude Code" e manual do sistema</span></li>
+    <li><span class="cx voce">!</span><span>Busca no INPI pelo nome "NorteArq" (classes 42 e 9); plano B: RumoArq</span></li>
+    <li><span class="cx"></span><span>Analisar os outros concorrentes: Vobi, Projete.app, ARQPROJECT, ArqDesk, ProjetoList, Plana, escritorio.arq.br, Sole</span></li>
+    <li><span class="cx voce">!</span><span>Conversar com 5 a 10 arquitetas sobre a rotina e o preço</span></li>
+    <li><span class="cx"></span><span>Chegar a 50 inscritos na lista de espera <span class="det">pode correr em paralelo, mesmo com o sistema fechado</span></span></li>
+  </ul>
+  <div class="saida"><b>Critério de saída:</b> nome registrável confirmado e pelo menos 5 conversas com arquitetas
+    validando a dor e a faixa de preço. (A construção já começou em paralelo, o que é normal.)</div>
+</section>
+
+<!-- ============ FASE 1 ============ -->
+<section class="pagina">
+  <div class="fase-topo"><div><span class="selo s-ok">Fase 1</span><h2>Construção da primeira versão (V1)</h2></div>
+    <div class="meta">94% concluída<div class="barra"><span style="width:94%"></span></div></div></div>
+  <div class="objetivo"><b>Objetivo:</b> o fluxo inteiro funcionando, do pedido de orçamento à aprovação das etapas,
+    com a área do cliente e a cobrança da assinatura.</div>
+  <div class="duas">
+    <div>
+      <h3>Base do sistema</h3>
+      <ul class="check">
+        <li><span class="cx ok">✓</span><span>Cadastro, login, recuperar senha e configuração inicial</span></li>
+        <li><span class="cx ok">✓</span><span>Marca do escritório (logo e cores) para o cliente final</span></li>
+        <li><span class="cx ok">✓</span><span>Equipe com perfis Dono, Administrador e Colaborador</span></li>
+        <li><span class="cx ok">✓</span><span>Matriz de permissões única, travada no banco</span></li>
+        <li><span class="cx ok">✓</span><span>Notificações por pessoa (sininho, abas, limpeza automática)</span></li>
+        <li><span class="cx ok">✓</span><span>Painel inicial com pendências reais</span></li>
+        <li><span class="cx ok">✓</span><span>Assinatura pelo Asaas: teste, atraso, modo leitura</span></li>
+        <li><span class="cx ok">✓</span><span>Termos de uso e política de privacidade (texto)</span></li>
+        <li><span class="cx ok">✓</span><span>Travas contra duplicidade (cliente, equipe, nomes)</span></li>
+        <li><span class="cx ok">✓</span><span>Senha para toda ação sem volta</span></li>
+      </ul>
+      <h3>Captação e fechamento</h3>
+      <ul class="check">
+        <li><span class="cx ok">✓</span><span>Formulário público com filtro de compatibilidade</span></li>
+        <li><span class="cx ok">✓</span><span>Pedidos de orçamento e conversão em cliente</span></li>
+        <li><span class="cx ok">✓</span><span>Clientes: arquivar, excluir, anonimizar, juntar repetidos</span></li>
+        <li><span class="cx ok">✓</span><span>Propostas: modelos, versões, desconto à vista, parcelas</span></li>
+        <li><span class="cx ok">✓</span><span>Contratos: modelos, aceite eletrônico, código de verificação</span></li>
+        <li><span class="cx ok">✓</span><span>Pagamentos protegidos e recibo</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Briefing</h3>
+      <ul class="check">
+        <li><span class="cx ok">✓</span><span>Briefing respondido pelo cliente, por link</span></li>
+        <li><span class="cx ok">✓</span><span>Quiz visual de estilo com imagens padrão ou próprias</span></li>
+        <li><span class="cx ok">✓</span><span>Editor de perguntas com limites</span></li>
+        <li><span class="cx ok">✓</span><span>Perfil do Cliente com mural de estilos e PDF</span></li>
+      </ul>
+      <h3>Projeto e aprovações</h3>
+      <ul class="check">
+        <li><span class="cx ok">✓</span><span>Etapas com aprovação do cliente (data, hora, IP)</span></li>
+        <li><span class="cx ok">✓</span><span>Revisões contadas e visíveis aos dois lados</span></li>
+        <li><span class="cx ok">✓</span><span>Aditivos e aprovações externas</span></li>
+        <li><span class="cx ok">✓</span><span>Arquivos: versões, miniaturas, visualizador, renders, capa</span></li>
+        <li><span class="cx ok">✓</span><span>Espaço do plano travado no banco</span></li>
+        <li><span class="cx ok">✓</span><span>Lembretes de etapa parada (3 e 7 dias)</span></li>
+        <li><span class="cx ok">✓</span><span>Portal do cliente com login</span></li>
+      </ul>
+      <h3>O que falta na V1</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Exportar os dados de um cliente (LGPD)</span></li>
+        <li><span class="cx"></span><span>Limites dos planos (briefings por mês, projetos ativos)
+          <span class="det">só importa quando houver mais de um plano à venda</span></span></li>
+        <li><span class="cx"></span><span>Adicional de +50 GB <span class="det">pode ficar para a Fase 4</span></span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="saida"><b>Critério de saída:</b> todas as telas da especificação existindo e testadas no banco.
+    Falta só a exportação de dados do cliente; o resto vai para a fase em que realmente for necessário.</div>
+</section>
+
+<!-- ============ FASE 2 ============ -->
+<section class="pagina">
+  <div class="fase-topo"><div><span class="selo s-voce">Fase 2 · agora</span><h2>Piloto fechado com a sua esposa</h2></div>
+    <div class="meta">5% concluída<div class="barra"><span style="width:5%;background:var(--voce)"></span></div></div></div>
+  <div class="objetivo"><b>Objetivo:</b> provar o sistema no dia a dia real, com clientes de verdade, e corrigir só o que trava.
+    Em vez de "sem bugs" (que nenhum software alcança), usamos a lista de critérios de pronto abaixo.</div>
+  <div class="duas">
+    <div>
+      <h3>1. Estrutura (antes de começar)</h3>
+      <ul class="check">
+        <li><span class="cx voce">!</span><span>E-mail funcionando com domínio próprio no Resend</span></li>
+        <li><span class="cx voce">!</span><span>Supabase Pro com cópia de segurança diária</span></li>
+        <li><span class="cx voce">!</span><span>Domínio próprio no lugar de nortearq.vercel.app</span></li>
+        <li><span class="cx voce">!</span><span>Cancelar o convite da Débora para o seu e-mail</span></li>
+      </ul>
+      <h3>2. Ferramentas de qualidade</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Aviso automático de erros (você sabe antes de reclamarem)</span></li>
+        <li><span class="cx"></span><span>Botão "relatar problema ou sugestão" dentro do sistema</span></li>
+      </ul>
+      <h3>3. Legal</h3>
+      <ul class="check">
+        <li><span class="cx voce">!</span><span>Razão social, CNPJ e e-mail de contato nos textos</span></li>
+        <li><span class="cx voce">!</span><span>Revisão por advogado (termos, privacidade, contrato padrão)</span></li>
+        <li><span class="cx voce">!</span><span>Ícone da aba do navegador</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>4. Uso real (critérios de pronto)</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Fluxo completo com 2 ou 3 clientes reais
+          <span class="det">pedido → proposta → contrato → briefing → etapa aprovada</span></span></li>
+        <li><span class="cx"></span><span>Funciona no computador e no celular (arquiteto e cliente)</span></li>
+        <li><span class="cx meio">~</span><span>Conferir na tela: sininho novo, cliente repetido, perfis de equipe
+          <span class="det">testado no banco; falta ver no navegador</span></span></li>
+        <li><span class="cx"></span><span>Primeiro lembrete real de etapa parada chegou ao cliente</span></li>
+        <li><span class="cx"></span><span>Um arquiteto novo se cadastra e configura sem ajuda</span></li>
+        <li><span class="cx"></span><span>2 semanas seguidas sem erro grave</span></li>
+        <li><span class="cx"></span><span>Cada atrito anotado em ideias-e-ajustes.md e resolvido ou adiado de forma consciente</span></li>
+      </ul>
+      <h3>5. Melhorias só se ela sentir falta</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Calculadora de honorários na proposta (hora técnica ou m²)</span></li>
+        <li><span class="cx"></span><span>"Saúde do projeto" (revisões, aditivos, recebido × contratado)</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="saida"><b>Critério de saída (pronto para outros usarem):</b> estrutura e legal resolvidos, fluxo completo
+    feito com clientes reais no computador e no celular, aviso de erros ligado e 2 semanas sem erro grave.</div>
+</section>
+
+<!-- ============ FASES 3 e 4 ============ -->
+<section class="pagina">
+  <div class="fase-topo"><div><span class="selo s-falta">Fase 3</span><h2>Arquitetos patrocinados</h2></div>
+    <div class="meta">0%<div class="barra"><span style="width:0%"></span></div></div></div>
+  <div class="objetivo"><b>Objetivo:</b> 5 a 8 arquitetos usando de graça por 3 meses, com tudo liberado, em troca de
+    uso real, conversa quinzenal, depoimento e divulgação. No fim, quem gostar continua com o preço de fundador.</div>
+  <div class="duas">
+    <ul class="check">
+      <li><span class="cx"></span><span>Definir os perfis ideais (solo, interiores, residencial, com equipe, outra cidade)</span></li>
+      <li><span class="cx"></span><span>Montar a lista de candidatos</span></li>
+      <li><span class="cx"></span><span>Texto do termo de parceria e forma de assinatura</span></li>
+      <li><span class="cx"></span><span>Agente de parcerias: conversa como o marketing e conduz até o termo
+        <span class="det">contato personalizado, com sua aprovação; respeitando a LGPD</span></span></li>
+    </ul>
+    <ul class="check">
+      <li><span class="cx"></span><span>Conta patrocinada (90 dias, sem cobrança)</span></li>
+      <li><span class="cx"></span><span>Painel interno de uso (quem entrou, quem travou)</span></li>
+      <li><span class="cx voce">!</span><span>Vercel Pro (uso de terceiros)</span></li>
+      <li><span class="cx"></span><span>Conversas quinzenais e ajustes</span></li>
+      <li><span class="cx"></span><span>Depoimentos, prints e vídeo curto</span></li>
+    </ul>
+  </div>
+  <div class="saida"><b>Critério de saída:</b> pelo menos 5 escritórios usando com clientes reais, 3 depoimentos
+    gravados e a maioria disposta a continuar pagando o preço de fundador.</div>
+
+  <div class="fase-topo" style="margin-top:22px"><div><span class="selo s-falta">Fase 4</span><h2>Abertura ao mercado</h2></div>
+    <div class="meta">0%<div class="barra"><span style="width:0%"></span></div></div></div>
+  <div class="objetivo"><b>Objetivo:</b> abrir as vendas com prova social e preço agressivo de lançamento, ajustado com o tempo.</div>
+  <div class="duas">
+    <ul class="check">
+      <li><span class="cx voce">!</span><span>Decidir o preço: Plano Fundador R$ 47 travado para os 30 primeiros; tabela R$ 97; Profissional com 2 pessoas; sem plano Briefing</span></li>
+      <li><span class="cx"></span><span>Ajustar planos no site e no sistema</span></li>
+      <li><span class="cx"></span><span>Depoimentos e vídeo no site</span></li>
+      <li><span class="cx"></span><span>Anúncio para a lista de espera</span></li>
+    </ul>
+    <ul class="check">
+      <li><span class="cx"></span><span>Conteúdo para buscas (honorários, briefing) e calculadora gratuita</span></li>
+      <li><span class="cx"></span><span>Limites dos planos e adicional de espaço</span></li>
+      <li><span class="cx"></span><span>Acompanhar as metas: ativação ≥ 60%, conversão do teste ≥ 20%, cancelamento ≤ 5% ao mês</span></li>
+    </ul>
+  </div>
+  <div class="saida"><b>Critério de saída:</b> as metas de ativação, conversão e cancelamento atingidas por 3 meses seguidos.</div>
+</section>
+
+<!-- ============ FASES 5 e 6 + DECISÕES ============ -->
+<section class="pagina">
+  <div class="fase-topo"><div><span class="selo s-falta">Fases 5 e 6</span><h2>Crescimento e adicionais</h2></div><div class="meta">guiadas pelo uso</div></div>
+  <div class="objetivo">Entram na ordem em que os clientes pedirem, nunca todas de uma vez: o produto continua enxuto.</div>
+  <div class="duas">
+    <div><h3>Fase 5 · Crescimento</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Módulo de acompanhamento de obra</span></li>
+        <li><span class="cx"></span><span>Pós-entrega: avaliação, depoimento, retorno em 6 meses</span></li>
+        <li><span class="cx"></span><span>Cobrar o cliente por Pix ou boleto pelo sistema</span></li>
+        <li><span class="cx"></span><span>WhatsApp automático (API oficial)</span></li>
+        <li><span class="cx"></span><span>Comentário marcado na imagem e comparar revisões</span></li>
+        <li><span class="cx"></span><span>Pessoa em vários escritórios e acesso de suporte</span></li>
+        <li><span class="cx"></span><span>Importar clientes de planilha</span></li>
+      </ul></div>
+    <div><h3>Fase 6 · Adicionais</h3>
+      <ul class="check">
+        <li><span class="cx"></span><span>Página pública do arquiteto (portfólio)</span></li>
+        <li><span class="cx"></span><span>Assistente de IA (resumo do briefing, moodboard)</span></li>
+        <li><span class="cx"></span><span>Loja de modelos (briefings, contratos, CAD)</span></li>
+        <li><span class="cx"></span><span>Rede de indicação</span></li>
+      </ul>
+      <h3>Fica de fora, de propósito</h3>
+      <ul class="check">
+        <li><span class="cx">×</span><span>Timer de horas, DRE, contas a pagar, conciliação bancária
+          <span class="det">território de sistema de gestão; diluiria a promessa</span></span></li>
+      </ul></div>
+  </div>
+
+  <h3 style="margin-top:16px">Decisões que dependem de você</h3>
+  <table>
+    <tr><th>Decisão</th><th>Minha sugestão</th><th>Quando</th></tr>
+    <tr><td>Preço de lançamento</td><td>Plano Fundador R$ 47 travado; tabela R$ 97; 2 pessoas no Profissional</td><td>Antes da Fase 4</td></tr>
+    <tr><td>Detalhes dos patrocinados</td><td>5 a 8 arquitetos, 3 meses, termo de parceria</td><td>Fim da Fase 2</td></tr>
+    <tr><td>Assinatura com validade extra (ICP-Brasil)</td><td>Só se os patrocinados pedirem; comparar ZapSign × Clicksign</td><td>Fase 3</td></tr>
+    <tr><td>Imagens padrão do quiz</td><td>Licença ou fotos próprias/de parceiros</td><td>Antes da Fase 4</td></tr>
+    <tr><td>Liberar etapa só após pagamento</td><td>Na V1, só avisar</td><td>Após o piloto</td></tr>
+    <tr><td>Aprovação tácita</td><td>Não na V1</td><td>Após o piloto</td></tr>
+  </table>
+</section>
+
+<!-- ============ CUSTOS E MÉTODO ============ -->
+<section class="pagina">
+  <h2>Custos por fase</h2>
+  <p class="muted">Dólar a cerca de R$ 5,50. Imposto (~6% no Simples) e tarifa do Asaas (~R$ 2 por cobrança): confirme com o contador e no painel do Asaas.</p>
+  <table>
+    <tr><th>Fase</th><th>O que paga</th><th>Por mês</th></tr>
+    <tr><td>Piloto com a sua esposa</td><td>Supabase Pro (backup) + domínio; e-mail e Vercel nos planos grátis</td><td><b>≈ R$ 145</b></td></tr>
+    <tr><td>Patrocinados</td><td>+ Vercel Pro (uso de terceiros)</td><td><b>≈ R$ 260</b></td></tr>
+    <tr><td>Abertura</td><td>Igual, até o e-mail passar de 3.000 envios/mês ou o espaço passar de 100 GB</td><td><b>≈ R$ 260</b></td></tr>
+  </table>
+  <p>3 meses de patrocínio custam cerca de <b>R$ 800</b> no total. Na abertura, <b>7 escritórios a R$ 47</b>
+    (ou 3 a R$ 97) já pagam toda a estrutura.</p>
+
+  <h2 style="margin-top:18px">Como vamos trabalhar daqui para frente</h2>
+  <div class="caixa"><b>Uma fonte para cada coisa.</b> Este PDF é o mapa (visão geral por fase). O arquivo
+    <b>docs/ideias-e-ajustes.md</b> é a lista do dia a dia: toda pendência entra lá e sai para "Feito" quando resolvida.
+    A <b>especificação</b> guarda as regras. Os <b>commits</b> são o histórico.</div>
+  <div class="caixa"><b>Uma tarefa por vez, com começo e fim.</b> Cada pedido começa com o que vai ser feito e como vamos saber
+    que ficou pronto, e termina com o item riscado. Ideias novas no meio do caminho vão para o arquivo, e não
+    para a tarefa atual.</div>
+  <div class="caixa"><b>Uma conversa por tarefa grande.</b> Ao terminar uma tarefa grande, comece uma conversa nova com
+    "retomar": eu leio o arquivo de pendências e continuo de onde paramos, sem carregar a confusão da anterior.</div>
+  <div class="caixa"><b>Revisão semanal de 15 minutos.</b> Abrir este PDF e o arquivo de pendências, ver o que avançou,
+    escolher as 3 prioridades da semana. Eu atualizo o PDF a cada fase concluída.</div>
+
+  <h2 style="margin-top:18px">Os próximos 5 passos</h2>
+  <ol class="passos">
+    <li><b>Você:</b> conferir o e-mail na Vercel e me avisar, para eu testar um envio real.</li>
+    <li><b>Você:</b> ativar o Supabase Pro e registrar o domínio.</li>
+    <li><b>Eu:</b> aviso automático de erros e botão "relatar problema".</li>
+    <li><b>Eu:</b> exportar os dados do cliente (fecha a Fase 1).</li>
+    <li><b>Sua esposa:</b> começar o piloto com o primeiro cliente real, e cada atrito vira uma linha no arquivo.</li>
+  </ol>
+</section>
+
+</body>
+</html>

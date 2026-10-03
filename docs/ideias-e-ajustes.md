@@ -4,6 +4,9 @@ Escreva aqui o que lembrar, do jeito que vier (pode ditar). O assistente lê est
 cada conversa, lembra o que está pendente, pergunta o que não estiver claro e move para "Feito" o que
 for concluído. **Toda pendência entra aqui.**
 
+Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - arquitetura"
+(fonte em `docs/plano/plano-de-fases.html`; atualizado a cada fase concluída).
+
 ## Depende de você (Igor)
 - [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
       configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
