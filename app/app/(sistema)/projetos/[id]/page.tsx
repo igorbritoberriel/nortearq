@@ -138,13 +138,22 @@ export default async function ProjetoPage({
   const revisoesUsadas = (usadas as number | null) ?? 0;
 
   // Aditivos e aprovações externas (RN-03.15 a RN-03.17).
-  const [{ data: aditivos }, { data: externas }] = await Promise.all([
+  const [{ data: aditivos }, { data: externas }, { data: briefingCliente }] = await Promise.all([
     supabase.from("aditivos").select(COLUNAS_ADITIVO).eq("projeto_id", id).neq("status", "cancelado").order("criado_em"),
     supabase
       .from("aprovacoes_externas")
       .select("id, orgao, protocolo, entrada_em, situacao, observacao")
       .eq("projeto_id", id)
       .order("criado_em"),
+    // Perfil do Cliente: o que o arquiteto mais consulta enquanto projeta (M2 da revisão de UX).
+    supabase
+      .from("briefings")
+      .select("id, status")
+      .eq("cliente_id", cliente.id)
+      .in("status", ["respondido", "validado"])
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
   // "Cobrar como aditivo" numa revisão excedente: abre o formulário já preenchido.
   const excedente = cobrar ? historico.find((h) => h.id === cobrar && h.excedente && !h.aditivo_id) : undefined;
@@ -170,6 +179,11 @@ export default async function ProjetoPage({
             <Link className="tabela-link" href={`/app/clientes/${cliente.id}`}>
               {cliente.nome}
             </Link>
+            {briefingCliente && (
+              <Link className="tabela-link" href={`/app/briefings/${briefingCliente.id}`}>
+                Perfil do Cliente{briefingCliente.status === "validado" ? " (validado)" : ""}
+              </Link>
+            )}
             {projeto.contrato_id && verValores && (
               <Link className="tabela-link" href={`/app/contratos/${projeto.contrato_id}`}>
                 Contrato

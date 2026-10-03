@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FilePlus2, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, FilePlus2, Hourglass, MessageCircle } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -111,8 +111,15 @@ export default async function ClientePage({
       .eq("cliente_id", id)
       .neq("status", "cancelado")
       .order("criado_em", { ascending: false }),
-    supabase.from("projetos").select("id").eq("cliente_id", id).order("criado_em", { ascending: false }).limit(1).maybeSingle(),
+    supabase
+      .from("projetos")
+      .select("id, nome, etapas(status)")
+      .eq("cliente_id", id)
+      .order("criado_em", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
+  const etapasProjeto = ((projetoDoCliente?.etapas ?? []) as { status: string }[]);
   const contratos = (listaContratos ?? []) as { id: string; status: StatusContrato; assinado_em: string | null }[];
   const propostas = (listaPropostas ?? []) as {
     id: string;
@@ -150,6 +157,44 @@ export default async function ClientePage({
   const papel = sessao.membro.papel;
   const verValores = pode(papel, "ver_valores");
 
+  // Próximo passo da jornada (M3 da revisão de UX): o que fazer agora com este cliente.
+  const ultimaProposta = propostas[0];
+  const statusProposta = ultimaProposta ? statusVisivel(ultimaProposta) : null;
+  const contratoAtual = contratos[0];
+  const proximo: { texto: string; href?: string; acao?: "proposta"; rotulo?: string; esperando?: boolean } | null = (() => {
+    if (cliente.anonimizado_em || cliente.arquivado_em) return null;
+    const projeto = projetoDoCliente
+      ? {
+          texto: etapasProjeto.some((e) => e.status === "revisao")
+            ? "O cliente pediu revisão de uma etapa do projeto."
+            : etapasProjeto.some((e) => e.status === "aguardando_aprovacao")
+              ? "Etapa do projeto esperando a aprovação do cliente."
+              : "Projeto em andamento: envie os arquivos e as etapas para aprovação.",
+          href: `/app/projetos/${projetoDoCliente.id}`,
+          rotulo: "Abrir o projeto",
+          esperando: etapasProjeto.some((e) => e.status === "aguardando_aprovacao") && !etapasProjeto.some((e) => e.status === "revisao"),
+        }
+      : null;
+    if (briefing?.status === "respondido") {
+      return { texto: "O cliente respondeu o briefing: revise e valide na reunião.", href: `/app/briefings/${briefing.id}`, rotulo: "Ver o Perfil do Cliente" };
+    }
+    if (!verValores) return projeto;
+    if (contratoAtual?.status === "assinado") {
+      if (!briefing) return { texto: "Contrato assinado. Próximo passo: enviar o briefing detalhado.", href: "#briefing", rotulo: "Ir para o briefing" };
+      return projeto;
+    }
+    if (contratoAtual?.status === "rascunho") return { texto: "Contrato pronto: confira e envie para o cliente assinar.", href: `/app/contratos/${contratoAtual.id}`, rotulo: "Abrir o contrato" };
+    if (contratoAtual?.status === "aguardando_assinatura") return { texto: "Aguardando o cliente assinar o contrato.", href: `/app/contratos/${contratoAtual.id}`, rotulo: "Ver o contrato", esperando: true };
+    if (!ultimaProposta) return { texto: "Próximo passo: montar a proposta.", acao: "proposta", rotulo: "Nova proposta" };
+    const href = `/app/propostas/${ultimaProposta.id}`;
+    if (statusProposta === "rascunho") return { texto: "A proposta está em rascunho: termine e envie.", href, rotulo: "Continuar a proposta" };
+    if (statusProposta === "enviada") return { texto: "Aguardando o cliente responder a proposta.", href, rotulo: "Ver a proposta", esperando: true };
+    if (statusProposta === "ajuste_pedido") return { texto: "O cliente pediu ajustes na proposta: crie uma nova versão.", href, rotulo: "Ver o pedido de ajuste" };
+    if (statusProposta === "expirada") return { texto: "A proposta expirou sem resposta: crie uma nova versão.", href, rotulo: "Abrir a proposta" };
+    if (statusProposta === "aprovada") return { texto: "Proposta aprovada! Próximo passo: gerar o contrato.", href, rotulo: "Gerar o contrato" };
+    return null;
+  })();
+
   return (
     <div className="pagina-app pagina-larga">
       <Link href="/app/clientes" className="voltar">
@@ -185,15 +230,55 @@ export default async function ClientePage({
         )}
       </div>
 
+      {proximo && (
+        <div className={`proximo-passo ${proximo.esperando ? "proximo-esperando" : ""}`}>
+          <span>
+            {proximo.esperando ? <Hourglass size={18} aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}
+            {proximo.texto}
+          </span>
+          {proximo.acao === "proposta" ? (
+            <form action={criarProposta.bind(null, cliente.id)}>
+              <button type="submit" className="botao botao-primario botao-pequeno">
+                <FilePlus2 size={16} aria-hidden="true" /> {proximo.rotulo}
+              </button>
+            </form>
+          ) : (
+            proximo.href && (
+              <Link className={`botao botao-pequeno ${proximo.esperando ? "botao-secundario" : "botao-primario"}`} href={proximo.href}>
+                {proximo.rotulo}
+              </Link>
+            )
+          )}
+        </div>
+      )}
+
       <div className="ficha">
         <div className="ficha-principal">
+          {projetoDoCliente && (
+            <section className="cartao secao-config">
+              <h2>Projeto</h2>
+              <div className="ficha-link">
+                <div>
+                  <strong>{projetoDoCliente.nome}</strong>
+                  <p className="campo-ajuda">
+                    {etapasProjeto.filter((e) => e.status === "aprovada").length} de {etapasProjeto.length} etapas aprovadas
+                    {etapasProjeto.some((e) => e.status === "aguardando_aprovacao") && " · etapa esperando o cliente"}
+                    {etapasProjeto.some((e) => e.status === "revisao") && " · revisão pedida"}
+                  </p>
+                </div>
+                <Link className="botao botao-secundario botao-pequeno" href={`/app/projetos/${projetoDoCliente.id}`}>
+                  Abrir o projeto
+                </Link>
+              </div>
+            </section>
+          )}
           <section className="cartao secao-config">
             <h2>Enviar para o cliente</h2>
             <p className="muted">
-              O cliente abre pelo celular, sem login e sem instalar nada. Cada link é único, só mostra os dados dele e
-              vale 30 dias.
+              O cliente abre pelo celular, sem login e sem instalar nada. Cada link é único e só mostra os dados dele. Os
+              links de briefing, proposta e contrato valem 30 dias.
             </p>
-            <div className="ficha-link">
+            <div className="ficha-link" id="briefing">
               <div>
                 <strong>Briefing</strong>
                 <p className="campo-ajuda">
@@ -318,19 +403,6 @@ export default async function ClientePage({
           </section>
 
           <section className="cartao secao-config">
-            <h2>{cliente.arquivado_em ? "Cliente arquivado" : "Arquivar ou excluir"}</h2>
-            <RemoverCliente
-              clienteId={cliente.id}
-              nome={cliente.nome}
-              arquivado={!!cliente.arquivado_em}
-              anonimizado={!!cliente.anonimizado_em}
-              temRegistroLegal={!!registroLegal}
-              podeExcluir={pode(papel, "excluir_cliente")}
-              dono={pode(papel, "anonimizar_cliente")}
-            />
-          </section>
-
-          <section className="cartao secao-config">
             <h2>Portal do cliente</h2>
             {cliente.usuario_id ? (
               <p className="muted">✓ O cliente já tem acesso ao portal e entra com o próprio e-mail e senha.</p>
@@ -353,6 +425,20 @@ export default async function ClientePage({
             ) : (
               <p className="muted">Depois do contrato assinado, o cliente recebe o convite para criar o acesso ao portal.</p>
             )}
+          </section>
+
+          {/* Ações perigosas por último (B3 da revisão de UX). */}
+          <section className="cartao secao-config">
+            <h2>{cliente.arquivado_em ? "Cliente arquivado" : "Arquivar ou excluir"}</h2>
+            <RemoverCliente
+              clienteId={cliente.id}
+              nome={cliente.nome}
+              arquivado={!!cliente.arquivado_em}
+              anonimizado={!!cliente.anonimizado_em}
+              temRegistroLegal={!!registroLegal}
+              podeExcluir={pode(papel, "excluir_cliente")}
+              dono={pode(papel, "anonimizar_cliente")}
+            />
           </section>
         </aside>
       </div>

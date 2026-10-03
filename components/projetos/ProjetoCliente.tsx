@@ -68,6 +68,7 @@ export async function ProjetoCliente({
 
   const aprovadas = projeto.etapas.filter((e) => e.status === "aprovada").length;
   const aguardando = projeto.etapas.filter((e) => e.status === "aguardando_aprovacao");
+  const aditivosPendentes = (projeto.aditivos ?? []).filter((a) => a.status === "enviado").length;
 
   return (
     <ProvedorArquivos todos={todos} baixar={baixarArquivoCliente.bind(null, token)}>
@@ -90,11 +91,27 @@ export async function ProjetoCliente({
         </div>
       </div>
 
+      {/* M8 da revisão de UX: o aviso leva direto ao que precisa de resposta. */}
       {aguardando.length > 0 && (
-        <p className="contato-alerta">
-          {aguardando.length === 1
-            ? `A etapa "${aguardando[0].nome}" está esperando a sua aprovação.`
-            : `${aguardando.length} etapas estão esperando a sua aprovação.`}
+        <p className="contato-alerta aviso-com-acao">
+          <span>
+            {aguardando.length === 1
+              ? `A etapa "${aguardando[0].nome}" está esperando a sua aprovação.`
+              : `${aguardando.length} etapas estão esperando a sua aprovação.`}
+          </span>
+          <a className="botao botao-marca botao-pequeno" href={`#etapa-${aguardando[0].id}`}>
+            Ver e responder
+          </a>
+        </p>
+      )}
+      {aditivosPendentes > 0 && (
+        <p className="contato-alerta aviso-com-acao">
+          <span>
+            {aditivosPendentes === 1 ? "Um aditivo está esperando a sua resposta." : `${aditivosPendentes} aditivos estão esperando a sua resposta.`}
+          </span>
+          <a className="botao botao-marca botao-pequeno" href="#aditivos">
+            Ver aditivo{aditivosPendentes === 1 ? "" : "s"}
+          </a>
         </p>
       )}
 
@@ -106,7 +123,7 @@ export async function ProjetoCliente({
           const atuais = versoesAtuais(daEtapa);
           const anteriores = daEtapa.filter((a) => !atuais.includes(a));
           return (
-            <li key={e.id} className={`publico-form etapa-cliente etapa-${e.status}`}>
+            <li key={e.id} id={`etapa-${e.id}`} className={`publico-form etapa-cliente etapa-${e.status}`}>
               <div className="etapa-topo">
                 <span className="etapa-numero" aria-hidden="true">
                   {e.status === "aprovada" ? <Check size={16} /> : e.ordem}

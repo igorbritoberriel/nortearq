@@ -70,8 +70,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todas as altas (A1 a A8)
-      e M15. Próximos: M1 a M3 (ligar ficha, contrato e projeto) e M10 (primeiros passos).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todas as altas (A1 a A8);
+      médias M1, M2, M3, M5, M6, M8, M9, M10, M12, M13 e M15; baixas B3 e B6. Faltam: M4, M7, M11 (menu no
+      celular), M14, M16, M17 e as baixas B1, B2, B4, B5.
       Falta ainda a conferência visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
@@ -81,6 +82,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Lote 3 da revisão de UX: faixa "próximo passo" na ficha de clientes em fases diferentes; "Primeiros passos"
+      no painel (num escritório novo); menu destacado; no link do cliente, "Falar com o escritório" e "Ver e
+      responder" (também no celular).
 - [ ] Proposta em rascunho: "Rascunho salvo às..." no rodapé, aviso ao sair com algo não salvo, erro no rodapé
       (ex.: apagar o valor total e clicar em "Revisar e enviar"), a janela da prévia no computador e no celular e
       "Salvar como modelo" no rodapé.
@@ -111,6 +115,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Revisão de UX, lote 3 (03/10/2026): próximo passo e seção Projeto na ficha do cliente; Perfil do Cliente no projeto; pedido de revisão do cliente no topo da etapa; "visível ao cliente" antes do envio de arquivos; "Falar com o escritório" e "Ver e responder" para o cliente; primeiros passos no painel; menu com a tela atual destacada e sem "Obras"; ações perigosas por último na ficha.
 - [x] Revisão de UX, proposta (03/10/2026): salvamento automático e aviso ao sair; erro no rodapé com rolagem até o campo; "Revisar e enviar" mostra a proposta como o cliente vê antes de enviar; "Salvar como modelo" no rodapé.
 - [x] Revisão de UX, primeiros ajustes (03/10/2026): contrato não sai mais com "[a preencher]" (lista do que falta e envio travado, também no banco, migração 0035); "Apagar rascunho" pede confirmação; Configurações com atalhos para os modelos no lugar da lista "Em breve".
 - [x] Aviso automático de erros (servidor e telas, com repetições juntadas), telas de erro em português, botão "Relatar problema ou sugestão" e painel interno /app/interno (03/10/2026).

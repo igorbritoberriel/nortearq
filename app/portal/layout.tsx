@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, MessageCircle } from "lucide-react";
 import { sair } from "@/app/(auth)/acoes";
+import { linkWhatsapp } from "@/lib/contatos";
 import { textoSobre } from "@/lib/link-cliente";
 import { carregarPortal } from "@/lib/portal";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -67,6 +68,17 @@ export default async function PortalLayout({ children }: { children: React.React
           )}
           <strong>{escritorio.nome}</strong>
         </Link>
+        {escritorio.whatsapp && (
+          <a
+            className="publico-falar"
+            href={linkWhatsapp(escritorio.whatsapp, `Olá! Sou ${portal.cliente.nome.split(" ")[0]} e tenho uma dúvida sobre o meu projeto.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={16} aria-hidden="true" />
+            Falar com o escritório
+          </a>
+        )}
         <form action={sair} className="portal-sair">
           <span className="muted">{portal.cliente.nome.split(" ")[0]}</span>
           <button type="submit" className="botao botao-fantasma botao-pequeno">

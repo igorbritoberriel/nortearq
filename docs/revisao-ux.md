@@ -57,15 +57,15 @@ não existe.
 
 ## Média
 
-**M1. A ficha do cliente não leva ao projeto.**
+**M1. A ficha do cliente não leva ao projeto.** ✅ Feito (03/10/2026).
 A ficha mostra Briefing, Proposta e Contrato, mas não o Projeto. Para chegar, é preciso ir ao menu Projetos.
 → Linha "Projeto" na ficha, com etapas aprovadas e o link.
 
-**M2. O projeto não leva ao briefing (Perfil do Cliente).**
+**M2. O projeto não leva ao briefing (Perfil do Cliente).** ✅ Feito (03/10/2026).
 É o que o arquiteto mais consulta enquanto projeta.
 → Link "Perfil do Cliente" no topo do projeto, ao lado de Cliente e Contrato.
 
-**M3. A ficha do cliente não diz qual é o próximo passo.**
+**M3. A ficha do cliente não diz qual é o próximo passo.** ✅ Feito (03/10/2026).
 O selo mostra a etapa (Proposta, Contrato...), mas não o que fazer agora.
 → Uma linha de destaque: "Próximo passo: gerar o contrato" / "enviar o briefing" / "aguardando o cliente
 assinar", com o botão certo.
@@ -75,11 +75,11 @@ Para mandar de novo um link que o cliente perdeu, o arquiteto precisa gerar outr
 funcionar. Se o cliente abrir a mensagem antiga, vê "Este link não vale mais".
 → "Copiar o link atual" quando ele ainda vale; "Gerar novo" só quando necessário.
 
-**M5. Etapa do projeto: o "Visível ao cliente" fica depois do botão de enviar arquivos.**
+**M5. Etapa do projeto: o "Visível ao cliente" fica depois do botão de enviar arquivos.** ✅ Feito (03/10/2026).
 A escolha vale para os próximos envios, mas está posicionada como se fosse para o arquivo que acabou de subir.
 → Pôr a opção antes do botão ("Os próximos arquivos vão: visíveis ao cliente / só para o escritório").
 
-**M6. Pedido de revisão do cliente fica escondido no histórico da etapa.**
+**M6. Pedido de revisão do cliente fica escondido no histórico da etapa.** ✅ Feito (03/10/2026).
 Quando a etapa está "em revisão", o comentário do cliente aparece no fim, no histórico.
 → Caixa em destaque no topo da etapa: "O cliente pediu: ...".
 
@@ -87,16 +87,16 @@ Quando a etapa está "em revisão", o comentário do cliente aparece no fim, no 
 Arquivos enviados ficam travados e o cliente recebe e-mail na hora.
 → Confirmação curta: "Vai enviar 3 arquivos visíveis. O cliente recebe por WhatsApp e e-mail."
 
-**M8. Cliente final: o aviso "etapa esperando a sua aprovação" não leva até ela.**
+**M8. Cliente final: o aviso "etapa esperando a sua aprovação" não leva até ela.** ✅ Feito (03/10/2026).
 No celular, com muitos arquivos, ele precisa rolar até achar o botão. Aditivo esperando resposta nem entra no
 aviso.
 → Botão "Ver e responder" que leva direto, e o aditivo pendente no mesmo aviso.
 
-**M9. Cliente final não tem como falar com o escritório pelo projeto.**
+**M9. Cliente final não tem como falar com o escritório pelo projeto.** ✅ Feito (03/10/2026).
 O botão de WhatsApp do escritório só aparece quando o link venceu ou a proposta expirou.
 → "Falar com o escritório" fixo no topo ou no rodapé das páginas do cliente.
 
-**M10. Primeiro uso: o painel diz "Tudo em dia" para quem ainda não fez nada.**
+**M10. Primeiro uso: o painel diz "Tudo em dia" para quem ainda não fez nada.** ✅ Feito (03/10/2026).
 Para os arquitetos patrocinados (fase B), falta um guia dos primeiros passos.
 → Lista "Primeiros passos" até ser concluída: dados do escritório no contrato, um modelo de proposta,
 testar o próprio formulário, cadastrar o primeiro cliente, enviar o primeiro briefing.
@@ -106,11 +106,11 @@ Abaixo de 860 px, o menu lateral inteiro (logo, escritório, sininho, 10 itens, 
 fica em cima de toda página.
 → Barra compacta no topo com botão de menu, e o sininho sempre visível.
 
-**M12. O menu não mostra em que tela a pessoa está.**
+**M12. O menu não mostra em que tela a pessoa está.** ✅ Feito (03/10/2026).
 Nenhum item fica destacado.
 → Destacar o item atual.
 
-**M13. "Obras" aparece no menu, mas a tela está em construção.**
+**M13. "Obras" aparece no menu, mas a tela está em construção.** ✅ Feito (03/10/2026).
 Para quem testa, parece coisa quebrada.
 → Esconder até o módulo 04 existir, ou mostrar com o selo "Em breve".
 
@@ -139,7 +139,7 @@ dezenas de clientes.
 **B2.** A linha do tempo do cliente não mostra os eventos da proposta (enviada, aprovada) nem as etapas
 aprovadas.
 
-**B3.** Na ficha, "Arquivar ou excluir" fica acima de "Portal do cliente". A área de ações perigosas deveria
+**B3.** ✅ Feito (03/10/2026). Na ficha, "Arquivar ou excluir" fica acima de "Portal do cliente". A área de ações perigosas deveria
 ser a última.
 
 **B4.** Excluir pedido de orçamento usa a caixa padrão do navegador ("confirm" e "alert"), diferente do resto
@@ -147,7 +147,7 @@ do sistema.
 
 **B5.** "Conceder como cortesia" não pede confirmação.
 
-**B6.** Na ficha, o texto diz que todos os links valem 30 dias, mas o do projeto vale 90.
+**B6.** ✅ Feito (03/10/2026). Na ficha, o texto diz que todos os links valem 30 dias, mas o do projeto vale 90.
 
 ---
 
@@ -164,5 +164,5 @@ do sistema.
 1. ~~A1, A5 e A8~~ feitos.
 2. ~~A2, A3 e A4 (proposta)~~ feitos, com o M15.
 3. A6 e A7 (painel).
-4. M1 a M3 (ligações entre ficha, proposta, contrato e projeto) e M10 (primeiros passos).
+4. ~~M1 a M3 e M10~~ feitos, com M5, M6, M8, M9, M12, M13, B3 e B6.
 5. Resto das médias. As baixas, junto com a conferência visual no navegador.

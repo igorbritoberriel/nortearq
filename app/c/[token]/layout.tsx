@@ -55,6 +55,18 @@ export default async function LinkClienteLayout({
           </span>
         )}
         <strong>{escritorio.nome}</strong>
+        {/* M9 da revisão de UX: o cliente sempre tem como falar com o escritório. */}
+        {escritorio.whatsapp && link.valido && (
+          <a
+            className="publico-falar"
+            href={linkWhatsapp(escritorio.whatsapp, `Olá! Sou ${link.cliente_nome} e tenho uma dúvida sobre o meu projeto.`)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={16} aria-hidden="true" />
+            Falar com o escritório
+          </a>
+        )}
       </header>
 
       <main className="publico-conteudo">

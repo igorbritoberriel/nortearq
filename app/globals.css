@@ -1491,3 +1491,34 @@ p { margin: 0 0 1em; }
 .interno-tipo-problema { background: #fdecea; color: var(--cor-erro); }
 .interno-tipo-sugestao { background: #e8eef6; color: var(--cor-norte); }
 .interno-tipo-duvida { background: #fbf0dc; color: #8a5a00; }
+
+/* ---------- Revisão de UX, lote 3 (03/10/2026) ---------- */
+/* M12: item atual do menu */
+.app-lateral nav a.ativo { background: rgba(255, 255, 255, 0.14); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--cor-areia); }
+
+/* M3: próximo passo na ficha do cliente */
+.proximo-passo { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 20px; padding: 12px 16px; border-radius: var(--raio); background: #e8eef6; color: var(--cor-norte); font-weight: 600; }
+.proximo-passo > span { display: inline-flex; align-items: center; gap: 8px; }
+.proximo-passo form { margin: 0; }
+.proximo-esperando { background: #f1efe9; color: var(--cor-texto-suave); }
+
+/* M6: pedido de revisão do cliente no topo da etapa */
+.etapa-pedido-revisao { display: grid; gap: 4px; margin: 0 0 12px; padding: 12px 14px; border-left: 4px solid #c27c0e; border-radius: 6px; background: #fbf0dc; }
+.etapa-pedido-revisao p { margin: 0; white-space: pre-line; }
+
+/* M8 e M9: cliente final */
+.aviso-com-acao { justify-content: space-between; flex-wrap: wrap; margin: 0 0 12px; }
+.publico-falar { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--cor-borda); border-radius: 999px; font-size: 0.85rem; color: var(--cor-texto); background: var(--cor-superficie); white-space: nowrap; }
+.publico-falar:hover { border-color: var(--cor-marca); }
+.portal-topo .publico-falar + .portal-sair { margin-left: 0; }
+@media (max-width: 480px) { .publico-falar { font-size: 0; padding: 8px; gap: 0; } .publico-falar svg { width: 18px; height: 18px; } }
+
+/* M10: primeiros passos no painel */
+.painel-passos { margin: 0 0 24px; }
+.painel-passos h2 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; font-size: 1.05rem; }
+.painel-passos ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.painel-passos li { display: flex; align-items: center; gap: 10px; }
+.painel-passos li.feito { color: var(--cor-texto-suave); text-decoration: line-through; }
+.painel-passos li.feito svg { color: var(--cor-sucesso); flex: none; }
+.painel-passos li a { text-decoration: underline; color: var(--cor-norte); }
+.painel-passo-marca { width: 18px; height: 18px; border: 2px solid var(--cor-borda); border-radius: 50%; flex: none; }

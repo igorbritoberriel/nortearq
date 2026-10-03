@@ -133,6 +133,28 @@ export default async function PainelPage() {
         : Promise.resolve({ data: [] }),
     ]);
 
+  // M10 da revisão de UX: primeiros passos para quem está começando (some quando tudo estiver feito).
+  const e = sessao.escritorio;
+  const passos = pode(papel, "configurar_escritorio")
+    ? await Promise.all([
+        supabase.from("modelos_proposta").select("id", { count: "exact", head: true }),
+        supabase.from("clientes").select("id", { count: "exact", head: true }),
+        supabase.from("briefings").select("id", { count: "exact", head: true }),
+        supabase.from("propostas").select("id", { count: "exact", head: true }).neq("status", "rascunho"),
+      ]).then(([modelos, clientes, briefingsEnviados, propostasEnviadas]) => [
+        {
+          feito: !!(e.documento && e.endereco && e.responsavel),
+          texto: "Preencher os dados do escritório que entram no contrato",
+          href: "/app/contratos/modelo",
+        },
+        { feito: (modelos.count ?? 0) > 0, texto: "Criar um modelo de proposta (salve uma proposta como modelo)", href: "/app/propostas/modelos" },
+        { feito: (clientes.count ?? 0) > 0, texto: "Cadastrar o primeiro cliente (ou testar o seu formulário)", href: "/app/clientes/novo" },
+        { feito: (briefingsEnviados.count ?? 0) > 0, texto: "Enviar o primeiro briefing", href: "/app/clientes" },
+        { feito: (propostasEnviadas.count ?? 0) > 0, texto: "Enviar a primeira proposta", href: "/app/clientes" },
+      ])
+    : [];
+  const faltamPassos = passos.filter((p) => !p.feito).length;
+
   const semContrato = (aprovadas.data ?? []).filter(
     (p) => !((p.contratos ?? []) as { status: string }[]).some((c) => c.status !== "cancelado"),
   );
@@ -285,6 +307,23 @@ export default async function PainelPage() {
             ? `Você está no teste grátis: faltam ${dias} ${dias === 1 ? "dia" : "dias"}, com todos os recursos do plano Profissional.`
             : "Seu teste grátis terminou. Escolha um plano para continuar criando."}
         </p>
+      )}
+
+      {faltamPassos > 0 && (
+        <section className="cartao painel-passos" aria-labelledby="primeiros-passos">
+          <h2 id="primeiros-passos">
+            Primeiros passos <small className="muted">{passos.length - faltamPassos} de {passos.length}</small>
+          </h2>
+          <ol>
+            {passos.map((p) => (
+              <li key={p.texto} className={p.feito ? "feito" : ""}>
+                {p.feito ? <CircleCheck size={18} aria-hidden="true" /> : <span className="painel-passo-marca" aria-hidden="true" />}
+                {p.feito ? <span>{p.texto}</span> : <Link href={p.href}>{p.texto}</Link>}
+                <span className="sr-only">{p.feito ? " (feito)" : ""}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
 
       <section className="painel-secao" aria-labelledby="precisa-de-voce">

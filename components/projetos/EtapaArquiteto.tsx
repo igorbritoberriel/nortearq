@@ -299,6 +299,21 @@ export function EtapaArquiteto({
 
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
 
+      {/* M6 da revisão de UX: em revisão, o pedido do cliente vem primeiro, não escondido no histórico. */}
+      {etapa.status === "revisao" &&
+        (() => {
+          const pedido = [...historico].reverse().find((h) => h.decisao === "revisao_pedida");
+          return pedido?.comentario ? (
+            <div className="etapa-pedido-revisao">
+              <strong>O cliente pediu:</strong>
+              <p>“{pedido.comentario}”</p>
+              <small className="muted">
+                Envie a versão nova dos arquivos (mesmo nome) e mande a etapa de novo para aprovação.
+              </small>
+            </div>
+          ) : null;
+        })()}
+
       {atuais.length > 0 ? (
         <ul className="grade-arquivos">{atuais.map((a) => cartao(a, atuais))}</ul>
       ) : (
@@ -313,6 +328,11 @@ export function EtapaArquiteto({
 
       {etapa.status !== "aprovada" && (
         <div className="etapa-envio">
+          {/* M5 da revisão de UX: a escolha vale para os próximos arquivos, então vem antes do botão. */}
+          <label className="checagem">
+            <input type="checkbox" checked={visivel} onChange={(e) => setVisivel(e.target.checked)} />
+            <span>Os próximos arquivos ficam visíveis ao cliente</span>
+          </label>
           <label className={`foto-enviar etapa-upload ${progresso ? "enviando" : ""}`}>
             <FileUp size={18} aria-hidden="true" />
             <span>{progresso ?? "Enviar arquivos (mesmo nome = nova versão)"}</span>
@@ -325,10 +345,6 @@ export function EtapaArquiteto({
                 e.target.value = "";
               }}
             />
-          </label>
-          <label className="checagem">
-            <input type="checkbox" checked={visivel} onChange={(e) => setVisivel(e.target.checked)} />
-            <span>Visível ao cliente</span>
           </label>
         </div>
       )}

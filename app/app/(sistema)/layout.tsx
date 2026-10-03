@@ -12,6 +12,7 @@ import { ehAdminNorteArq } from "@/lib/admin-nortearq";
 import { RelatarProblema } from "@/components/erros/RelatarProblema";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
+import { MenuLateral } from "@/components/MenuLateral";
 
 // Layout do sistema do arquiteto.
 // RN-00.3: sem a configuração inicial concluída, o arquiteto volta para o assistente.
@@ -105,17 +106,13 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           />
         )}
         <nav>
-          {menu.map((item) => (
-            <Link key={item.href} href={item.href}>
-              {item.rotulo}
-            </Link>
-          ))}
-          {dono && <Link href="/app/assinatura">Plano e assinatura</Link>}
-          {sessao && ehAdminNorteArq(sessao.email) && (
-            <Link href="/app/interno" className="app-interno">
-              Painel interno
-            </Link>
-          )}
+          <MenuLateral
+            itens={[
+              ...menu.map((item) => ({ href: item.href, rotulo: item.rotulo })),
+              ...(dono ? [{ href: "/app/assinatura", rotulo: "Plano e assinatura" }] : []),
+              ...(sessao && ehAdminNorteArq(sessao.email) ? [{ href: "/app/interno", rotulo: "Painel interno", classe: "app-interno" }] : []),
+            ]}
+          />
         </nav>
         {sessao && <RelatarProblema />}
         {sessao && (

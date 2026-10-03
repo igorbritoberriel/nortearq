@@ -75,6 +75,11 @@ proposta, proposta aprovada sem contrato, revisão além do limite sem decisão,
 pedido, contrato para enviar, etapa em revisão), "Esperando o cliente" e
 "Financeiro" (valores a receber), com a pendência mais antiga em destaque.
 
+**Primeiros passos** (dono e administrador, no topo do painel até tudo estar feito): dados do escritório no
+contrato, um modelo de proposta, o primeiro cliente, o primeiro briefing e a primeira proposta enviados.
+
+**Menu:** a tela atual fica destacada. "Obras" volta ao menu quando o módulo de obra existir.
+
 ## 3. Equipe e perfis ✅
 
 | Ação | Dono | Administrador | Colaborador |
@@ -137,6 +142,12 @@ terminou a configuração inicial.
 - Não dá para juntar: cliente anonimizado, dois cadastros que já têm acesso ao portal, CPF/CNPJ diferentes.
 - O mesmo pedido de orçamento reenviado em até 7 dias atualiza o anterior ("atualizou o pedido").
 - Ao converter um pedido em cliente, se o cliente já existe (mesmo e-mail ou WhatsApp), o pedido é ligado a ele.
+
+**Ficha do cliente**
+- No topo, o **próximo passo** da jornada com o botão certo: montar a proposta, gerar o contrato, enviar o
+  briefing, revisar o Perfil do Cliente, abrir o projeto. Em cinza quando está esperando o cliente.
+- Seção **Projeto** com as etapas aprovadas e o link (depois do contrato assinado).
+- "Arquivar ou excluir" fica por último na coluna da direita.
 
 **Links pelo WhatsApp** (ficha do cliente)
 - Briefing, proposta, contrato e projeto têm cada um o seu link. Um link de briefing não abre a proposta.
@@ -278,8 +289,12 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
 - O cliente **aprova** ou **pede revisão** (comentário obrigatório). A aprovação não se desfaz: mudança
   depois dela vira aditivo.
 - Contador visível para os dois lados: "2 de 3 revisões usadas".
+- Etapa em revisão: **"O cliente pediu"** aparece no topo da etapa, com o comentário dele.
+- No topo do projeto, link para o **Perfil do Cliente** (briefing respondido ou validado).
 
 **Arquivos**
+- Antes do botão de enviar arquivos, a opção "Os próximos arquivos ficam visíveis ao cliente" (vale para os
+  arquivos enviados depois de marcar).
 - Cada arquivo tem um tipo: Prancha técnica, Render 3D, Documento ou Outro (sugerido pela extensão).
 - Imagens e PDFs ganham miniatura. Clicar abre o visualizador: zoom (roda do mouse, pinça, duplo toque),
   páginas do PDF, troca de revisão, **Baixar** (com o nome certo, ex.: "Planta - Rev02.pdf") e **Nova aba**.
@@ -385,6 +400,12 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
   "Crie seu acesso ao portal". O cliente cria uma senha (mínimo de 8 caracteres) e já entra. Depois, entra
   pela página Entrar com e-mail e senha e vê todos os projetos, contrato, proposta e recibos num lugar só,
   com "O que precisa de você" no topo. Os links do WhatsApp continuam valendo.
+
+**Falar com o escritório:** botão no topo de todas as páginas do cliente (links e portal), que abre o
+WhatsApp do escritório.
+
+Quando há etapa ou aditivo esperando por ele, o aviso no topo tem o botão **Ver e responder**, que leva
+direto ao ponto da página.
 
 **No projeto o cliente vê:** etapas e o que está esperando por ele, arquivos já enviados (ver e baixar),
 revisões usadas, aditivos para aprovar ou recusar, aprovações externas e pagamentos.
