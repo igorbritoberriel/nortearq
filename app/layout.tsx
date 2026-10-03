@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { CapturaErros } from "@/components/erros/CapturaErros";
 import "./globals.css";
 
 // Títulos com contraste de revista de arquitetura, texto limpo e rótulos de prancha técnica.
@@ -28,7 +29,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className={`${fonteTexto.variable} ${fonteTitulo.variable} ${fonteTecnica.variable}`}>
-      <body>{children}</body>
+      <body>
+        <CapturaErros />
+        {children}
+      </body>
     </html>
   );
 }

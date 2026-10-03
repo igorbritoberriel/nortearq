@@ -75,6 +75,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Logado no sistema: botão "Relatar problema ou sugestão" no menu (enviar um de teste) e o
+      "Painel interno" (só aparece para o seu e-mail). O e-mail de aviso só sai com o Resend configurado.
 - [ ] Sininho novo: número zera ao abrir, abas Não lidas/Todas, X para dispensar, Limpar lidas.
 - [ ] Cliente repetido: aviso ao cadastrar, "cadastrar mesmo assim" e "Juntar com este" na ficha.
 - [ ] Sistema logado como Administrador e como Colaborador (menu e telas de cada perfil).
@@ -98,6 +100,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Aviso automático de erros (servidor e telas, com repetições juntadas), telas de erro em português, botão "Relatar problema ou sugestão" e painel interno /app/interno (03/10/2026).
 - [x] Permissões: matriz única (Dono, Administrador, Colaborador) no código, nas telas e no banco; documentada na especificação (03/10/2026).
 - [x] Duplicidade: equipe, CPF/CNPJ, aviso de cliente parecido, juntar clientes, reenvio do formulário, nomes repetidos (03/10/2026).
 - [x] Notificações: zera ao abrir, lida ao abrir o item, abas Não lidas/Todas, dispensar, limpeza 30/90 dias, leitura por pessoa, grupos (03/10/2026).

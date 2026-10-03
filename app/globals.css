@@ -1436,3 +1436,39 @@ p { margin: 0 0 1em; }
 .duplicados-juntar { margin-top: 10px; padding-top: 10px; border-top: 1px solid #ecd8ad; }
 .equipe-alerta { display: block; color: #8a5a00; font-size: 0.82rem; }
 .equipe-convite-bloqueado { border-color: #e0b35c; background: #fdf8ef; }
+
+/* Erros: tela de erro, "Relatar problema ou sugestão" e painel interno */
+.tela-erro { max-width: 520px; margin: 48px auto; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.tela-erro svg { color: #c98a14; }
+.tela-erro h1 { font-size: 1.6rem; }
+.tela-erro-acoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 6px 0 4px; }
+.tela-erro-codigo { font-size: 0.78rem; color: var(--cor-texto-suave); font-family: var(--fonte-tecnica), monospace; }
+.relatar-botao { display: flex; align-items: center; gap: 8px; width: 100%; margin: 8px 0 0; padding: 8px 12px; border: 0; border-radius: 8px; background: none; color: inherit; opacity: 0.8; font: inherit; font-size: 0.88rem; text-align: left; cursor: pointer; }
+.relatar-botao:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+.relatar-botao:focus-visible { outline: 2px solid var(--cor-areia); }
+.relatar-janela { width: min(480px, calc(100vw - 32px)); padding: 20px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-superficie); color: var(--cor-texto); box-shadow: 0 24px 60px rgba(15, 27, 43, 0.3); }
+.relatar-janela::backdrop { background: rgba(8, 12, 20, 0.45); }
+.relatar-topo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.relatar-topo h2 { font-size: 1.15rem; margin: 0; }
+.relatar-tipos { display: flex; gap: 6px; margin-bottom: 12px; }
+.relatar-tipo { flex: 1; padding: 8px; border: 1px solid var(--cor-borda); border-radius: 8px; text-align: center; font-weight: 600; font-size: 0.9rem; cursor: pointer; }
+.relatar-tipo input { position: absolute; opacity: 0; pointer-events: none; }
+.relatar-tipo.ativo { border-color: var(--cor-norte); background: #eef3f9; color: var(--cor-norte); }
+.relatar-tipo:focus-within { outline: 2px solid var(--cor-norte); outline-offset: 1px; }
+.relatar-janela textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; resize: vertical; }
+.relatar-rodape { display: flex; justify-content: space-between; gap: 8px; }
+.relatar-ok { display: grid; justify-items: center; gap: 10px; text-align: center; padding: 8px 0; }
+.relatar-ok svg { color: var(--cor-sucesso); }
+.app-interno { color: var(--cor-areia) !important; }
+.interno-titulo { display: flex; align-items: center; gap: 8px; font-size: 1.15rem; }
+.interno-titulo small { font-weight: 400; font-size: 0.92rem; }
+.interno-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.interno-item { padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); }
+.interno-novo { border-left: 4px solid var(--cor-areia); }
+.interno-cabeca { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.9rem; }
+.interno-texto { margin: 8px 0; white-space: pre-line; overflow-wrap: anywhere; }
+.interno-detalhe pre { max-height: 220px; overflow: auto; padding: 10px; border-radius: 8px; background: var(--cor-fundo); font-size: 0.78rem; white-space: pre-wrap; }
+.interno-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.interno-tipo-problema { background: #fdecea; color: var(--cor-erro); }
+.interno-tipo-sugestao { background: #e8eef6; color: var(--cor-norte); }
+.interno-tipo-duvida { background: #fbf0dc; color: #8a5a00; }

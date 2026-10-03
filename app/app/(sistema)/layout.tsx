@@ -8,6 +8,8 @@ import { diasDeTeste, obterSessaoArquiteto, podeGerirAssinatura } from "@/lib/es
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
 import { PAGINA_EXIGE, pode } from "@/lib/permissoes";
+import { ehAdminNorteArq } from "@/lib/admin-nortearq";
+import { RelatarProblema } from "@/components/erros/RelatarProblema";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 
@@ -109,7 +111,13 @@ export default async function SistemaLayout({ children }: { children: React.Reac
             </Link>
           ))}
           {dono && <Link href="/app/assinatura">Plano e assinatura</Link>}
+          {sessao && ehAdminNorteArq(sessao.email) && (
+            <Link href="/app/interno" className="app-interno">
+              Painel interno
+            </Link>
+          )}
         </nav>
+        {sessao && <RelatarProblema />}
         {sessao && (
           <form action={sair} className="app-usuario">
             <span title={sessao.email}>{sessao.membro.nome}</span>
