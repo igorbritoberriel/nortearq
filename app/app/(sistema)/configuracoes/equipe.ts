@@ -18,6 +18,8 @@ const ERROS: Record<string, string> = {
   email_invalido: "Informe um e-mail válido.",
   nome_obrigatorio: "Informe o nome da pessoa.",
   ja_na_equipe: "Essa pessoa já está na equipe.",
+  email_de_outro_escritorio:
+    "Este e-mail já tem conta em outro escritório do NorteArq (ou é de um cliente). Cada conta pertence a um escritório só: peça para a pessoa usar outro e-mail.",
   sem_vagas: "As 5 vagas do plano Escritório estão em uso. Remova alguém ou cancele um convite.",
 };
 const erroDe = (mensagem: string) => ERROS[Object.keys(ERROS).find((c) => mensagem.includes(c)) ?? ""] ?? "Não foi possível concluir. Tente de novo.";

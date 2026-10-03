@@ -137,6 +137,14 @@ export async function salvarServicos(_anterior: EstadoFormulario, formData: Form
     if (s.nome.length < 2 || s.nome.length > 60) erros[`nome_${s.id}`] = "Use de 2 a 60 caracteres.";
   }
   if (novoNome && novoNome.length < 2) erros.novo_nome = "Use pelo menos 2 caracteres.";
+  // Nomes repetidos (sem diferenciar maiúsculas): o banco também recusa.
+  const vistos = new Map<string, string>();
+  for (const s of servicos) {
+    const chave = s.nome.trim().toLowerCase();
+    if (vistos.has(chave)) erros[`nome_${s.id}`] = "Já existe um serviço com este nome.";
+    else vistos.set(chave, s.id);
+  }
+  if (novoNome && vistos.has(novoNome.trim().toLowerCase())) erros.novo_nome = "Já existe um serviço com este nome.";
   if (!servicos.some((s) => s.ativo) && !novoNome) erros.geral = "Deixe pelo menos um serviço ativo.";
   if (Object.keys(erros).length) {
     return { status: "erro", mensagem: erros.geral ?? "Confira os campos destacados.", erros, valores };

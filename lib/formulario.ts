@@ -7,6 +7,7 @@ export type EstadoFormulario = {
   mensagem?: string;
   erros?: Record<string, string>;
   valores?: Record<string, string>; // devolvidos para o formulário não perder o que foi digitado
+  duplicados?: { id: string; nome: string; motivo: string }[]; // "já existe um cliente com este e-mail"
 };
 
 export const SEM_SUPABASE: EstadoFormulario = {

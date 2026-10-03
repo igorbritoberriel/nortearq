@@ -37,14 +37,17 @@ export async function avisarNovoContato(contatoId: string) {
 
   const { data: c } = await admin
     .from("contatos")
-    .select("escritorio_id, nome, whatsapp, email, status, orcamento_disponivel, prazo_desejado, localizacao, mensagem, prazo_apertado, acima_da_faixa")
+    .select("escritorio_id, nome, whatsapp, email, status, orcamento_disponivel, prazo_desejado, localizacao, mensagem, prazo_apertado, acima_da_faixa, envios")
     .eq("id", contatoId)
     .maybeSingle();
   if (!c) return;
   const status = STATUS_CONTATO[c.status as StatusContato];
+  // Mesma pessoa reenviando em até 7 dias: o pedido foi atualizado, não é um pedido novo (migração 0032).
+  const reenvio = (c.envios ?? 1) > 1;
+  const titulo = reenvio ? `${c.nome} atualizou o pedido de orçamento` : `${c.nome} pediu um orçamento`;
   await notificar(admin, c.escritorio_id, {
     tipo: "contato",
-    titulo: `${c.nome} pediu um orçamento`,
+    titulo,
     texto: `${status} · ${formatarReais(c.orcamento_disponivel) ?? "investimento não informado"}${c.prazo_apertado ? " · prazo apertado" : ""}${c.acima_da_faixa ? " · acima da sua faixa" : ""}`,
     link: "/app/contatos",
   });
@@ -61,9 +64,9 @@ export async function avisarNovoContato(contatoId: string) {
 
   await enviarEmail({
     para,
-    assunto: `Novo pedido de orçamento: ${c.nome} (${status})`,
+    assunto: reenvio ? `Pedido atualizado: ${c.nome} (${status})` : `Novo pedido de orçamento: ${c.nome} (${status})`,
     html: modeloEmail({
-      titulo: `${c.nome} pediu um orçamento`,
+      titulo,
       linhas: [
         `O filtro classificou como <strong>${escaparHtml(status)}</strong>.`,
         dados.join("<br>"),
@@ -72,7 +75,7 @@ export async function avisarNovoContato(contatoId: string) {
       botao: { texto: "Ver nos contatos", url: `${urlDoSite()}/app/contatos` },
     }),
     texto: [
-      `${c.nome} pediu um orçamento (${status}).`,
+      `${titulo} (${status}).`,
       `WhatsApp: ${formatarWhatsapp(c.whatsapp) ?? "—"}`,
       `Investimento: ${formatarReais(c.orcamento_disponivel) ?? "não informou"}`,
       c.mensagem ? `Mensagem: ${c.mensagem}` : "",

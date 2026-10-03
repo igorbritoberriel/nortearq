@@ -7,6 +7,7 @@ import { obterSessaoArquiteto } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { CAMPOS_CONTEUDO, COLUNAS_MODELO, combinarModelos, semNulos, type ModeloProposta } from "@/lib/modelos-proposta";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 
 // Modelos de proposta: salvar uma proposta como modelo, aplicar um modelo num rascunho e gerenciar.
 
@@ -72,6 +73,7 @@ export async function salvarComoModelo(
   const { error } = UUID.test(substituir)
     ? await ctx.supabase.from("modelos_proposta").update(registro).eq("id", substituir)
     : await ctx.supabase.from("modelos_proposta").insert({ ...registro, escritorio_id: ctx.sessao.escritorio.id });
+  if (ehRepetido(error)) return nomeModeloRepetido(ctx.supabase, d.nome, valores);
   if (error) {
     console.error("[modelos] salvar", error.message);
     return { status: "erro", mensagem: "Não foi possível salvar o modelo. Tente de novo.", valores };
@@ -156,6 +158,7 @@ export async function salvarDadosModelo(id: string, _anterior: EstadoFormulario,
       atualizado_em: new Date().toISOString(),
     })
     .eq("id", id);
+  if (ehRepetido(error)) return nomeModeloRepetido(ctx.supabase, d.nome, valores);
   if (error) return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
   revalidatePath("/app/propostas/modelos");
   return { status: "sucesso", mensagem: "Modelo salvo." };
@@ -168,4 +171,15 @@ export async function excluirModeloProposta(id: string) {
   if (error) console.error("[modelos] excluir", error.message);
   revalidatePath("/app/propostas/modelos");
   redirect("/app/propostas/modelos");
+}
+
+// Nome repetido (o banco recusa): sugere o próximo livre.
+async function nomeModeloRepetido(
+  supabase: NonNullable<Awaited<ReturnType<typeof criarClienteServidor>>>,
+  nome: string,
+  valores: Record<string, string>,
+): Promise<EstadoFormulario> {
+  const { data } = await supabase.from("modelos_proposta").select("nome");
+  const msg = mensagemNomeRepetido("um modelo", nome, nomeLivre(nome, (data ?? []).map((m) => m.nome as string)));
+  return { status: "erro", mensagem: msg, erros: { nome: msg }, valores };
 }

@@ -8,6 +8,7 @@ import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { confirmarSenha } from "@/lib/confirmar-senha";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 
 // Contratos do escritório (RN-01.12 a RN-01.16). Gerar, enviar e cancelar passam por funções do banco.
 
@@ -207,11 +208,13 @@ export async function criarModeloContrato(base: "interiores" | "copia") {
     servicos = (data ?? []).filter((s) => /interior/i.test(s.nome)).map((s) => s.id);
   }
 
+  // Nome sem repetir o de outro modelo: "Novo modelo (2)".
+  const { data: existentes } = await supabase.from("modelos_contrato").select("nome");
   const { data: novo, error } = await supabase
     .from("modelos_contrato")
     .insert({
       escritorio_id: sessao.escritorio.id,
-      nome: base === "interiores" ? "Design de interiores" : "Novo modelo",
+      nome: nomeLivre(base === "interiores" ? "Design de interiores" : "Novo modelo", (existentes ?? []).map((m) => m.nome as string)),
       corpo,
       servicos,
     })
@@ -251,6 +254,11 @@ export async function salvarConfigModelo(
     .from("modelos_contrato")
     .update({ nome: resultado.data.nome, servicos: padrao ? [] : servicos, atualizado_em: new Date().toISOString() })
     .eq("id", id);
+  if (ehRepetido(error)) {
+    const { data: existentes } = await ctx.supabase.from("modelos_contrato").select("nome");
+    const msg = mensagemNomeRepetido("um modelo", resultado.data.nome, nomeLivre(resultado.data.nome, (existentes ?? []).map((m) => m.nome as string)));
+    return { status: "erro", mensagem: msg, erros: { nome: msg }, valores };
+  }
   if (error) {
     console.error("[contratos] config modelo", error.message);
     return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };

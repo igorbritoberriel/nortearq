@@ -6,6 +6,8 @@ import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { RemoverCliente } from "@/components/clientes/RemoverCliente";
+import { ClientesParecidos } from "@/components/clientes/ClientesParecidos";
+import { Aviso } from "@/components/Campo";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
 import { STATUS_CONTRATO, type StatusContrato } from "@/lib/contratos";
 import { STATUS_PROPOSTA, reais, statusVisivel, type StatusProposta } from "@/lib/propostas";
@@ -30,8 +32,15 @@ const dataHora = new Intl.DateTimeFormat("pt-BR", {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export default async function ClientePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ClientePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ vinculado?: string }>;
+}) {
   const { id } = await params;
+  const { vinculado } = await searchParams;
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
 
@@ -56,6 +65,16 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
   const cliente = linha as Cliente;
   // Arquivar/excluir (0026): com contrato assinado ou pagamento, só arquivar.
   const { data: registroLegal } = await supabase.rpc("cliente_tem_registro_legal", { p_cliente: id });
+  // Outros cadastros com o mesmo CPF/CNPJ, e-mail ou WhatsApp (para juntar).
+  const { data: parecidosBrutos } = cliente.anonimizado_em
+    ? { data: [] }
+    : await supabase.rpc("clientes_parecidos", {
+        p_email: cliente.email,
+        p_telefone: cliente.telefone,
+        p_documento: cliente.documento,
+        p_ignorar: cliente.id,
+      });
+  const parecidos = (parecidosBrutos ?? []) as { id: string; nome: string; motivo: string }[];
 
   const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: projetoDoCliente }] =
     await Promise.all([
@@ -134,6 +153,14 @@ export default async function ClientePage({ params }: { params: Promise<{ id: st
         <ArrowLeft size={16} aria-hidden="true" />
         Clientes
       </Link>
+      {vinculado && (
+        <Aviso tipo="sucesso">
+          Este pedido de orçamento era de alguém que já é seu cliente: ele foi ligado a este cadastro, sem criar outro.
+        </Aviso>
+      )}
+      {parecidos.length > 0 && sessao.membro.papel !== "colaborador" && (
+        <ClientesParecidos clienteId={cliente.id} nome={cliente.nome} parecidos={parecidos} />
+      )}
       <div className="titulo-com-acao">
         <div>
           <h1>{cliente.nome}</h1>

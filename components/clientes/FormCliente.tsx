@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
+import Link from "next/link";
 import { Check, Copy, MessageCircle } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { gerarLink } from "@/app/app/(sistema)/clientes/acoes";
@@ -35,6 +36,26 @@ export function FormCliente({
     <form action={enviar} noValidate>
       {estado.status === "erro" && estado.mensagem && <Aviso tipo="erro">{estado.mensagem}</Aviso>}
       {estado.status === "sucesso" && estado.mensagem && <Aviso tipo="sucesso">{estado.mensagem}</Aviso>}
+      {!!estado.duplicados?.length && (
+        <div className="duplicados">
+          <ul>
+            {estado.duplicados.map((d) => (
+              <li key={d.id}>
+                <Link className="tabela-link" href={`/app/clientes/${d.id}`}>
+                  {d.nome}
+                </Link>{" "}
+                <span className="muted">· mesmo {d.motivo}</span>
+              </li>
+            ))}
+          </ul>
+          {!estado.duplicados.some((d) => d.motivo === "CPF/CNPJ") && (
+            <label className="checagem">
+              <input type="checkbox" name="mesmo_assim" />
+              <span>Não é a mesma pessoa: cadastrar mesmo assim</span>
+            </label>
+          )}
+        </div>
+      )}
 
       <Campo id="nome" rotulo="Nome" erro={erro.nome}>
         <input id="nome" name="nome" required autoComplete="off" defaultValue={valor("nome")} />

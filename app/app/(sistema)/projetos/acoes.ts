@@ -9,6 +9,7 @@ import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { CATEGORIAS, nomeParaBaixar, type Categoria } from "@/lib/arquivos";
 import { TAMANHO_MAXIMO_ARQUIVO } from "@/lib/projetos";
+import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 // Projeto (módulo 03). Aprovar é só do cliente: o banco barra o arquiteto (RN-03.4).
@@ -223,6 +224,16 @@ export async function linkDoProjeto(projetoId: string): Promise<{ link: string }
 
 // ---------- Etapas (RN-03.1: adicionar, renomear e reordenar) ----------
 
+// Nome repetido no mesmo projeto (o banco recusa): sugere o próximo livre.
+async function nomeEtapaRepetido(
+  supabase: NonNullable<Awaited<ReturnType<typeof contexto>>>["supabase"],
+  projetoId: string,
+  nome: string,
+) {
+  const { data } = await supabase.from("etapas").select("nome").eq("projeto_id", projetoId);
+  return mensagemNomeRepetido("uma etapa", nome, nomeLivre(nome, (data ?? []).map((e) => e.nome as string)));
+}
+
 export async function renomearEtapa(projetoId: string, etapaId: string, nome: string): Promise<Resultado> {
   const ctx = await contexto();
   if (!ctx || !UUID.test(etapaId)) return { erro: "Etapa não encontrada." };
@@ -232,6 +243,7 @@ export async function renomearEtapa(projetoId: string, etapaId: string, nome: st
     .from("etapas")
     .update({ nome: limpo, atualizado_em: new Date().toISOString() }, { count: "exact" })
     .eq("id", etapaId);
+  if (ehRepetido(error)) return { erro: await nomeEtapaRepetido(ctx.supabase, projetoId, limpo) };
   if (error || !count) return { erro: "Etapa aprovada ou aguardando o cliente não pode ser renomeada." };
   atualizar(projetoId);
   return { ok: true };
@@ -250,6 +262,7 @@ export async function adicionarEtapa(projetoId: string, nome: string): Promise<R
     .limit(1)
     .maybeSingle();
   const { error } = await ctx.supabase.from("etapas").insert({ projeto_id: projetoId, nome: limpo, ordem: (ultima?.ordem ?? 0) + 1 });
+  if (ehRepetido(error)) return { erro: await nomeEtapaRepetido(ctx.supabase, projetoId, limpo) };
   if (error) {
     console.error("[projeto] adicionar etapa", error.message);
     return { erro: "Não foi possível adicionar. Tente de novo." };

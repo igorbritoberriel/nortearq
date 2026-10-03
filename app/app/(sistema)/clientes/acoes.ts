@@ -54,6 +54,25 @@ function valoresComServicos(formData: FormData) {
   return valores;
 }
 
+type Parecido = { id: string; nome: string; motivo: string };
+
+// Como HubSpot e Pipedrive: CPF/CNPJ repetido bloqueia; e-mail ou WhatsApp repetido só avisa.
+async function parecidos(
+  supabase: NonNullable<Awaited<ReturnType<typeof contexto>>>["supabase"],
+  d: { email?: string | null; telefone?: string | null; documento?: string | null },
+  ignorar: string | null,
+) {
+  const { data } = await supabase.rpc("clientes_parecidos", {
+    p_email: d.email ?? null,
+    p_telefone: d.telefone ?? null,
+    p_documento: d.documento ?? null,
+    p_ignorar: ignorar,
+  });
+  return (data ?? []) as Parecido[];
+}
+
+const DOCUMENTO_REPETIDO = "Já existe um cliente com este CPF/CNPJ neste escritório.";
+
 export async function criarCliente(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
   const valores = valoresComServicos(formData);
   const { resultado, servicos } = lerFormulario(formData);
@@ -64,6 +83,20 @@ export async function criarCliente(_anterior: EstadoFormulario, formData: FormDa
   const ctx = await contexto();
   if (!ctx) return { ...SEM_SUPABASE, valores };
 
+  const iguais = await parecidos(ctx.supabase, resultado.data, null);
+  const mesmoDocumento = iguais.find((p) => p.motivo === "CPF/CNPJ");
+  if (mesmoDocumento) {
+    return { status: "erro", mensagem: DOCUMENTO_REPETIDO, erros: { documento: DOCUMENTO_REPETIDO }, valores, duplicados: [mesmoDocumento] };
+  }
+  if (iguais.length && formData.get("mesmo_assim") !== "on") {
+    return {
+      status: "erro",
+      mensagem: "Parece que este cliente já está cadastrado. Abra o cadastro existente ou confirme para criar mesmo assim.",
+      valores,
+      duplicados: iguais,
+    };
+  }
+
   const { data, error } = await ctx.supabase
     .from("clientes")
     .insert({ ...resultado.data, etapa: resultado.data.etapa ?? "contato", servicos, escritorio_id: ctx.sessao.escritorio.id })
@@ -71,6 +104,7 @@ export async function criarCliente(_anterior: EstadoFormulario, formData: FormDa
     .single();
   if (error) {
     console.error("[clientes] criar", error.message);
+    if (error.code === "23505") return { status: "erro", mensagem: DOCUMENTO_REPETIDO, erros: { documento: DOCUMENTO_REPETIDO }, valores };
     return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
   }
 
@@ -95,6 +129,7 @@ export async function salvarCliente(
   const { error } = await ctx.supabase.from("clientes").update({ ...resultado.data, servicos }).eq("id", id);
   if (error) {
     console.error("[clientes] salvar", error.message);
+    if (error.code === "23505") return { status: "erro", mensagem: DOCUMENTO_REPETIDO, erros: { documento: DOCUMENTO_REPETIDO }, valores };
     return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
   }
 
@@ -103,16 +138,41 @@ export async function salvarCliente(
 }
 
 // RN-01.5: o contato vira cliente com todos os dados que ele já preencheu.
+// Se já existe cliente com o mesmo e-mail ou WhatsApp, o pedido é ligado a ele (sem cadastro duplicado).
 export async function converterContato(contatoId: string) {
   const ctx = await contexto();
   if (!ctx) return;
   const { data, error } = await ctx.supabase.rpc("converter_contato", { p_contato_id: contatoId });
-  if (error || !data) {
+  const r = data as { id: string; existente: boolean } | null;
+  if (error || !r?.id) {
     console.error("[clientes] converter", error?.message);
     return;
   }
   revalidatePath("/app", "layout");
-  redirect(`/app/clientes/${data}`);
+  redirect(`/app/clientes/${r.id}${r.existente ? "?vinculado=1" : ""}`);
+}
+
+// Juntar dois cadastros do mesmo cliente (dono ou administrador, com senha). O "outro" deixa de existir.
+const ERROS_JUNTAR: Record<string, string> = {
+  sem_permissao: "Só o dono ou um administrador pode juntar clientes.",
+  cliente_anonimizado: "Cliente anonimizado (LGPD) não pode ser juntado.",
+  dois_acessos_portal: "Os dois cadastros já têm acesso ao portal. Fale com o suporte para unir.",
+  documentos_diferentes: "Os dois cadastros têm CPF/CNPJ diferentes: não são a mesma pessoa.",
+  mesmo_cliente: "Escolha outro cadastro.",
+};
+
+export async function juntarClientes(destino: string, origem: string, senha: string): Promise<{ erro: string } | { ok: true }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!(await confirmarSenha(ctx.sessao.email, senha))) return { erro: SENHA_ERRADA };
+  const { error } = await ctx.supabase.rpc("juntar_clientes", { p_destino: destino, p_origem: origem });
+  if (error) {
+    console.error("[clientes] juntar", error.message);
+    const chave = Object.keys(ERROS_JUNTAR).find((c) => error.message.includes(c));
+    return { erro: chave ? ERROS_JUNTAR[chave] : "Não foi possível juntar. Tente de novo." };
+  }
+  revalidatePath("/app", "layout");
+  return { ok: true };
 }
 
 // Gera um link novo (o anterior do mesmo tipo deixa de valer) e devolve o endereço completo.

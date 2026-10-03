@@ -41,11 +41,13 @@ export function Equipe({
   convites,
   liberada,
   euId,
+  bloqueados = [],
 }: {
   membros: Membro[];
   convites: Convite[];
   liberada: boolean;
   euId: string;
+  bloqueados?: string[]; // convites para quem já tem escritório: não podem ser aceitos nem ocupam vaga
 }) {
   const [estado, enviar, enviando] = useActionState(convidar, inicial);
   const [abrindo, setAbrindo] = useState(false);
@@ -56,7 +58,7 @@ export function Equipe({
   const [lista, aplicarPapel] = useOptimistic(membros, (atual, m: { id: string; papel: Papel }) =>
     atual.map((x) => (x.id === m.id ? { ...x, papel: m.papel } : x)),
   );
-  const usadas = membros.length + convites.length;
+  const usadas = membros.length + convites.filter((c) => !bloqueados.includes(c.id)).length;
   const linkConvite = aviso?.link ?? (estado.status === "sucesso" ? estado.link : undefined);
 
   if (!liberada) {
@@ -133,12 +135,18 @@ export function Equipe({
           </li>
         ))}
         {convites.map((c) => (
-          <li key={c.id} className="equipe-convite">
+          <li key={c.id} className={`equipe-convite ${bloqueados.includes(c.id) ? "equipe-convite-bloqueado" : ""}`}>
             <span className="equipe-pessoa">
               <strong>{c.nome}</strong>
               <small className="muted">
                 {c.email} · convite pendente, vence em {new Date(c.expira_em).toLocaleDateString("pt-BR")}
               </small>
+              {bloqueados.includes(c.id) && (
+                <small className="equipe-alerta">
+                  Este e-mail já tem conta em outro escritório: o convite não pode ser aceito e não ocupa vaga. Cancele e
+                  convide com outro e-mail.
+                </small>
+              )}
             </span>
             <span className="selo-status">{NOME_PAPEL[c.papel]}</span>
             <button

@@ -49,6 +49,7 @@ export default async function ConfiguracoesPage() {
             .gt("expira_em", new Date().toISOString())
             .order("criado_em"),
           supabase.rpc("equipe_liberada", { p_escritorio: escritorio.id }),
+          supabase.rpc("convites_bloqueados"),
         ])
       : Promise.resolve(null),
   ]);
@@ -70,6 +71,9 @@ export default async function ConfiguracoesPage() {
             membros={(equipe[0].data ?? []) as Parameters<typeof Equipe>[0]["membros"]}
             convites={(equipe[1].data ?? []) as Parameters<typeof Equipe>[0]["convites"]}
             liberada={!!equipe[2].data}
+            bloqueados={((equipe[3].data ?? []) as unknown as (string | { convites_bloqueados: string })[]).map((x) =>
+              typeof x === "string" ? x : x.convites_bloqueados,
+            )}
             euId={sessao.membro.id}
           />
         </section>
