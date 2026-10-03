@@ -2,6 +2,7 @@ import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { SituacaoEscritorio } from "@/lib/assinatura";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { pode, type Papel } from "./permissoes";
 
 // Arquiteto logado + escritório dele. Usado pelo layout e pelas páginas de /app.
 // cache(): várias chamadas na mesma requisição fazem uma consulta só.
@@ -45,8 +46,8 @@ export type Servico = {
   ordem: number;
 };
 
-// Perfis (0024): dono (tudo), administrador (tudo menos assinatura), colaborador (sem financeiro).
-export type Papel = "dono" | "administrador" | "colaborador";
+// Perfis (0024): a matriz completa do que cada um pode fazer está em lib/permissoes.ts.
+export type { Papel } from "./permissoes";
 
 export type SessaoArquiteto = {
   email: string;
@@ -107,6 +108,5 @@ export function linkDoEscritorio(slug: string) {
   return `${urlDoSite()}/e/${slug}`;
 }
 
-// O que cada perfil pode ver no sistema (a trava de verdade está no banco, migração 0024).
-export const podeVerFinanceiro = (papel: Papel) => papel === "dono" || papel === "administrador";
-export const podeGerirAssinatura = (papel: Papel) => papel === "dono";
+// Atalho da matriz (lib/permissoes.ts). A trava de verdade está no banco.
+export const podeGerirAssinatura = (papel: Papel) => pode(papel, "gerir_assinatura");

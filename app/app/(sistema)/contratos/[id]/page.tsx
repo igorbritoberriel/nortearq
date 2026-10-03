@@ -15,6 +15,7 @@ import {
   formatarDocumento,
   type Contrato,
 } from "@/lib/contratos";
+import { pode } from "@/lib/permissoes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { carregarPagamentos } from "@/lib/pagamentos";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -145,7 +146,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
               <Pagamentos
                 pagamentos={financeiro.pagamentos}
                 eventos={financeiro.eventos}
-                souDono={sessao.membro.papel === "dono"}
+                souDono={pode(sessao.membro.papel, "estornar_pagamento")}
                 hoje={new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())}
                 site={urlDoSite()}
                 cliente={{ nome: cliente.nome, telefone: cliente.telefone }}

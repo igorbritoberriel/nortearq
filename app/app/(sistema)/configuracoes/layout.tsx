@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
-import { obterSessaoArquiteto, podeVerFinanceiro } from "@/lib/escritorio";
+import { obterSessaoArquiteto } from "@/lib/escritorio";
+import { pode } from "@/lib/permissoes";
 
-// Só dono e administrador (o colaborador não vê valores nem configurações). O banco também barra.
+// Configurações do escritório: só dono e administrador. Matriz em lib/permissoes.ts; o banco também barra.
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const sessao = await obterSessaoArquiteto();
-  if (sessao && !podeVerFinanceiro(sessao.membro.papel)) redirect("/app");
+  if (sessao && !pode(sessao.membro.papel, "configurar_escritorio")) redirect("/app");
   return children;
 }

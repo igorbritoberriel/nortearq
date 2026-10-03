@@ -14,6 +14,7 @@ import { Aditivos, AprovacoesExternas } from "@/components/projetos/Aditivos";
 import { COLUNAS_ADITIVO, type Aditivo, type AprovacaoExterna } from "@/lib/aditivos";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
 import { assinarCaminhos, formatarEspaco, formatoDe, rendersAtuais, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
 import type { StatusEtapa } from "@/lib/projetos";
@@ -122,6 +123,7 @@ export default async function ProjetoPage({
         (!a.miniatura_tentada_em || new Date(a.miniatura_tentada_em).getTime() < dezMinutos),
     )
     .map((a) => ({ id: a.id, nome: a.nome, tipo: a.tipo, caminho: a.caminho_storage, url: urls[a.caminho_storage] }));
+  const verValores = pode(sessao.membro.papel, "ver_valores");
   const espacoPlano = espaco as { usado: number; limite: number } | null;
   const pctEspaco = espacoPlano?.limite ? espacoPlano.usado / espacoPlano.limite : 0;
 
@@ -168,7 +170,7 @@ export default async function ProjetoPage({
             <Link className="tabela-link" href={`/app/clientes/${cliente.id}`}>
               {cliente.nome}
             </Link>
-            {projeto.contrato_id && (
+            {projeto.contrato_id && verValores && (
               <Link className="tabela-link" href={`/app/contratos/${projeto.contrato_id}`}>
                 Contrato
               </Link>
@@ -251,6 +253,7 @@ export default async function ProjetoPage({
               etapa={e}
               arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
+              podeCobrar={pode(sessao.membro.papel, "gerir_aditivos")}
               cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
             />
           ),
@@ -258,6 +261,7 @@ export default async function ProjetoPage({
       />
       <NovaEtapa projetoId={id} />
 
+      {verValores && (
       <Aditivos
         projetoId={id}
         aditivos={(aditivos ?? []) as Aditivo[]}
@@ -265,15 +269,16 @@ export default async function ProjetoPage({
         cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
         temContrato={!!projeto.contrato_id}
       />
+      )}
       <AprovacoesExternas projetoId={id} itens={(externas ?? []) as AprovacaoExterna[]} />
 
-      {financeiro.pagamentos.length > 0 && (
+      {verValores && financeiro.pagamentos.length > 0 && (
         <section className="cartao secao-config">
           <h2>Pagamentos</h2>
           <Pagamentos
             pagamentos={financeiro.pagamentos}
             eventos={financeiro.eventos}
-            souDono={sessao.membro.papel === "dono"}
+            souDono={pode(sessao.membro.papel, "estornar_pagamento")}
             hoje={new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())}
             site={urlDoSite()}
             cliente={{ nome: cliente.nome, telefone: cliente.telefone }}

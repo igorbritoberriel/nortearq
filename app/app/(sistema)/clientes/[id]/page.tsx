@@ -6,6 +6,7 @@ import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { RemoverCliente } from "@/components/clientes/RemoverCliente";
+import { pode } from "@/lib/permissoes";
 import { ClientesParecidos } from "@/components/clientes/ClientesParecidos";
 import { Aviso } from "@/components/Campo";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
@@ -146,6 +147,8 @@ export default async function ClientePage({
   ].sort((a, b) => b.quando.localeCompare(a.quando));
 
   const acaoSalvar = salvarCliente.bind(null, cliente.id);
+  const papel = sessao.membro.papel;
+  const verValores = pode(papel, "ver_valores");
 
   return (
     <div className="pagina-app pagina-larga">
@@ -158,7 +161,7 @@ export default async function ClientePage({
           Este pedido de orçamento era de alguém que já é seu cliente: ele foi ligado a este cadastro, sem criar outro.
         </Aviso>
       )}
-      {parecidos.length > 0 && sessao.membro.papel !== "colaborador" && (
+      {parecidos.length > 0 && pode(papel, "juntar_clientes") && (
         <ClientesParecidos clienteId={cliente.id} nome={cliente.nome} parecidos={parecidos} />
       )}
       <div className="titulo-com-acao">
@@ -216,6 +219,8 @@ export default async function ClientePage({
                 temLinkAtivo={linkAtivo("briefing")}
               />
             </div>
+            {verValores && (
+              <>
             <div className="ficha-link">
               <div>
                 <strong>Proposta</strong>
@@ -264,6 +269,8 @@ export default async function ClientePage({
                 )}
               </div>
             </div>
+              </>
+            )}
           </section>
 
           <section className="cartao secao-config">
@@ -318,8 +325,8 @@ export default async function ClientePage({
               arquivado={!!cliente.arquivado_em}
               anonimizado={!!cliente.anonimizado_em}
               temRegistroLegal={!!registroLegal}
-              podeExcluir={sessao.membro.papel !== "colaborador"}
-              dono={sessao.membro.papel === "dono"}
+              podeExcluir={pode(papel, "excluir_cliente")}
+              dono={pode(papel, "anonimizar_cliente")}
             />
           </section>
 

@@ -47,12 +47,14 @@ export function EtapaArquiteto({
   arquivos,
   historico,
   cliente,
+  podeCobrar = true,
 }: {
   projetoId: string;
   etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
   arquivos: ArquivoVisivel[];
   historico: DecisaoArquiteto[];
   cliente: { nome: string; telefone: string | null; escritorio: string };
+  podeCobrar?: boolean; // dono ou administrador (lib/permissoes.ts)
 }) {
   const [pendente, iniciar] = useTransition();
   const ordem = useOrdemEtapas();
@@ -377,7 +379,12 @@ export function EtapaArquiteto({
                   </a>
                 </span>
               )}
-              {h.excedente && !h.aditivo_id && (
+              {h.excedente && !h.aditivo_id && !podeCobrar && (
+                <span className="etapa-excedente">
+                  Passou do limite de revisões. O dono ou um administrador decide se concede ou cobra.
+                </span>
+              )}
+              {h.excedente && !h.aditivo_id && podeCobrar && (
                 <span className="etapa-excedente">
                   Passou do limite de revisões.{" "}
                   <button

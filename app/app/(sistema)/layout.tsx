@@ -4,9 +4,10 @@ import { LogOut } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
 import { modulosLiberados, planoPorId, somarDias } from "@/lib/assinatura";
-import { diasDeTeste, obterSessaoArquiteto, podeGerirAssinatura, podeVerFinanceiro } from "@/lib/escritorio";
+import { diasDeTeste, obterSessaoArquiteto, podeGerirAssinatura } from "@/lib/escritorio";
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
+import { PAGINA_EXIGE, pode } from "@/lib/permissoes";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 
@@ -21,9 +22,11 @@ export default async function SistemaLayout({ children }: { children: React.Reac
   const dias = sessao ? diasDeTeste(sessao.escritorio) : null;
   const notificacoes = sessao ? await carregarNotificacoes() : null;
   const liberados = sessao ? modulosLiberados(sessao.escritorio.plano) : null;
-  // Perfil (0024): o colaborador não vê propostas, contratos nem configurações; assinatura é só do dono.
+  // Perfil: a matriz (lib/permissoes.ts) decide quais páginas do menu cada um vê.
   const papel = sessao?.membro.papel ?? "dono";
-  const ocultos = podeVerFinanceiro(papel) ? [] : ["/app/propostas", "/app/contratos", "/app/configuracoes"];
+  const ocultos = Object.entries(PAGINA_EXIGE)
+    .filter(([, acao]) => !pode(papel, acao))
+    .map(([href]) => href);
   const menu = MENU_ARQUITETO.filter(
     (item) => (!liberados || liberados.includes(item.modulo)) && !ocultos.includes(item.href),
   );

@@ -4,6 +4,7 @@ import { ClipboardList, Settings2 } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { ESTILOS, STATUS_BRIEFING, type Estilo, type StatusBriefing } from "@/lib/briefing";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
+import { pode } from "@/lib/permissoes";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Briefings" };
@@ -49,10 +50,12 @@ export default async function BriefingsPage() {
           <h1>Briefings</h1>
           <p className="muted">O que cada cliente respondeu, com o estilo e as referências.</p>
         </div>
-        <Link className="botao botao-secundario" href="/app/briefings/editor">
-          <Settings2 size={18} aria-hidden="true" />
-          Editar perguntas e imagens
-        </Link>
+        {pode(sessao.membro.papel, "configurar_escritorio") && (
+          <Link className="botao botao-secundario" href="/app/briefings/editor">
+            <Settings2 size={18} aria-hidden="true" />
+            Editar perguntas e imagens
+          </Link>
+        )}
       </div>
 
       {briefings.length === 0 ? (
