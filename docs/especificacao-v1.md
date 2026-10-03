@@ -270,14 +270,15 @@ prefeitura) → Projeto executivo → Entrega.
 - **RN-03.3** ✅ O cliente **aprova** ou **pede revisão** (comentário obrigatório).
 - **RN-03.4** ✅ A aprovação é registrada com data, hora, IP e usuário, e **não pode ser desfeita**.
 - **RN-03.5** ✅ Etapa aprovada não volta. Mudança depois da aprovação vira **aditivo**.
-- **RN-03.6** 🟡 Lembretes ao cliente com etapa aguardando aprovação: depois de 3 e de 7 dias.
+- **RN-03.6** ✅ Lembretes ao cliente com etapa aguardando aprovação: e-mail depois de 3 e de 7 dias (sem
+  repetir; reenviar a etapa recomeça a contagem). No de 7 dias, o arquiteto também é avisado no sininho.
 - **RN-03.7** ❓ Aprovação tácita (aprovar sozinho depois de X dias sem resposta)? Pode dar problema
   jurídico. Sugestão: só se estiver no contrato, e fora da V1.
 
 **Regras: controle de revisões**
 - **RN-03.8** ✅ Cada pedido de revisão consome 1 revisão do total contratado.
 - **RN-03.9** ✅ O contador fica visível para os dois lados: "2 de 3 revisões usadas".
-- **RN-03.10** 🟡 Ao passar do limite, o sistema avisa os dois lados ("esta revisão pode ser cobrada") e o
+- **RN-03.10** ✅ Ao usar a última revisão incluída e ao passar do limite, o sistema avisa os dois lados ("esta revisão pode ser cobrada") e o
   arquiteto escolhe: **conceder como cortesia** ou **gerar aditivo**.
 
 **Regras: arquivos**
@@ -346,7 +347,8 @@ cobrança Pix de visita extra.
   dão acesso ao portal.
 - **RG-8** Todo formulário público tem aceite da política de privacidade.
 - **RG-9** O arquiteto pode exportar e excluir os dados de um cliente quando ele pedir.
-- **RG-10** Termos de uso e política de privacidade publicados antes do lançamento.
+- **RG-10** Termos de uso (/termos) e política de privacidade (/privacidade) publicados; faltam razão
+  social, CNPJ e e-mail de contato (lib/legal.ts) e a revisão por advogado antes do lançamento.
 - **RG-11** Ações importantes (aceites, aprovações, assinaturas) ficam registradas com data, hora, IP e
   usuário.
 

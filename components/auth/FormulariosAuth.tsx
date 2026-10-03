@@ -159,7 +159,11 @@ export function FormCadastro() {
       <label className={`checagem ${erro.aceite ? "com-erro" : ""}`}>
         <input type="checkbox" name="aceite" defaultChecked={v.aceite === "on"} />
         <span>
-          Li e aceito a{" "}
+          Li e aceito os{" "}
+          <Link href="/termos" target="_blank">
+            termos de uso
+          </Link>{" "}
+          e a{" "}
           <Link href="/privacidade" target="_blank">
             política de privacidade
           </Link>

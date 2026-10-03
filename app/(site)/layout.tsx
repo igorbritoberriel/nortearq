@@ -34,6 +34,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <Link href="/#como-funciona">Como funciona</Link>
             <Link href="/precos">Preços</Link>
             <Link href="/#lista-espera">Lista de espera</Link>
+            <Link href="/termos">Termos de uso</Link>
             <Link href="/privacidade">Privacidade</Link>
           </nav>
           <span className="site-rodape-direitos">© {new Date().getFullYear()} NorteArq</span>

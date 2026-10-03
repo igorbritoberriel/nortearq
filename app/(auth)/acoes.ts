@@ -1,9 +1,16 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { LEGAL } from "@/lib/legal";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { destinoSeguro, errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
+
+async function ipDaRequisicao() {
+  const cabecalhos = await headers();
+  return cabecalhos.get("x-forwarded-for")?.split(",")[0]?.trim() ?? cabecalhos.get("x-real-ip") ?? null;
+}
 
 const site = () => (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
@@ -66,7 +73,14 @@ export async function cadastrar(_anterior: EstadoFormulario, formData: FormData)
     password: senhaCadastro,
     options: {
       // O gatilho do banco lê estes dados e cria o escritório (migração 0003).
-      data: { tipo: "arquiteto", nome, escritorio, whatsapp },
+      // Aceite registrado (RG-11): versão dos termos, data/hora e IP de quem criou a conta.
+      data: {
+        tipo: "arquiteto",
+        nome,
+        escritorio,
+        whatsapp,
+        aceite: { termos: LEGAL.versao, privacidade: LEGAL.versao, em: new Date().toISOString(), ip: await ipDaRequisicao() },
+      },
       emailRedirectTo: `${site()}/auth/confirmar?proximo=/app/onboarding`,
     },
   });

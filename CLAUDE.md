@@ -10,6 +10,9 @@ documentação é em **português do Brasil**.
 
 **Especificação completa (regras RN-xx, planos, telas): `docs/especificacao-v1.md`. Leia antes de implementar.**
 
+**Anotações do usuário: `docs/ideias-e-ajustes.md`.** Leia no começo de cada conversa, lembre o usuário
+do que estiver pendente e mova para "Feito" o que for concluído.
+
 ## Produto
 - Promessa: "Seu cliente explica o que quer sozinho. Você só projeta."
 - Três áreas: site de vendas `(site)`, sistema do arquiteto `/app` (login), área do cliente

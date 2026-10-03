@@ -4,6 +4,7 @@ import { ESTILOS, type Estilo } from "@/lib/briefing";
 import { MOTIVOS_RECUSA, reais, type MotivoRecusa } from "@/lib/propostas";
 import { STATUS_CONTATO, formatarReais, formatarWhatsapp, type StatusContato } from "@/lib/contatos";
 import { enviarEmail, escaparHtml, modeloEmail } from "@/lib/email";
+import { linkDoCliente } from "@/lib/clientes";
 import { urlDoSite } from "@/lib/escritorio";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
@@ -270,16 +271,23 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
   if (!admin) return console.info("[aviso] SUPABASE_SECRET_KEY não configurada: aviso de etapa não enviado.");
   const { data: e } = await admin
     .from("etapas")
-    .select("nome, status, projeto_id, projeto:projetos(nome, escritorio_id, revisoes_incluidas, cliente:clientes(nome))")
+    .select(
+      "nome, status, projeto_id, projeto:projetos(nome, escritorio_id, revisoes_incluidas, cliente:clientes(nome, email), escritorio:escritorios(nome))",
+    )
     .eq("id", etapaId)
     .maybeSingle();
   const projeto = e?.projeto as unknown as {
     nome: string;
     escritorio_id: string;
     revisoes_incluidas: number;
-    cliente: { nome: string } | null;
+    cliente: { nome: string; email: string | null } | null;
+    escritorio: { nome: string } | null;
   } | null;
   if (!e || !projeto) return;
+
+  const usadas = await revisoesUsadas(admin, e.projeto_id);
+  // RN-03.10: avisa os dois lados quando a última revisão incluída é usada e quando passa do limite.
+  const atingiu = e.status !== "aprovada" && !excedeu && usadas === projeto.revisoes_incluidas && usadas > 0;
 
   const { data: ultima } = await admin
     .from("aprovacoes")
@@ -298,11 +306,25 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
     titulo: assunto,
     texto: excedeu
       ? `Passou do limite de ${projeto.revisoes_incluidas} revisões contratadas`
-      : ultima?.comentario
+      : atingiu
+        ? `Última revisão incluída usada (${usadas} de ${projeto.revisoes_incluidas})`
+        : ultima?.comentario
         ? `“${ultima.comentario.slice(0, 140)}”`
         : projeto.nome,
     link: `/app/projetos/${e.projeto_id}`,
   });
+  if (excedeu || atingiu) {
+    await avisarClienteLimite(admin, {
+      email: projeto.cliente?.email ?? null,
+      cliente: projeto.cliente?.nome ?? "",
+      escritorio: projeto.escritorio?.nome ?? "O escritório",
+      projeto: projeto.nome,
+      usadas,
+      incluidas: projeto.revisoes_incluidas,
+      excedeu,
+    });
+  }
+
   const para = await emailsDoEscritorio(admin, projeto.escritorio_id);
   if (!para.length) return;
 
@@ -318,12 +340,136 @@ export async function avisarEtapaRespondida(etapaId: string, excedeu: boolean) {
           ? [
               `<strong>Esta revisão passou do limite contratado (${projeto.revisoes_incluidas}).</strong> No projeto, você escolhe conceder como cortesia ou cobrar como aditivo.`,
             ]
-          : []),
+          : atingiu
+            ? [
+                `<strong>Esta foi a última revisão incluída no contrato (${usadas} de ${projeto.revisoes_incluidas}).</strong> O cliente também foi avisado de que as próximas podem ser cobradas.`,
+              ]
+            : []),
       ],
       botao: { texto: "Abrir o projeto", url },
     }),
-    texto: `${assunto}.${ultima?.comentario ? `\nComentário: ${ultima.comentario}` : ""}${excedeu ? "\nPassou do limite de revisões contratado." : ""}\nAbrir: ${url}`,
+    texto: `${assunto}.${ultima?.comentario ? `\nComentário: ${ultima.comentario}` : ""}${excedeu ? "\nPassou do limite de revisões contratado." : atingiu ? "\nÚltima revisão incluída usada." : ""}\nAbrir: ${url}`,
   });
+}
+
+// Revisões que contam (sem cortesia), como a função revisoes_usadas do banco (RN-03.8).
+async function revisoesUsadas(admin: SupabaseClient, projetoId: string) {
+  const { count } = await admin
+    .from("aprovacoes")
+    .select("id, etapa:etapas!inner(projeto_id)", { count: "exact", head: true })
+    .eq("etapa.projeto_id", projetoId)
+    .eq("conta_revisao", true)
+    .eq("cortesia", false);
+  return count ?? 0;
+}
+
+// RN-03.10: o cliente recebe por escrito que usou as revisões incluídas (e que a próxima pode ser cobrada).
+async function avisarClienteLimite(
+  admin: SupabaseClient,
+  d: { email: string | null; cliente: string; escritorio: string; projeto: string; usadas: number; incluidas: number; excedeu: boolean },
+) {
+  if (!d.email) return;
+  const primeiro = escaparHtml(d.cliente.split(" ")[0] || "");
+  const assunto = d.excedeu
+    ? `${d.escritorio}: pedido de revisão além do contratado`
+    : `${d.escritorio}: você usou as revisões incluídas no contrato`;
+  const linhas = d.excedeu
+    ? [
+        `Olá, ${primeiro}! Registramos o seu pedido de revisão no projeto ${escaparHtml(d.projeto)}.`,
+        `As ${d.incluidas} revisões incluídas no contrato já tinham sido usadas, então esta pode ser cobrada à parte.`,
+        `Nada é cobrado sem a sua aprovação: se houver valor, o ${escaparHtml(d.escritorio)} vai enviar um aditivo para você aprovar antes.`,
+      ]
+    : [
+        `Olá, ${primeiro}! Registramos o seu pedido de revisão no projeto ${escaparHtml(d.projeto)}.`,
+        `Com ele, você usou as <strong>${d.incluidas} revisões incluídas</strong> no contrato. As próximas podem ser cobradas à parte, sempre com a sua aprovação antes.`,
+      ];
+  await enviarEmail({
+    para: d.email,
+    assunto,
+    html: modeloEmail({ titulo: d.excedeu ? "Revisão além do contratado" : "Revisões incluídas usadas", linhas }),
+    texto: linhas.map((l) => l.replace(/<[^>]+>/g, "")).join("\n"),
+  });
+}
+
+// Etapa esperando aprovação há 3 ou 7 dias (RN-03.6): lembrete ao cliente por e-mail.
+// No de 7 dias, o arquiteto também é avisado (sininho), para cobrar pelo WhatsApp se quiser.
+export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
+  const admin = criarClienteAdmin();
+  if (!admin) return;
+  const { data: e } = await admin
+    .from("etapas")
+    .select("nome, projeto_id, projeto:projetos(nome, escritorio_id, cliente_id, cliente:clientes(nome, email), escritorio:escritorios(nome))")
+    .eq("id", etapaId)
+    .maybeSingle();
+  const projeto = e?.projeto as unknown as {
+    nome: string;
+    escritorio_id: string;
+    cliente_id: string;
+    cliente: { nome: string; email: string | null } | null;
+    escritorio: { nome: string } | null;
+  } | null;
+  if (!e || !projeto) return;
+  const escritorio = projeto.escritorio?.nome ?? "O escritório";
+  const email = projeto.cliente?.email;
+
+  if (email) {
+    const token = await tokenDoProjeto(admin, e.projeto_id, projeto.escritorio_id, projeto.cliente_id);
+    if (token) {
+      const link = linkDoCliente(urlDoSite(), token, "projeto");
+      const primeiro = escaparHtml(projeto.cliente!.nome.split(" ")[0]);
+      await enviarEmail({
+        para: email,
+        assunto: `Lembrete: etapa "${e.nome}" esperando a sua aprovação`,
+        html: modeloEmail({
+          titulo: `A etapa "${e.nome}" ainda espera você`,
+          linhas: [
+            `Olá, ${primeiro}! O ${escaparHtml(escritorio)} enviou a etapa <strong>${escaparHtml(e.nome)}</strong> do projeto ${escaparHtml(projeto.nome)} há ${dias} dias.`,
+            "Quando puder, veja os arquivos e aprove ou peça revisão. O projeto segue para a próxima etapa depois da sua resposta.",
+          ],
+          botao: { texto: "Ver a etapa", url: link },
+        }),
+        texto: `A etapa "${e.nome}" do projeto ${projeto.nome} espera a sua aprovação há ${dias} dias: ${link}`,
+      });
+    }
+  }
+
+  if (dias === 7) {
+    await notificar(admin, projeto.escritorio_id, {
+      tipo: "etapa",
+      titulo: `"${e.nome}" sem resposta há 7 dias`,
+      texto: email
+        ? `${projeto.cliente?.nome ?? "O cliente"} recebeu 2 lembretes por e-mail. Que tal chamar no WhatsApp?`
+        : `${projeto.cliente?.nome ?? "O cliente"} não tem e-mail cadastrado: lembre pelo WhatsApp.`,
+      link: `/app/projetos/${e.projeto_id}`,
+    });
+  }
+}
+
+// Link do projeto que ainda vale; se todos venceram, cria um novo (90 dias), como o botão do arquiteto.
+async function tokenDoProjeto(admin: SupabaseClient, projetoId: string, escritorioId: string, clienteId: string) {
+  const { data: ativo } = await admin
+    .from("links_cliente")
+    .select("token")
+    .eq("destino", "projeto")
+    .eq("referencia_id", projetoId)
+    .gt("expira_em", new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString())
+    .order("expira_em", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (ativo?.token) return ativo.token as string;
+  const { data: novo, error } = await admin
+    .from("links_cliente")
+    .insert({
+      escritorio_id: escritorioId,
+      cliente_id: clienteId,
+      destino: "projeto",
+      referencia_id: projetoId,
+      expira_em: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+    })
+    .select("token")
+    .single();
+  if (error) console.error("[lembrete] link", error.message);
+  return (novo?.token as string | undefined) ?? null;
 }
 
 // O cliente aprovou ou recusou um aditivo (RN-03.15).
