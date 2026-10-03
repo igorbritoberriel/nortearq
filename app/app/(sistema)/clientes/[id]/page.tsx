@@ -198,6 +198,19 @@ export default async function ClientePage({
     if (briefing?.status === "respondido") {
       return { texto: "O cliente respondeu o briefing: revise e valide na reunião.", href: `/app/briefings/${briefing.id}`, rotulo: "Ver o Perfil do Cliente" };
     }
+    // M17: o escritório escolheu receber o briefing antes da proposta (Configurações → Briefing).
+    if (sessao.escritorio.briefing_antes_proposta && !contratoAtual && (!ultimaProposta || statusProposta === "rascunho")) {
+      if (!briefing) {
+        return {
+          texto: "Próximo passo: enviar o briefing detalhado (pelas suas configurações, ele vem antes da proposta).",
+          href: "#briefing",
+          rotulo: "Ir para o briefing",
+        };
+      }
+      if (briefing.status === "pendente" || briefing.status === "em_andamento") {
+        return { texto: "Aguardando o cliente responder o briefing.", href: "#briefing", rotulo: "Ver o briefing", esperando: true };
+      }
+    }
     if (!verValores) return projeto;
     if (contratoAtual?.status === "assinado") {
       if (!briefing) return { texto: "Contrato assinado. Próximo passo: enviar o briefing detalhado.", href: "#briefing", rotulo: "Ir para o briefing" };

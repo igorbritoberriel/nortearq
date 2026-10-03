@@ -127,7 +127,7 @@ Com "Reembolso das despesas", não há campo de valor, e o valor digitado na obs
 → Explicar em cada opção onde vai o valor ("Reembolso: o cliente paga o que for gasto, sem valor fixo") e
 avisar quando a observação tiver um valor em reais.
 
-**M17. Opção do momento do briefing não faz nada** (já anotado, A fazer).
+**M17. Opção do momento do briefing não faz nada** (já anotado, A fazer). ✅ Feito (03/10/2026): passou a valer no próximo passo da ficha.
 
 ---
 

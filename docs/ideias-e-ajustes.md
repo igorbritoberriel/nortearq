@@ -64,14 +64,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
       perguntas frequentes do cliente final (03/10/2026). A central de ajuda (menu Ajuda) e as perguntas
       frequentes do cliente já leem o manual direto. Falta: gerar o PDF depois da conferência visual.
-- [ ] **A opção "Quando o cliente responde o briefing detalhado?" não faz nada** (achado ao escrever o manual,
-      03/10/2026). Ela é salva nas Configurações e no passo 4 da configuração inicial, mas o sistema não usa a
-      escolha: o link de briefing pode ser mandado a qualquer momento pela ficha do cliente. Decidir: tirar a
-      opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
-      contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens, menos o M17
-      (opção do momento do briefing, que depende da sua decisão, logo acima).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens.
       Falta ainda a conferência visual no navegador (prints).
 - [ ] Botão "Concluir projeto" (marcar como entregue): hoje um projeto libera a vaga do limite quando todas
       as etapas são aprovadas; não existe como encerrar um projeto que parou no meio (cliente desistiu). Entra
@@ -119,6 +113,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Opção do momento do briefing passou a valer (03/10/2026): "antes da proposta" faz a ficha do cliente sugerir o briefing (e esperar a resposta) antes de montar a proposta; "depois do contrato" sugere o briefing quando o contrato é assinado.
 - [x] Central de ajuda (03/10/2026): menu "Ajuda" com o manual, índice e busca; "Dúvidas frequentes" no fim das páginas do cliente (links e portal). Tudo lido de docs/manual/manual.md; trechos só de suporte ficam de fora.
 - [x] Lote 5 (03/10/2026): exportar dados do cliente (LGPD); limites dos planos travados no banco (15 briefings/mês no Briefing, 15 projetos em andamento no Profissional, migração 0036) com aviso no painel; "Salvar como modelo" também em propostas enviadas e aprovadas.
 - [x] Revisão de UX, lote 4 (03/10/2026): menu recolhido no celular; reenviar o mesmo link do briefing; confirmação ao enviar etapa, excluir pedido e conceder cortesia; erros visíveis em Virar cliente, Nova proposta, Gerar contrato e Nova versão; explicação do deslocamento com aviso de valor na observação; busca pelo nome do cliente em Propostas, Projetos, Contratos e Briefings; linha do tempo com propostas e etapas.

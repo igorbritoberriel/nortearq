@@ -64,7 +64,8 @@ hora e IP.
 3. **Faixa de preço e agenda:** valor mínimo (abaixo dele o pedido chega "fora do perfil"; em branco, todos
    chegam "a avaliar"), valor máximo (acima dele vem o aviso "acima da sua faixa") e a data em que pode
    começar um projeto novo (antes dela, aviso "prazo apertado").
-4. **Briefing:** depois do contrato (recomendado) ou antes da proposta.
+4. **Briefing:** depois do contrato (recomendado) ou antes da proposta. A escolha muda o "próximo passo" na
+   ficha do cliente: o briefing é sugerido logo que ele vira cliente, ou quando o contrato é assinado.
 
 No fim aparece o **link do escritório** para copiar ou mandar.
 
