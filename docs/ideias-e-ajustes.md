@@ -11,11 +11,14 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
       configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
       final (etapa enviada, lembretes, contrato, limite de revisões). No meu computador a chave não existe.
-- [ ] **Urgente antes do piloto:** passar o Supabase para o plano Pro (US$ 25/mês) por causa das
-      cópias de segurança diárias: com clientes reais, o plano grátis não tem backup.
+- [ ] **Urgente antes do piloto: cópia de segurança grátis no Cloudflare R2** (decisão de 03/10/2026: menor
+      custo possível até começar a cobrar). Você: criar a conta no cloudflare.com, ativar o R2 (pede cartão, mas
+      é grátis até 10 GB) e criar a chave de acesso. Eu: rotina diária no GitHub copiando banco e arquivos, guarda
+      30 dias, teste de restauração (cerca de 1 hora). A rotina também evita o Supabase grátis "dormir".
+- [ ] Ao cobrar o primeiro escritório de fora (antes da Fase 3): Supabase Pro (US$ 25/mês) e Vercel Pro
+      (US$ 20/mês), juntos perto de R$ 260/mês. Até lá, tudo no plano grátis.
 - [ ] Registrar o domínio (ex.: nortearq.com.br) e apontar para a Vercel: link "nortearq.vercel.app"
       no WhatsApp do cliente passa pouca confiança.
-- [ ] Ao cobrar o primeiro escritório de fora: Vercel Pro (US$ 20/mês; o plano grátis não permite uso comercial).
 - [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
       escritório, então esse convite nunca pode ser aceito (Configurações > Equipe, no escritório dela).
 - [ ] Dados da empresa para os Termos e a Privacidade: razão social, CNPJ e e-mail de contato
