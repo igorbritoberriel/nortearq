@@ -45,9 +45,12 @@ export type Servico = {
   ordem: number;
 };
 
+// Perfis (0024): dono (tudo), administrador (tudo menos assinatura), colaborador (sem financeiro).
+export type Papel = "dono" | "administrador" | "colaborador";
+
 export type SessaoArquiteto = {
   email: string;
-  membro: { id: string; nome: string; papel: "dono" | "equipe" };
+  membro: { id: string; nome: string; papel: Papel };
   escritorio: Escritorio;
   situacao: SituacaoEscritorio;
 };
@@ -72,8 +75,13 @@ export const obterSessaoArquiteto = cache(async (): Promise<SessaoArquiteto | nu
   if (!membro?.escritorio) redirect("/portal");
 
   const { escritorio, ...dadosMembro } = membro as unknown as SessaoArquiteto["membro"] & { escritorio: Escritorio };
-  // RG-1 a RG-3: teste, ativo, tolerância, modo leitura ou suspenso (calculado pelo banco).
-  const { data: situacao } = await supabase.rpc("situacao_escritorio", { p_escritorio: escritorio.id });
+  // RG-5: membro da equipe num plano sem equipe fica sem acesso até o escritório voltar ao Escritório.
+  const [{ data: situacao }, { data: liberado }] = await Promise.all([
+    supabase.rpc("situacao_escritorio", { p_escritorio: escritorio.id }),
+    supabase.rpc("acesso_liberado"),
+    supabase.rpc("registrar_acesso"),
+  ]);
+  if (liberado === false) redirect("/sem-acesso");
   return { email: user.email ?? "", membro: dadosMembro, escritorio, situacao: (situacao as SituacaoEscritorio) ?? "teste" };
 });
 
@@ -98,3 +106,7 @@ export function urlDoSite() {
 export function linkDoEscritorio(slug: string) {
   return `${urlDoSite()}/e/${slug}`;
 }
+
+// O que cada perfil pode ver no sistema (a trava de verdade está no banco, migração 0024).
+export const podeVerFinanceiro = (papel: Papel) => papel === "dono" || papel === "administrador";
+export const podeGerirAssinatura = (papel: Papel) => papel === "dono";

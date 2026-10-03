@@ -57,6 +57,12 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
   ]);
   if (!cliente) notFound();
 
+  // Com equipe: quem enviou a proposta (0025).
+  const { data: remetente } = proposta.enviada_por
+    ? await supabase.from("membros").select("nome").eq("id", proposta.enviada_por).maybeSingle()
+    : { data: null };
+  const enviadaPor = remetente?.nome ?? null;
+
   const status = statusVisivel(proposta);
   const rascunho = proposta.status === "rascunho";
   const respondida = ["aprovada", "ajuste_pedido", "recusada"].includes(proposta.status);
@@ -80,6 +86,7 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
             <span className={`selo-status selo-proposta-${status}`}>{STATUS_PROPOSTA[status]}</span>
             Versão {proposta.versao}
             {proposta.enviada_em && ` · enviada em ${dataHora.format(new Date(proposta.enviada_em))}`}
+            {enviadaPor && ` por ${enviadaPor}`}
           </p>
         </div>
         <div className="perfil-acoes">

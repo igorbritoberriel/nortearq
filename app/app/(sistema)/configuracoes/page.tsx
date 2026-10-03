@@ -8,6 +8,8 @@ import {
   LinkDoEscritorio,
 } from "@/components/escritorio/FormulariosEscritorio";
 import { FormParcelamento } from "@/components/escritorio/FormParcelamento";
+import { Equipe } from "@/components/equipe/Equipe";
+import { criarClienteServidor } from "@/lib/supabase/server";
 import { linkDoEscritorio, listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 
 export const metadata: Metadata = { title: "Configurações" };
@@ -18,7 +20,6 @@ export default async function ConfiguracoesPage() {
     "Modelo de contrato",
     "Avisos por WhatsApp e e-mail",
     "Plano e pagamento da assinatura",
-    "Usuários da equipe (plano Escritório)",
   ];
 
   if (!sessao) {
@@ -33,7 +34,24 @@ export default async function ConfiguracoesPage() {
   }
 
   const { escritorio } = sessao;
-  const servicos = await listarServicos();
+  const dono = sessao.membro.papel === "dono";
+  const supabase = await criarClienteServidor();
+  const [servicos, equipe] = await Promise.all([
+    listarServicos(),
+    dono && supabase
+      ? Promise.all([
+          supabase.from("membros").select("id, nome, email, papel, ultimo_acesso").order("criado_em"),
+          supabase
+            .from("convites")
+            .select("id, nome, email, papel, expira_em")
+            .is("aceito_em", null)
+            .is("cancelado_em", null)
+            .gt("expira_em", new Date().toISOString())
+            .order("criado_em"),
+          supabase.rpc("equipe_liberada", { p_escritorio: escritorio.id }),
+        ])
+      : Promise.resolve(null),
+  ]);
 
   return (
     <div className="pagina-app">
@@ -44,6 +62,18 @@ export default async function ConfiguracoesPage() {
         <p className="muted">Coloque na bio do Instagram e mande para quem pedir orçamento.</p>
         <LinkDoEscritorio link={linkDoEscritorio(escritorio.slug)} nome={escritorio.nome} />
       </section>
+
+      {dono && equipe && (
+        <section className="cartao secao-config" id="equipe">
+          <h2>Equipe</h2>
+          <Equipe
+            membros={(equipe[0].data ?? []) as Parameters<typeof Equipe>[0]["membros"]}
+            convites={(equipe[1].data ?? []) as Parameters<typeof Equipe>[0]["convites"]}
+            liberada={!!equipe[2].data}
+            euId={sessao.membro.id}
+          />
+        </section>
+      )}
 
       <section className="cartao secao-config" id="marca">
         <h2>Minha marca</h2>

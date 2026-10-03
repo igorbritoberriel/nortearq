@@ -57,6 +57,11 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
   if (!cliente) notFound();
 
   const e = sessao.escritorio;
+  // Com equipe: quem enviou o contrato.
+  const { data: remetente } = contrato.enviado_por
+    ? await supabase.from("membros").select("nome").eq("id", contrato.enviado_por).maybeSingle()
+    : { data: null };
+  const enviadoPor = remetente?.nome ?? null;
   const faltamDados = !e.documento || !e.endereco || !e.responsavel;
   const texto = (previa as string | null) ?? "";
   const aberto = contrato.status === "rascunho" || contrato.status === "aguardando_assinatura";
@@ -185,6 +190,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
                   <dt>Contratado</dt>
                   <dd>
                     {e.nome}, ao enviar em {contrato.enviado_em && dataHora.format(new Date(contrato.enviado_em))}
+                    {enviadoPor && ` (enviado por ${enviadoPor})`}
                   </dd>
                 </div>
                 <div>

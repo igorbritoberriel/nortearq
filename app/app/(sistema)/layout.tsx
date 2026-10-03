@@ -4,7 +4,7 @@ import { LogOut } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
 import { modulosLiberados, planoPorId, somarDias } from "@/lib/assinatura";
-import { diasDeTeste, obterSessaoArquiteto } from "@/lib/escritorio";
+import { diasDeTeste, obterSessaoArquiteto, podeGerirAssinatura, podeVerFinanceiro } from "@/lib/escritorio";
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
 import { dataCurta } from "@/lib/propostas";
@@ -21,7 +21,13 @@ export default async function SistemaLayout({ children }: { children: React.Reac
   const dias = sessao ? diasDeTeste(sessao.escritorio) : null;
   const notificacoes = sessao ? await carregarNotificacoes() : null;
   const liberados = sessao ? modulosLiberados(sessao.escritorio.plano) : null;
-  const menu = MENU_ARQUITETO.filter((item) => !liberados || liberados.includes(item.modulo));
+  // Perfil (0024): o colaborador não vê propostas, contratos nem configurações; assinatura é só do dono.
+  const papel = sessao?.membro.papel ?? "dono";
+  const ocultos = podeVerFinanceiro(papel) ? [] : ["/app/propostas", "/app/contratos", "/app/configuracoes"];
+  const menu = MENU_ARQUITETO.filter(
+    (item) => (!liberados || liberados.includes(item.modulo)) && !ocultos.includes(item.href),
+  );
+  const dono = podeGerirAssinatura(papel);
 
   const e = sessao?.escritorio;
 
@@ -68,14 +74,21 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           <div className="app-escritorio">
             <strong>{sessao.escritorio.nome}</strong>
             {/* Plano numa linha só, clicável; o alerta só aparece quando importa. */}
-            <Link
-              href="/app/assinatura"
-              className={`app-plano ${alertaPlano ? "app-plano-alerta" : ""}`}
-              title="Plano e assinatura"
-            >
-              <strong>{nomePlano}</strong>
-              {detalhePlano && <span> · {detalhePlano}</span>}
-            </Link>
+            {dono ? (
+              <Link
+                href="/app/assinatura"
+                className={`app-plano ${alertaPlano ? "app-plano-alerta" : ""}`}
+                title="Plano e assinatura"
+              >
+                <strong>{nomePlano}</strong>
+                {detalhePlano && <span> · {detalhePlano}</span>}
+              </Link>
+            ) : (
+              <span className="app-plano">
+                <strong>{nomePlano}</strong>
+                {papel === "colaborador" ? " · colaborador" : " · administrador"}
+              </span>
+            )}
           </div>
         )}
         {sessao && notificacoes && (
@@ -91,7 +104,7 @@ export default async function SistemaLayout({ children }: { children: React.Reac
               {item.rotulo}
             </Link>
           ))}
-          <Link href="/app/assinatura">Plano e assinatura</Link>
+          {dono && <Link href="/app/assinatura">Plano e assinatura</Link>}
         </nav>
         {sessao && (
           <form action={sair} className="app-usuario">
@@ -107,9 +120,13 @@ export default async function SistemaLayout({ children }: { children: React.Reac
         {faixa && (
           <div className={`faixa-assinatura faixa-${faixa.tipo}`} role="status">
             <span>{faixa.texto}</span>
-            <Link href="/app/assinatura" className="botao botao-primario botao-pequeno">
-              {sessao?.situacao === "teste" ? "Escolher plano" : "Resolver agora"}
-            </Link>
+            {dono ? (
+              <Link href="/app/assinatura" className="botao botao-primario botao-pequeno">
+                {sessao?.situacao === "teste" ? "Escolher plano" : "Resolver agora"}
+              </Link>
+            ) : (
+              <span className="muted">Fale com o dono do escritório.</span>
+            )}
           </div>
         )}
         {children}

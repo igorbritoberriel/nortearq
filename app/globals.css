@@ -1250,3 +1250,15 @@ p { margin: 0 0 1em; }
 .app-plano:hover strong { text-decoration: underline; }
 .app-plano:focus-visible { outline: 2px solid var(--cor-areia); outline-offset: 2px; }
 .app-plano-alerta span { color: #f2b8b5; font-weight: 600; }
+
+/* Equipe */
+.equipe { display: grid; gap: 12px; }
+.equipe-vagas { margin: 0; font-size: 0.92rem; color: var(--cor-texto-suave); }
+.equipe-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.equipe-lista li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fff; flex-wrap: wrap; }
+.equipe-lista select { padding: 7px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; font-size: 0.9rem; background: #fff; }
+.equipe-pessoa { display: grid; gap: 2px; flex: 1; min-width: 200px; }
+.equipe-convite { border-style: dashed !important; background: var(--cor-fundo) !important; }
+.equipe-bloqueada { display: grid; gap: 10px; justify-items: start; }
+.equipe-bloqueada p { margin: 0; }
+.equipe > .botao { justify-self: start; }
