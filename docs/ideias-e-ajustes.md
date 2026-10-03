@@ -22,6 +22,14 @@ for concluído. **Toda pendência entra aqui.**
 - [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
+- [ ] **Estratégia de lançamento** (decidida pelo Igor em 03/10/2026: não abrir agora). Proposta em 3 fases,
+      aguardando aprovação dos detalhes:
+      A) piloto fechado com a esposa até cumprir o "critério de pronto";
+      B) 5 a 8 arquitetos patrocinados, 3 meses grátis com tudo liberado, em troca de uso real, conversa
+         quinzenal, depoimento e divulgação (termo de parceria simples); no fim, preço de fundador travado;
+      C) abertura ao mercado com os casos de sucesso.
+      Para a fase B o sistema precisa de: conta patrocinada (90 dias, sem cobrança), botão "relatar
+      problema ou sugestão", aviso automático de erros e um painel interno de uso.
 - [ ] **Preço de lançamento** (proposta de 03/10/2026, aguardando aprovação): piloto grátis da esposa em
       troca de depoimento; "Plano Fundador" R$ 47/mês com preço travado para os 30 primeiros; preço de
       tabela R$ 97 continua visível; Profissional com 2 pessoas; tirar o plano Briefing do lançamento.
