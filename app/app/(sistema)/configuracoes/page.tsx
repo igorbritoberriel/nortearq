@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import {
   FormBriefing,
@@ -9,6 +10,7 @@ import {
 } from "@/components/escritorio/FormulariosEscritorio";
 import { FormParcelamento } from "@/components/escritorio/FormParcelamento";
 import { Equipe } from "@/components/equipe/Equipe";
+import { pode } from "@/lib/permissoes";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { linkDoEscritorio, listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 
@@ -16,11 +18,6 @@ export const metadata: Metadata = { title: "Configurações" };
 
 export default async function ConfiguracoesPage() {
   const sessao = await obterSessaoArquiteto();
-  const pendentes = [
-    "Modelo de contrato",
-    "Avisos por WhatsApp e e-mail",
-    "Plano e pagamento da assinatura",
-  ];
 
   if (!sessao) {
     return (
@@ -28,13 +25,24 @@ export default async function ConfiguracoesPage() {
         modulo="00"
         titulo="Configurações"
         descricao="Ligue o Supabase no .env.local para editar as configurações."
-        itens={["Minha marca", "Serviços oferecidos", "Faixa de preço e agenda", "Briefing", ...pendentes]}
+        itens={["Minha marca", "Serviços oferecidos", "Faixa de preço e agenda", "Briefing", "Atalhos para os modelos"]}
       />
     );
   }
 
   const { escritorio } = sessao;
   const dono = sessao.membro.papel === "dono";
+  const verValores = pode(sessao.membro.papel, "ver_valores");
+  const atalhos = [
+    { href: "/app/briefings/editor", rotulo: "Editor de briefing", descricao: "Perguntas e imagens do quiz de estilo." },
+    ...(verValores
+      ? [
+          { href: "/app/propostas/modelos", rotulo: "Modelos de proposta", descricao: "Escopo, valores e condições que se repetem." },
+          { href: "/app/contratos/modelo", rotulo: "Modelos de contrato", descricao: "Texto do contrato e dados do escritório que entram nele." },
+        ]
+      : []),
+    ...(dono ? [{ href: "/app/assinatura", rotulo: "Plano e assinatura", descricao: "Seu plano, pagamento e histórico." }] : []),
+  ];
   const supabase = await criarClienteServidor();
   const [servicos, equipe] = await Promise.all([
     listarServicos(),
@@ -110,11 +118,17 @@ export default async function ConfiguracoesPage() {
         <FormBriefing escritorio={escritorio} />
       </section>
 
-      <section className="cartao secao-config">
-        <h2>Em breve nesta tela</h2>
-        <ul className="checklist">
-          {pendentes.map((item) => (
-            <li key={item}>{item}</li>
+      <section className="cartao secao-config" id="modelos">
+        <h2>Modelos e textos prontos</h2>
+        <p className="muted">Ficam junto de cada área, mas dá para chegar por aqui.</p>
+        <ul className="config-atalhos">
+          {atalhos.map((a) => (
+            <li key={a.href}>
+              <Link className="tabela-link" href={a.href}>
+                {a.rotulo}
+              </Link>
+              <small className="muted">{a.descricao}</small>
+            </li>
           ))}
         </ul>
       </section>

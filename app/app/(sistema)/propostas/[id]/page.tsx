@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CopyPlus, FileSignature, MessageCircle, Trash2 } from "lucide-react";
+import { Confirmar } from "@/components/Confirmar";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { FormProposta } from "@/components/propostas/FormProposta";
@@ -99,12 +100,18 @@ export default async function PropostaPage({ params }: { params: Promise<{ id: s
             </form>
           )}
           {rascunho && (
-            <form action={excluirRascunho.bind(null, proposta.id)}>
-              <button type="submit" className="botao botao-fantasma">
-                <Trash2 size={18} aria-hidden="true" />
-                Apagar rascunho
-              </button>
-            </form>
+            <Confirmar
+              rotulo="Apagar rascunho"
+              icone={<Trash2 size={18} aria-hidden="true" />}
+              classe="botao botao-fantasma"
+              aviso={
+                <p>
+                  <strong>Apagar este rascunho?</strong> Tudo o que foi preenchido nesta proposta se perde. Não dá para desfazer.
+                </p>
+              }
+              confirmar="Apagar rascunho"
+              acao={excluirRascunho.bind(null, proposta.id)}
+            />
           )}
         </div>
       </div>

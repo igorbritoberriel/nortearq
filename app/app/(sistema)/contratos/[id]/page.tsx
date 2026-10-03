@@ -47,7 +47,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
   if (!data) notFound();
   const contrato = data as unknown as Contrato;
 
-  const [{ data: cliente }, { data: previa }, financeiro, { data: projeto }, { data: modelos }] = await Promise.all([
+  const [{ data: cliente }, { data: previa }, financeiro, { data: projeto }, { data: modelos }, { data: listaPendencias }] = await Promise.all([
     supabase.from("clientes").select("id, nome, telefone").eq("id", contrato.cliente_id).maybeSingle(),
     supabase.rpc("previa_contrato", { p_contrato: id }),
     carregarPagamentos(supabase, id),
@@ -55,8 +55,11 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
     contrato.status === "rascunho"
       ? supabase.from("modelos_contrato").select("id, nome, padrao, servicos").order("padrao", { ascending: false }).order("criado_em")
       : Promise.resolve({ data: null }),
+    // Lacunas que impedem o primeiro envio (migração 0035).
+    contrato.status === "rascunho" ? supabase.rpc("pendencias_contrato", { p_contrato: id }) : Promise.resolve({ data: null }),
   ]);
   if (!cliente) notFound();
+  const pendencias = (listaPendencias ?? []) as string[];
 
   const e = sessao.escritorio;
   // Com equipe: quem enviou o contrato.
@@ -110,13 +113,28 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
           </div>
         </div>
 
-        {aberto && faltamDados && (
-          <p className="contato-alerta">
-            Faltam dados do escritório no contrato (aparecem como “[a preencher]”).{" "}
-            <Link className="tabela-link" href="/app/contratos/modelo">
-              Preencher agora
-            </Link>
-          </p>
+        {contrato.status === "rascunho" && pendencias.length > 0 && (
+          <div className="contato-alerta contrato-pendencias" role="alert">
+            <p>
+              <strong>Antes de enviar, falta preencher:</strong> {pendencias.join(", ")}. No contrato, isso apareceria como
+              “[a preencher]”.
+            </p>
+            <p>
+              {faltamDados && (
+                <>
+                  <Link className="tabela-link" href="/app/contratos/modelo">
+                    Dados do escritório
+                  </Link>
+                  {" · "}
+                </>
+              )}
+              <Link className="tabela-link" href={`/app/clientes/${cliente.id}`}>
+                Dados do cliente
+              </Link>
+              {" · "}
+              ou tire o campo do texto abaixo, se ele não se aplica.
+            </p>
+          </div>
         )}
 
         {aberto && (
@@ -128,6 +146,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
                 : "Se o cliente perdeu a mensagem, gere um link novo (o anterior deixa de valer)."}
             </p>
             <EnviarLinkAcao
+              bloqueado={contrato.status === "rascunho" && pendencias.length > 0}
               acao={enviarContrato.bind(null, contrato.id)}
               destino="contrato"
               telefone={cliente.telefone}

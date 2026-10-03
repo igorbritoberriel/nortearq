@@ -70,10 +70,10 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. **Aguardando a
-      sua aprovação para mexer.** Mais graves: contrato pode ser enviado com "[a preencher]"; erro da proposta
-      aparece longe dos botões; proposta perde o que não foi salvo; painel esquece pedidos já vistos e não
-      mostra "proposta aprovada, falta o contrato". Falta ainda a conferência visual no navegador (prints).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: A1, A5 e
+      A8. Próximos na ordem: proposta (erro longe dos botões, perder o não salvo, prévia antes de enviar) e
+      painel (pedidos já vistos somem; falta "proposta aprovada, falta o contrato"). Falta ainda a conferência
+      visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
 - [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
@@ -107,6 +107,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Revisão de UX, primeiros ajustes (03/10/2026): contrato não sai mais com "[a preencher]" (lista do que falta e envio travado, também no banco, migração 0035); "Apagar rascunho" pede confirmação; Configurações com atalhos para os modelos no lugar da lista "Em breve".
 - [x] Aviso automático de erros (servidor e telas, com repetições juntadas), telas de erro em português, botão "Relatar problema ou sugestão" e painel interno /app/interno (03/10/2026).
 - [x] Permissões: matriz única (Dono, Administrador, Colaborador) no código, nas telas e no banco; documentada na especificação (03/10/2026).
 - [x] Duplicidade: equipe, CPF/CNPJ, aviso de cliente parecido, juntar clientes, reenvio do formulário, nomes repetidos (03/10/2026).

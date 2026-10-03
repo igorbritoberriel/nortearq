@@ -11,7 +11,7 @@ Prioridade: **Alta** = pode causar erro com cliente real ou travar o piloto · *
 
 ## Alta
 
-**A1. Contrato pode ser enviado com "[a preencher]" no texto.**
+**A1. Contrato pode ser enviado com "[a preencher]" no texto.** ✅ Feito (03/10/2026).
 Se faltam CPF/CNPJ, endereço ou responsável do escritório, a tela só mostra um aviso, e o botão de enviar
 funciona mesmo assim. O cliente recebe e assina um contrato com lacunas.
 → Bloquear o envio enquanto houver "[a preencher]" no texto, com o link "Preencher agora".
@@ -32,7 +32,7 @@ O envio é definitivo (depois só com nova versão), mas não existe uma prévia
 "Como o cliente vai ler".
 → Botão "Ver como o cliente vê" antes de enviar, abrindo a mesma visualização do link.
 
-**A5. "Apagar rascunho" apaga na hora, sem confirmar.**
+**A5. "Apagar rascunho" apaga na hora, sem confirmar.** ✅ Feito (03/10/2026).
 Um clique e a proposta inteira some.
 → Pedir confirmação ("Apagar este rascunho? Não dá para desfazer.").
 
@@ -47,7 +47,7 @@ Esse é o momento em que o cliente está mais quente, e não aparece em "Precisa
 revisão além do limite esperando a decisão (cortesia ou aditivo) e cliente novo ainda sem proposta.
 → Incluir esses três cartões.
 
-**A8. Configurações anuncia como "Em breve" coisas que já existem.**
+**A8. Configurações anuncia como "Em breve" coisas que já existem.** ✅ Feito (03/10/2026).
 A lista "Em breve nesta tela" mostra "Modelo de contrato" e "Plano e pagamento da assinatura", que já
 funcionam (em Contratos → Modelos e em Plano e assinatura). Quem procura o modelo de contrato acha que ainda
 não existe.
@@ -161,7 +161,7 @@ do sistema.
 
 ## Ordem sugerida
 
-1. A1, A5 e A8 (rápidos e evitam erro com cliente real).
+1. ~~A1, A5 e A8~~ feitos.
 2. A2, A3 e A4 (proposta).
 3. A6 e A7 (painel).
 4. M1 a M3 (ligações entre ficha, proposta, contrato e projeto) e M10 (primeiros passos).

@@ -18,6 +18,7 @@ export function EnviarLinkAcao({
   rotulo,
   depois,
   mensagemEspecial,
+  bloqueado = false,
 }: {
   acao: () => Promise<{ link: string } | { erro: string }>;
   destino: DestinoLink;
@@ -27,6 +28,7 @@ export function EnviarLinkAcao({
   rotulo?: string;
   depois?: string; // aviso mostrado com o link gerado
   mensagemEspecial?: "aditivo" | "portal"; // texto próprio do WhatsApp (pedir resposta de aditivo, convidar ao portal)
+  bloqueado?: boolean; // falta algo antes de enviar (o motivo aparece fora do botão)
 }) {
   const [pendente, iniciar] = useTransition();
   const [link, setLink] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export function EnviarLinkAcao({
 
   return (
     <div className="enviar-link">
-      <button type="button" className="botao botao-primario" onClick={gerar} disabled={pendente}>
+      <button type="button" className="botao botao-primario" onClick={gerar} disabled={pendente || bloqueado}>
         <MessageCircle size={18} aria-hidden="true" />
         {pendente ? "Gerando link..." : (rotulo ?? (telefone ? "Enviar no WhatsApp" : "Gerar link"))}
       </button>

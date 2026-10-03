@@ -67,7 +67,8 @@ No fim aparece o **link do escritório** para copiar ou mandar.
 
 **Configurações** (menu): link do formulário, Equipe (só o Dono), marca, serviços, faixa de preço e agenda,
 **Parcelamento** (entrada em %, até quantas vezes, desconto à vista de até 30%; vale para as próximas
-propostas) e briefing.
+propostas), briefing e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
+proposta e de contrato e, para o Dono, o plano).
 
 **Painel inicial:** só o que pede ação. "Precisa de você" (depende do escritório), "Esperando o cliente" e
 "Financeiro" (valores a receber), com a pendência mais antiga em destaque.
@@ -204,6 +205,7 @@ serviço. "Gerar link novo" desliga o anterior.
 obrigatório) ou **recusar** (motivo: preço, prazo, escopo, outro profissional, desistiu, outro). Tudo com
 data, hora e IP; o escritório é avisado.
 
+- **Apagar rascunho** pede confirmação: tudo o que foi preenchido se perde.
 - **Ajuste pedido:** criar **nova versão** (v2, v3...). O mesmo link passa a mostrar a versão nova.
 - **Expirada:** passada a validade, o link mostra que a proposta venceu e o cliente não consegue aprovar.
 
@@ -226,6 +228,12 @@ endereço, responsável, registro no CAU/CREA) valem para todos os modelos. Camp
 
 **Antes de enviar:** o texto pode ser ajustado (até 60 mil caracteres) e o modelo pode ser trocado (substitui
 o texto, inclusive os ajustes). **Depois de enviado, o texto não muda.**
+
+**Contrato sem lacunas:** o botão de enviar fica travado enquanto faltar algum dado que o texto usa (CPF/CNPJ,
+endereço, responsável ou registro do escritório; e-mail ou WhatsApp do cliente; valor do deslocamento) ou
+houver "[a preencher]" escrito à mão. A tela lista o que falta, com atalhos. CPF/CNPJ e endereço do cliente
+não travam: ele completa na hora de assinar. Se um campo não se aplica (ex.: sem registro no CAU), basta
+tirá-lo do texto deste contrato.
 
 **O cliente assina pelo link:** lê o contrato, confere e corrige nome completo, CPF/CNPJ (os dígitos são
 verificados) e endereço do imóvel, marca que leu e concorda e clica **Assinar contrato**. Ficam registrados
@@ -421,6 +429,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Não consigo editar a proposta" | Proposta enviada fica fechada | Criar nova versão (o mesmo link mostra a nova) |
 | "Não consigo enviar a proposta" | Sem valor total ou serviço, ou parcelas manuais com soma diferente do total | Preencher; ajustar as parcelas |
 | "O cliente não consegue aprovar a proposta" | Proposta expirada (passou da validade) | Nova versão, com validade nova |
+| "O botão de enviar o contrato não funciona" | Falta algum dado que o contrato usa (aparece na lista em amarelo) | Preencher pelos atalhos, ou tirar do texto o campo que não se aplica |
 | "Não consigo editar o contrato" | Contrato já enviado ao cliente | Cancelar (com senha) e gerar outro a partir da proposta |
 | "O cliente não consegue assinar" | CPF/CNPJ com dígito errado, nome sem sobrenome ou endereço curto | Pedir para conferir os dados destacados na tela |
 | "Registrei o pagamento errado" | O registro é definitivo | O Dono estorna (motivo + senha) e registra de novo |

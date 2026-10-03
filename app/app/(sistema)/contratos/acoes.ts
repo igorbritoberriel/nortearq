@@ -63,6 +63,9 @@ export async function enviarContrato(id: string): Promise<{ link: string } | { e
   if (error || !data) {
     console.error("[contratos] enviar", error?.message);
     if (error?.message.includes("contrato_fechado")) return { erro: "Este contrato já foi assinado ou cancelado." };
+    if (error?.message.includes("contrato_incompleto")) {
+      return { erro: "O contrato ainda tem campos “[a preencher]”. Complete os dados indicados acima antes de enviar." };
+    }
     return { erro: "Não foi possível enviar. Tente de novo." };
   }
   revalidatePath("/app", "layout");

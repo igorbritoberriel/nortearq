@@ -634,6 +634,10 @@ p { margin: 0 0 1em; }
 .selo-a_avaliar, .selo-novo-status { background: #fbf0dc; color: #8a5a00; }
 .selo-convertido { background: #e8eef6; color: var(--cor-norte); }
 .contato-alerta { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 12px; border-radius: 8px; background: #fbf0dc; color: #8a5a00; font-size: 0.9rem; }
+.contrato-pendencias { display: grid; gap: 4px; margin: 0 0 16px; }
+.contrato-pendencias p { margin: 0; }
+.config-atalhos { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.config-atalhos li { display: grid; gap: 2px; }
 .contato-dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 20px; margin: 0; }
 .contato-dados dt { font-size: 0.78rem; color: var(--cor-texto-suave); }
 .contato-dados dd { margin: 0; font-weight: 500; }
