@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, CheckCheck, CircleCheck, ClipboardList, FilePlus, FileText, Inbox, PenLine, X } from "lucide-react";
+import { Bell, CheckCheck, CircleCheck, ClipboardList, CreditCard, FilePlus, FileText, Inbox, PenLine, X } from "lucide-react";
 import { buscarNotificacoesDesde, marcarNotificacaoLida, marcarTodasLidas } from "@/app/app/notificacoes";
 import type { Notificacao, TipoNotificacao } from "@/lib/notificacoes";
 import { criarClienteNavegador } from "@/lib/supabase/client";
@@ -19,6 +19,7 @@ const ICONES: Record<TipoNotificacao, typeof Bell> = {
   contrato: PenLine,
   etapa: CircleCheck,
   aditivo: FilePlus,
+  assinatura: CreditCard,
 };
 
 const CHAVE_AVISOS = "nortearq:avisos-na-tela";

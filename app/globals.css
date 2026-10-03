@@ -1186,3 +1186,35 @@ p { margin: 0 0 1em; }
 .portal-convite-topo p { margin: 0; }
 .portal-convite-form { display: grid; gap: 4px; }
 .portal-convite .botao { justify-self: start; }
+
+/* Assinatura */
+.faixa-assinatura { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: -8px 0 20px; padding: 12px 16px; border-radius: var(--raio); font-weight: 500; }
+.faixa-alerta { background: #fbf0dc; color: #6b4600; border: 1px solid #f0d9a8; }
+.faixa-erro { background: #f9e5e3; color: var(--cor-erro); border: 1px solid #f2c6c2; }
+.app-escritorio a.app-teste:hover { text-decoration: underline; }
+.assinatura h1 { font-size: 1.75rem; }
+.assinatura-situacao { display: grid; gap: 8px; border-left: 4px solid var(--cor-norte); }
+.assinatura-situacao p { margin: 0; }
+.assinatura-situacao .selo-status { justify-self: start; }
+.situacao-ativo { border-left-color: var(--cor-sucesso); }
+.situacao-tolerancia { border-left-color: var(--cor-areia); }
+.situacao-leitura, .situacao-suspenso { border-left-color: var(--cor-erro); }
+.assinatura-cobranca { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid var(--cor-borda); }
+.assinatura-form { display: grid; gap: 16px; }
+.assinatura-periodo { display: inline-flex; gap: 4px; padding: 4px; border: 1px solid var(--cor-borda); border-radius: 999px; background: var(--cor-fundo); justify-self: start; flex-wrap: wrap; }
+.assinatura-periodo label { padding: 8px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 0.92rem; color: var(--cor-texto-suave); }
+.assinatura-periodo label.ativo { background: var(--cor-norte); color: #fff; }
+.assinatura-periodo input, .assinatura-plano input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.assinatura-periodo label:has(input:focus-visible), .assinatura-plano:has(input:focus-visible) { outline: 2px solid var(--cor-norte); outline-offset: 2px; }
+.assinatura-planos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.assinatura-plano { position: relative; display: grid; gap: 6px; align-content: start; padding: 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fff; cursor: pointer; }
+.assinatura-plano:hover { border-color: var(--cor-norte); }
+.assinatura-plano.ativo { border-color: var(--cor-norte); box-shadow: inset 0 0 0 1px var(--cor-norte); background: #f6f9fc; }
+.assinatura-plano-topo { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.assinatura-plano-topo strong { font-size: 1.1rem; }
+.assinatura-preco { font-size: 1.6rem; font-weight: 700; color: var(--cor-norte); }
+.assinatura-preco small { font-size: 0.9rem; font-weight: 400; color: var(--cor-texto-suave); }
+.assinatura-plano ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; font-size: 0.88rem; }
+.assinatura-plano li { display: flex; gap: 6px; align-items: flex-start; }
+.assinatura-plano li svg { color: var(--cor-sucesso); margin-top: 3px; flex: none; }
+.assinatura-cancelar { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--cor-borda); }

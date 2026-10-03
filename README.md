@@ -108,6 +108,19 @@ Sem a chave, nada quebra: o aviso só aparece no terminal.
   `components/site/MotorAnimacao.tsx` (Lenis + GSAP) e `components/site/PlantaBaixa.tsx` (cena central,
   que será trocada pelo vídeo).
 
+## Cobrança da assinatura (Asaas)
+
+Variáveis (no `.env.local` e na Vercel → Settings → Environment Variables):
+
+| Variável | O que é |
+|---|---|
+| `ASAAS_API_KEY` | Chave da API do Asaas (Minha conta → Integrações) |
+| `ASAAS_AMBIENTE` | `sandbox` para testes, `producao` para cobrar de verdade |
+| `ASAAS_WEBHOOK_TOKEN` | Senha que o Asaas manda nos avisos de pagamento (a mesma cadastrada no webhook) |
+| `CRON_SECRET` | Senha do lembrete diário do fim do teste (`vercel.json`) |
+
+Webhook no Asaas: `https://SEU-SITE/api/asaas/webhook`, eventos de cobrança, com o mesmo `ASAAS_WEBHOOK_TOKEN`.
+
 ## Stack
 
 - **Next.js 16** (App Router) + **TypeScript** + **React 19**
@@ -138,7 +151,8 @@ Sem a chave, nada quebra: o aviso só aparece no terminal.
   envio para aprovação, aprovação/revisão pelo cliente via link (com IP), contador de revisões e cortesia
 - [x] Aditivos (revisão excedente cobrada, mudança em etapa aprovada) e aprovações externas (RN-03.15 a 03.17)
 - [x] Portal do cliente (acesso criado pelo link seguro, pendências, projeto, documentos)
-- [ ] Cobrança da assinatura (Asaas, Stripe ou Mercado Pago)
+- [x] Cobrança da assinatura (Asaas): planos, modo leitura, suspensão, aviso do fim do teste
+- [ ] Ligar o Asaas: chave da API, webhook e variáveis na Vercel (ver seção abaixo)
 
 ### Fase 2
 - [ ] 04 · Obra: visitas com contador, alterações, vistoria

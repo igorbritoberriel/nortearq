@@ -3,20 +3,46 @@ import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { sair } from "@/app/(auth)/acoes";
+import { modulosLiberados, somarDias } from "@/lib/assinatura";
 import { diasDeTeste, obterSessaoArquiteto } from "@/lib/escritorio";
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
+import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 
 // Layout do sistema do arquiteto.
 // RN-00.3: sem a configuração inicial concluída, o arquiteto volta para o assistente.
-// TODO: esconder itens de módulos fora do plano contratado.
+// RG-1 a RG-5: menu conforme o plano, faixa de aviso da assinatura e conta suspensa só abre a assinatura.
 export default async function SistemaLayout({ children }: { children: React.ReactNode }) {
   const sessao = await obterSessaoArquiteto();
   if (sessao && !sessao.escritorio.onboarding_concluido_em) redirect("/app/onboarding");
+  if (sessao?.situacao === "suspenso") redirect("/app/assinatura");
 
   const dias = sessao ? diasDeTeste(sessao.escritorio) : null;
   const notificacoes = sessao ? await carregarNotificacoes() : null;
+  const liberados = sessao ? modulosLiberados(sessao.escritorio.plano) : null;
+  const menu = MENU_ARQUITETO.filter((item) => !liberados || liberados.includes(item.modulo));
+
+  const e = sessao?.escritorio;
+  const faixa =
+    !sessao || !e
+      ? null
+      : sessao.situacao === "leitura"
+        ? { tipo: "erro", texto: "Modo leitura: você vê tudo, mas não cria nada novo. Seus clientes continuam acessando os projetos." }
+        : sessao.situacao === "tolerancia"
+          ? {
+              tipo: "alerta",
+              texto: `O pagamento da assinatura está em atraso. Regularize até ${dataCurta(e.pago_ate ? somarDias(e.pago_ate, 7) : null)} para não entrar em modo leitura.`,
+            }
+          : sessao.situacao === "teste" && dias !== null && dias <= 3
+            ? {
+                tipo: "alerta",
+                texto:
+                  dias === 0
+                    ? "Seu teste grátis termina hoje. Escolha um plano para continuar criando."
+                    : `Seu teste grátis termina em ${dias} ${dias === 1 ? "dia" : "dias"}. Escolha um plano para não parar.`,
+              }
+            : null;
 
   return (
     <div className="app">
@@ -25,12 +51,10 @@ export default async function SistemaLayout({ children }: { children: React.Reac
         {sessao && (
           <div className="app-escritorio">
             <strong>{sessao.escritorio.nome}</strong>
-            {dias !== null && (
-              <span className={`app-teste ${dias <= 3 ? "app-teste-fim" : ""}`}>
-                {dias === 0
-                  ? "Teste grátis encerrado"
-                  : `Teste grátis: ${dias} ${dias === 1 ? "dia" : "dias"}`}
-              </span>
+            {dias !== null && sessao.situacao === "teste" && (
+              <Link href="/app/assinatura" className={`app-teste ${dias <= 3 ? "app-teste-fim" : ""}`}>
+                {dias === 0 ? "Teste grátis termina hoje" : `Teste grátis: ${dias} ${dias === 1 ? "dia" : "dias"}`}
+              </Link>
             )}
           </div>
         )}
@@ -42,11 +66,12 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           />
         )}
         <nav>
-          {MENU_ARQUITETO.map((item) => (
+          {menu.map((item) => (
             <Link key={item.href} href={item.href}>
               {item.rotulo}
             </Link>
           ))}
+          <Link href="/app/assinatura">Plano e assinatura</Link>
         </nav>
         {sessao && (
           <form action={sair} className="app-usuario">
@@ -58,7 +83,17 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           </form>
         )}
       </aside>
-      <main className="app-conteudo">{children}</main>
+      <main className="app-conteudo">
+        {faixa && (
+          <div className={`faixa-assinatura faixa-${faixa.tipo}`} role="status">
+            <span>{faixa.texto}</span>
+            <Link href="/app/assinatura" className="botao botao-primario botao-pequeno">
+              {sessao?.situacao === "teste" ? "Escolher plano" : "Resolver agora"}
+            </Link>
+          </div>
+        )}
+        {children}
+      </main>
     </div>
   );
 }

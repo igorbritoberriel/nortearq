@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import type { SituacaoEscritorio } from "@/lib/assinatura";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
 // Arquiteto logado + escritório dele. Usado pelo layout e pelas páginas de /app.
@@ -27,6 +28,12 @@ export type Escritorio = {
   // Parcelamento padrão das propostas (0012)
   parcelamento_entrada_pct: number;
   parcelamento_max: number;
+  // Assinatura (0020)
+  plano_escolhido: "briefing" | "profissional" | "escritorio" | null;
+  periodo: "mensal" | "anual" | null;
+  pago_ate: string | null;
+  assinatura_cancelada_em: string | null;
+  asaas_assinatura_id: string | null;
 };
 
 export type Servico = {
@@ -41,6 +48,7 @@ export type SessaoArquiteto = {
   email: string;
   membro: { id: string; nome: string; papel: "dono" | "equipe" };
   escritorio: Escritorio;
+  situacao: SituacaoEscritorio;
 };
 
 // null = Supabase não configurado (modo esqueleto, sem login).
@@ -63,7 +71,9 @@ export const obterSessaoArquiteto = cache(async (): Promise<SessaoArquiteto | nu
   if (!membro?.escritorio) redirect("/portal");
 
   const { escritorio, ...dadosMembro } = membro as unknown as SessaoArquiteto["membro"] & { escritorio: Escritorio };
-  return { email: user.email ?? "", membro: dadosMembro, escritorio };
+  // RG-1 a RG-3: teste, ativo, tolerância, modo leitura ou suspenso (calculado pelo banco).
+  const { data: situacao } = await supabase.rpc("situacao_escritorio", { p_escritorio: escritorio.id });
+  return { email: user.email ?? "", membro: dadosMembro, escritorio, situacao: (situacao as SituacaoEscritorio) ?? "teste" };
 });
 
 export async function listarServicos(): Promise<Servico[]> {
