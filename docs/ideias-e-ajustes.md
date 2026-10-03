@@ -5,6 +5,14 @@ cada conversa, lembra o que está pendente, pergunta o que não estiver claro e 
 for concluído. **Toda pendência entra aqui.**
 
 ## Depende de você (Igor)
+- [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
+      configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
+      final (etapa enviada, lembretes, contrato, limite de revisões). No meu computador a chave não existe.
+- [ ] **Urgente antes do piloto:** passar o Supabase para o plano Pro (US$ 25/mês) por causa das
+      cópias de segurança diárias: com clientes reais, o plano grátis não tem backup.
+- [ ] Registrar o domínio (ex.: nortearq.com.br) e apontar para a Vercel: link "nortearq.vercel.app"
+      no WhatsApp do cliente passa pouca confiança.
+- [ ] Ao cobrar o primeiro escritório de fora: Vercel Pro (US$ 20/mês; o plano grátis não permite uso comercial).
 - [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
       escritório, então esse convite nunca pode ser aceito (Configurações > Equipe, no escritório dela).
 - [ ] Dados da empresa para os Termos e a Privacidade: razão social, CNPJ e e-mail de contato
@@ -14,6 +22,9 @@ for concluído. **Toda pendência entra aqui.**
 - [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
+- [ ] **Preço de lançamento** (proposta de 03/10/2026, aguardando aprovação): piloto grátis da esposa em
+      troca de depoimento; "Plano Fundador" R$ 47/mês com preço travado para os 30 primeiros; preço de
+      tabela R$ 97 continua visível; Profissional com 2 pessoas; tirar o plano Briefing do lançamento.
 - [ ] **Sugestões a partir do concorrente COP** (análise em `docs/concorrentes/cop.md`, 03/10/2026).
       Decidir quais entram: calculadora de honorários na proposta; "saúde do projeto"; dados de exemplo
       no teste grátis; cobrança do cliente por Pix/boleto; importar clientes de planilha; preço do
