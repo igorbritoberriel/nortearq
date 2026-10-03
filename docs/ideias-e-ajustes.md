@@ -17,8 +17,16 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       3. Criar contas@berriellabs.com.br (Cloudflare Email Routing para receber, grátis; Zoho Mail grátis para enviar),
          gerenciador de senhas (Bitwarden) e verificação em duas etapas em tudo.
       4. Eu ligo o domínio à Vercel pelo Cloudflare e configuro o Resend.
-      5. CNPJ (ME no Simples Nacional, com contador; MEI não permite software) antes de cobrar o primeiro escritório.
-      6. Pedido de marca no INPI (cerca de R$ 150 por classe com desconto; conferir a tabela).
+      5. Começar a cobrar no **CPF** (decisão de 03/10/2026): conta do Asaas como pessoa física, carnê-leão todo mês
+         (rendimentos até cerca de R$ 5 mil/mês são isentos desde 2026), planilha simples do que entrou. Termos e
+         Privacidade com o seu nome e um e-mail de contato (sem expor o CPF). **Antes da primeira cobrança:**
+         consulta avulsa com contador (cerca de R$ 100 a R$ 200) para confirmar a isenção, o INSS e o que fazer
+         quando um escritório com CNPJ pedir nota ou descontar imposto na fonte.
+      6. Abrir a ME (Berriel Labs Tecnologia Ltda., Sociedade Limitada Unipessoal, CNAE 6203-1/00, Simples
+         Nacional com Fator R) quando a receita passar de ~R$ 5 mil/mês ou algum cliente exigir nota fiscal.
+         MEI não serve: venda de software não é atividade permitida (o PLP 25/2026, que liberaria, ainda não é lei).
+         Contador online costuma abrir de graça e cobrar R$ 100 a R$ 250/mês; e-CNPJ ~R$ 150 a R$ 250/ano.
+      7. Pedido de marca no INPI (cerca de R$ 150 por classe com desconto; conferir a tabela).
 - [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
       configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
       final (etapa enviada, lembretes, contrato, limite de revisões). No meu computador a chave não existe.
@@ -30,8 +38,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       (US$ 20/mês), juntos perto de R$ 260/mês. Até lá, tudo no plano grátis.
 - [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
       escritório, então esse convite nunca pode ser aceito (Configurações > Equipe, no escritório dela).
-- [ ] Dados da empresa para os Termos e a Privacidade: razão social (Berriel Labs Tecnologia Ltda.), CNPJ e
-      e-mail de contato, quando o CNPJ sair (eu coloco em `lib/legal.ts`).
+- [ ] Dados para os Termos e a Privacidade (eu coloco em `lib/legal.ts`): por enquanto o seu nome completo e um
+      e-mail de contato (cobrança no CPF); quando a ME sair, razão social (Berriel Labs Tecnologia Ltda.) e CNPJ.
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
 - [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
