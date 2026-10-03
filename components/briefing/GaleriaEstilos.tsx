@@ -87,7 +87,7 @@ export function GaleriaEstilos({ grupos, rejeitadas }: { grupos: GrupoGaleria[];
 }
 
 // Tela cheia ("lightbox"): Esc fecha, ← → passam, arrastar no celular, clique fora fecha.
-function Visualizador({
+export function Visualizador({
   lista,
   indice,
   mudar,

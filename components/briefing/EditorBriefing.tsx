@@ -1,15 +1,13 @@
 "use client";
 
 import { useActionState, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, ImagePlus, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
 import { EditarPergunta } from "@/components/briefing/EditarPergunta";
 import { Aviso, Campo } from "@/components/Campo";
 import {
   alternarPergunta,
   criarPergunta,
   excluirPergunta,
-  registrarImagemEstilo,
-  removerImagemEstilo,
   salvarOrdemPerguntas,
 } from "@/app/app/(sistema)/briefings/acoes";
 import {
@@ -25,7 +23,6 @@ import {
 } from "@/lib/briefing";
 import type { EstadoFormulario } from "@/lib/formulario";
 import { IndicadorSalvamento, useSalvarEmFila } from "@/lib/salvar-em-fila";
-import { criarClienteNavegador } from "@/lib/supabase/client";
 
 const NOMES_BLOCOS: Record<SecaoBriefing, string> = {
   arquitetura: "Arquitetura",
@@ -259,117 +256,5 @@ function NovaPergunta() {
         </button>
       </div>
     </form>
-  );
-}
-
-// Banco de imagens do quiz. O arquivo sobe do navegador para a pasta do escritório no bucket
-// "estilos" (o banco só deixa gravar na própria pasta) e depois é registrado.
-export function ImagensEstilo({
-  escritorioId,
-  imagens,
-}: {
-  escritorioId: string;
-  imagens: { id: string; estilo: Estilo; url: string }[];
-}) {
-  const [estilo, setEstilo] = useState<Estilo | "">("");
-  const [progresso, setProgresso] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const [pendente, iniciar] = useTransition();
-  // A imagem some na hora; volta sozinha se o servidor recusar.
-  const [visiveis, esconder] = useOptimistic(imagens, (atual, id: string) => atual.filter((img) => img.id !== id));
-
-  async function enviar(lista: FileList | null) {
-    const supabase = criarClienteNavegador();
-    if (!lista?.length || !supabase) return;
-    if (!estilo) return setErro("Escolha o estilo antes de enviar as imagens.");
-    setErro(null);
-    const arquivos = Array.from(lista);
-    for (const [i, arquivo] of arquivos.entries()) {
-      if (!["image/jpeg", "image/png", "image/webp"].includes(arquivo.type)) {
-        setErro(`${arquivo.name}: use JPG, PNG ou WEBP.`);
-        continue;
-      }
-      if (arquivo.size > 5 * 1024 * 1024) {
-        setErro(`${arquivo.name}: até 5 MB por imagem.`);
-        continue;
-      }
-      setProgresso(`Enviando ${i + 1} de ${arquivos.length}…`);
-      const extensao = arquivo.type.split("/")[1].replace("jpeg", "jpg");
-      const caminho = `${escritorioId}/${crypto.randomUUID()}.${extensao}`;
-      const { error } = await supabase.storage.from("estilos").upload(caminho, arquivo, { contentType: arquivo.type });
-      if (error) {
-        setErro(`${arquivo.name}: não foi possível enviar.`);
-        continue;
-      }
-      const resultado = await registrarImagemEstilo(caminho, estilo);
-      if (resultado.erro) setErro(resultado.erro);
-    }
-    setProgresso(null);
-  }
-
-  return (
-    <div className="estilos-editor">
-      <div className="form-linha">
-        <Campo id="estilo-imagem" rotulo="Estilo das imagens">
-          <select id="estilo-imagem" value={estilo} onChange={(e) => setEstilo(e.target.value as Estilo)}>
-            <option value="" disabled>
-              Escolha o estilo
-            </option>
-            {Object.entries(ESTILOS).map(([valor, rotulo]) => (
-              <option key={valor} value={valor}>
-                {rotulo}
-              </option>
-            ))}
-          </select>
-        </Campo>
-        <div className="campo">
-          <span className="campo-rotulo">Imagens</span>
-          <label className={`foto-enviar estilos-enviar ${progresso ? "enviando" : ""}`}>
-            <ImagePlus size={20} aria-hidden="true" />
-            <span>{progresso ?? "Enviar imagens"}</span>
-            <input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              disabled={!!progresso}
-              onChange={(e) => {
-                void enviar(e.target.files);
-                e.target.value = "";
-              }}
-            />
-          </label>
-        </div>
-      </div>
-      {erro && (
-        <p className="campo-erro" role="alert">
-          {erro}
-        </p>
-      )}
-
-      {visiveis.length > 0 && (
-        <ul className="fotos estilos-grade">
-          {visiveis.map((img) => (
-            <li key={img.id} className="foto">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.url} alt={`Imagem de estilo ${ESTILOS[img.estilo]}`} loading="lazy" />
-              <span className="estilos-rotulo">{ESTILOS[img.estilo]}</span>
-              <button
-                type="button"
-                className="foto-remover"
-                onClick={() =>
-                  iniciar(async () => {
-                    esconder(img.id);
-                    await removerImagemEstilo(img.id);
-                  })
-                }
-                aria-label={`Remover imagem de estilo ${ESTILOS[img.estilo]}`}
-              >
-                <Trash2 size={14} aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }

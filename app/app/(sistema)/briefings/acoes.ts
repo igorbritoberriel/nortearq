@@ -226,7 +226,11 @@ export async function registrarImagemEstilo(caminho: string, estilo: Estilo): Pr
   if (error) {
     console.error("[estilos] registrar", error.message);
     await ctx.supabase.storage.from("estilos").remove([caminho]);
-    return { erro: "Não foi possível salvar a imagem. Tente de novo." };
+    return {
+      erro: error.message.includes("limite_imagens_estilo")
+        ? `${ESTILOS[estilo]} já tem 20 imagens suas. Remova alguma antes de enviar outra.`
+        : "Não foi possível salvar a imagem. Tente de novo.",
+    };
   }
   revalidatePath("/app/briefings/editor");
   return {};
@@ -239,4 +243,48 @@ export async function removerImagemEstilo(id: string) {
   const { error } = await ctx.supabase.from("estilos_imagens").delete().eq("id", id);
   if (error) console.error("[estilos] remover", error.message);
   revalidatePath("/app/briefings/editor");
+}
+
+// Imagens padrão do NorteArq: o escritório não apaga, só esconde do quiz dele (migração 0028).
+export async function esconderImagemPadrao(id: string, esconder: boolean): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(id)) return false;
+  const { error } = esconder
+    ? await ctx.supabase
+        .from("estilos_ocultos")
+        .upsert({ escritorio_id: ctx.sessao.escritorio.id, imagem_id: id }, { ignoreDuplicates: true })
+    : await ctx.supabase.from("estilos_ocultos").delete().eq("imagem_id", id);
+  if (error) console.error("[estilos] esconder", error.message);
+  revalidatePath("/app/briefings/editor");
+  return !error;
+}
+
+// "Usar só as minhas": esconde todas as padrão do estilo.
+export async function usarSoAsMinhas(estilo: Estilo): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !(estilo in ESTILOS)) return false;
+  const { data: padrao } = await ctx.supabase.from("estilos_imagens").select("id").is("escritorio_id", null).eq("estilo", estilo);
+  const linhas = (padrao ?? []).map((i) => ({ escritorio_id: ctx.sessao.escritorio.id, imagem_id: i.id as string }));
+  const { error } = linhas.length
+    ? await ctx.supabase.from("estilos_ocultos").upsert(linhas, { ignoreDuplicates: true })
+    : { error: null };
+  if (error) console.error("[estilos] só as minhas", error.message);
+  revalidatePath("/app/briefings/editor");
+  return !error;
+}
+
+// Volta o estilo ao padrão de fábrica: as padrão aparecem de novo e as imagens próprias do estilo
+// saem do banco. O arquivo fica no Storage: briefings já enviados guardam a URL dele (RN-02.12).
+export async function restaurarEstiloPadrao(estilo: Estilo): Promise<boolean> {
+  const ctx = await contexto();
+  if (!ctx || !(estilo in ESTILOS)) return false;
+  const { error: erroLer } = await ctx.supabase
+    .from("estilos_imagens")
+    .delete()
+    .eq("escritorio_id", ctx.sessao.escritorio.id)
+    .eq("estilo", estilo);
+  const { error } = await ctx.supabase.rpc("restaurar_estilo_padrao", { p_estilo: estilo });
+  if (erroLer || error) console.error("[estilos] restaurar", (erroLer ?? error)?.message);
+  revalidatePath("/app/briefings/editor");
+  return !erroLer && !error;
 }
