@@ -3,13 +3,16 @@ import {
   ArrowRight,
   CircleCheck,
   ClipboardList,
+  FilePlus2,
   FileSignature,
   FileText,
   Hourglass,
   Inbox,
   RotateCcw,
+  Scale,
   Wallet,
 } from "lucide-react";
+import { pode } from "@/lib/permissoes";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { LinkDoEscritorio } from "@/components/escritorio/FormulariosEscritorio";
 import { diasDeTeste, linkDoEscritorio, obterSessaoArquiteto } from "@/lib/escritorio";
@@ -27,6 +30,7 @@ type Cartao = {
   plural: string;
   itens: Item[];
   lista: string; // página quando há mais de um
+  detalhe?: string; // ex.: "2 novos"
 };
 
 function haQuanto(iso: string | null) {
@@ -47,9 +51,11 @@ function CartaoPendencia({ c, esperando }: { c: Cartao; esperando?: boolean }) {
       <span className="painel-numero">{n}</span>
       <span className="painel-texto">
         <strong>{n === 1 ? c.singular : c.plural}</strong>
-        {maisAntigo?.quando && (
+        {(maisAntigo?.quando || c.detalhe) && (
           <small className="muted">
-            {n === 1 ? "desde" : "o mais antigo"} {haQuanto(maisAntigo.quando)}
+            {c.detalhe && <span className="painel-detalhe">{c.detalhe}</span>}
+            {c.detalhe && maisAntigo?.quando && " · "}
+            {maisAntigo?.quando && `${n === 1 ? "desde" : "o mais antigo"} ${haQuanto(maisAntigo.quando)}`}
           </small>
         )}
       </span>
@@ -74,14 +80,28 @@ export default async function PainelPage() {
   }
 
   const dias = diasDeTeste(sessao.escritorio);
+  const papel = sessao.membro.papel;
 
-  const [contatos, briefings, ajustes, enviadas, rascunhos, aguardandoAssinatura, revisoes, aguardandoAprovacao, aReceber, aditivosCliente] =
-    await Promise.all([
+  const [
+    contatos,
+    briefings,
+    ajustes,
+    enviadas,
+    rascunhos,
+    aguardandoAssinatura,
+    revisoes,
+    aguardandoAprovacao,
+    aReceber,
+    aditivosCliente,
+    aprovadas,
+    revisoesContadas,
+    clientesSemProposta,
+  ] = await Promise.all([
+      // Todo pedido em aberto, visto ou não: só sai daqui quando vira cliente ou é encerrado (A6 da revisão de UX).
       supabase
         .from("contatos")
-        .select("id, criado_em")
-        .is("visto_em", null)
-        .in("status", ["compativel", "a_avaliar", "fora_do_perfil", "novo"]),
+        .select("id, criado_em, reenviado_em, visto_em")
+        .in("status", ["compativel", "a_avaliar", "novo"]),
       supabase.from("briefings").select("id, respondido_em").eq("status", "respondido"),
       supabase.from("propostas").select("id, atualizado_em").eq("status", "ajuste_pedido"),
       supabase.from("propostas").select("id, enviada_em").eq("status", "enviada"),
@@ -91,16 +111,89 @@ export default async function PainelPage() {
       supabase.from("etapas").select("id, projeto_id, enviada_em").eq("status", "aguardando_aprovacao"),
       supabase.from("pagamentos").select("valor").is("pago_em", null),
       supabase.from("aditivos").select("id, projeto_id, criado_em").eq("status", "enviado"),
+      // A7: proposta aprovada sem contrato (cancelado não conta).
+      supabase.from("propostas").select("id, respondida_em, contratos(status)").eq("status", "aprovada"),
+      // A7: revisões que contam, para achar as que passaram do limite sem decisão (cortesia ou aditivo).
+      pode(papel, "gerir_aditivos")
+        ? supabase
+            .from("aprovacoes")
+            .select("id, decidido_em, cortesia, aditivo_id, etapa:etapas(projeto_id, projeto:projetos(revisoes_incluidas))")
+            .eq("conta_revisao", true)
+            .order("decidido_em")
+        : Promise.resolve({ data: [] }),
+      // A7: cliente ativo que ainda não recebeu proposta. Só para quem vê propostas: para o Colaborador
+      // (que não enxerga propostas) todo cliente pareceria sem proposta.
+      pode(papel, "ver_valores")
+        ? supabase
+            .from("clientes")
+            .select("id, criado_em, propostas(id)")
+            .in("etapa", ["contato", "briefing"])
+            .is("arquivado_em", null)
+            .is("anonimizado_em", null)
+        : Promise.resolve({ data: [] }),
     ]);
+
+  const semContrato = (aprovadas.data ?? []).filter(
+    (p) => !((p.contratos ?? []) as { status: string }[]).some((c) => c.status !== "cancelado"),
+  );
+
+  // Conta as revisões de cada projeto em ordem; as que passam do limite e ainda não têm decisão ficam pendentes.
+  type Revisao = {
+    id: string;
+    decidido_em: string;
+    cortesia: boolean;
+    aditivo_id: string | null;
+    etapa: { projeto_id: string; projeto: { revisoes_incluidas: number } | null } | null;
+  };
+  const usadasPorProjeto = new Map<string, number>();
+  const excedentes: Item[] = [];
+  for (const r of (revisoesContadas.data ?? []) as unknown as Revisao[]) {
+    if (!r.etapa || r.cortesia) continue;
+    const n = (usadasPorProjeto.get(r.etapa.projeto_id) ?? 0) + 1;
+    usadasPorProjeto.set(r.etapa.projeto_id, n);
+    if (n > (r.etapa.projeto?.revisoes_incluidas ?? 0) && !r.aditivo_id) {
+      excedentes.push({ id: r.id, quando: r.decidido_em, href: `/app/projetos/${r.etapa.projeto_id}` });
+    }
+  }
+
+  const esperandoProposta = (clientesSemProposta.data ?? []).filter(
+    (c) => !((c.propostas ?? []) as { id: string }[]).length,
+  );
+  const contatosNovos = (contatos.data ?? []).filter((c) => !c.visto_em).length;
 
   const precisaDeVoce: Cartao[] = [
     {
       chave: "contatos",
       icone: Inbox,
-      singular: "pedido de orçamento novo",
-      plural: "pedidos de orçamento novos",
+      singular: "pedido de orçamento para responder",
+      plural: "pedidos de orçamento para responder",
+      detalhe: contatosNovos ? `${contatosNovos} ${contatosNovos === 1 ? "novo" : "novos"}` : undefined,
       lista: "/app/contatos",
-      itens: (contatos.data ?? []).map((c) => ({ id: c.id, quando: c.criado_em, href: "/app/contatos" })),
+      itens: (contatos.data ?? []).map((c) => ({ id: c.id, quando: c.reenviado_em ?? c.criado_em, href: "/app/contatos" })),
+    },
+    {
+      chave: "sem-proposta",
+      icone: FilePlus2,
+      singular: "cliente esperando proposta",
+      plural: "clientes esperando proposta",
+      lista: "/app/clientes",
+      itens: esperandoProposta.map((c) => ({ id: c.id, quando: c.criado_em, href: `/app/clientes/${c.id}` })),
+    },
+    {
+      chave: "sem-contrato",
+      icone: FileSignature,
+      singular: "proposta aprovada: falta gerar o contrato",
+      plural: "propostas aprovadas: falta gerar o contrato",
+      lista: "/app/propostas",
+      itens: semContrato.map((p) => ({ id: p.id, quando: p.respondida_em, href: `/app/propostas/${p.id}` })),
+    },
+    {
+      chave: "excedentes",
+      icone: Scale,
+      singular: "revisão além do limite: cortesia ou aditivo?",
+      plural: "revisões além do limite: cortesia ou aditivo?",
+      lista: "/app/projetos",
+      itens: excedentes,
     },
     {
       chave: "briefings",

@@ -70,7 +70,9 @@ No fim aparece o **link do escritório** para copiar ou mandar.
 propostas), briefing e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
 proposta e de contrato e, para o Dono, o plano).
 
-**Painel inicial:** só o que pede ação. "Precisa de você" (depende do escritório), "Esperando o cliente" e
+**Painel inicial:** só o que pede ação. "Precisa de você" (pedidos de orçamento em aberto, cliente esperando
+proposta, proposta aprovada sem contrato, revisão além do limite sem decisão, briefing respondido, ajuste
+pedido, contrato para enviar, etapa em revisão), "Esperando o cliente" e
 "Financeiro" (valores a receber), com a pendência mais antiga em destaque.
 
 ## 3. Equipe e perfis ✅

@@ -70,9 +70,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: A1, A2,
-      A3, A4, A5, A8 e M15. Próximo na ordem: painel (pedidos já vistos somem; falta "proposta aprovada, falta o
-      contrato"). Falta ainda a conferência visual no navegador (prints).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todas as altas (A1 a A8)
+      e M15. Próximos: M1 a M3 (ligar ficha, contrato e projeto) e M10 (primeiros passos).
+      Falta ainda a conferência visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
 - [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos

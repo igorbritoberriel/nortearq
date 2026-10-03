@@ -36,13 +36,13 @@ O envio é definitivo (depois só com nova versão), mas não existe uma prévia
 Um clique e a proposta inteira some.
 → Pedir confirmação ("Apagar este rascunho? Não dá para desfazer.").
 
-**A6. O painel inicial esquece pedidos de orçamento que já foram vistos.**
+**A6. O painel inicial esquece pedidos de orçamento que já foram vistos.**  ✅ Feito (03/10/2026).
 O cartão "pedidos de orçamento novos" só conta os não vistos. Basta abrir a lista de Contatos uma vez para o
 pedido sumir do painel, mesmo sem resposta. Um cliente compatível pode ficar esquecido.
 → Contar os pedidos em aberto (compatíveis e a avaliar) que ainda não viraram cliente nem foram encerrados,
 e destacar os que estão parados há mais de 2 dias.
 
-**A7. O painel não mostra "proposta aprovada, falta gerar o contrato".**
+**A7. O painel não mostra "proposta aprovada, falta gerar o contrato".**  ✅ Feito (03/10/2026).
 Esse é o momento em que o cliente está mais quente, e não aparece em "Precisa de você". Também não aparecem:
 revisão além do limite esperando a decisão (cortesia ou aditivo) e cliente novo ainda sem proposta.
 → Incluir esses três cartões.

@@ -1135,6 +1135,7 @@ p { margin: 0 0 1em; }
 .painel-texto { display: grid; gap: 2px; min-width: 0; }
 .painel-texto strong { font-size: 0.95rem; line-height: 1.3; }
 .painel-texto small { font-size: 0.82rem; }
+.painel-detalhe { color: var(--cor-norte); font-weight: 600; }
 .painel-seta { color: var(--cor-texto-suave); }
 .painel-receber { max-width: 520px; border-left-color: var(--cor-sucesso); }
 .painel-receber .painel-numero { font-size: 1.5rem; color: var(--cor-sucesso); }
