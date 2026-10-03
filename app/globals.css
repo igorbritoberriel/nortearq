@@ -1558,3 +1558,4 @@ p { margin: 0 0 1em; }
 .perguntas-frequentes details { border-bottom: 1px solid var(--cor-borda); padding: 10px 0; }
 .perguntas-frequentes summary { cursor: pointer; font-weight: 600; }
 .perguntas-frequentes details p { margin: 8px 0 0; color: var(--cor-texto-suave); }
+.barra-modelo-dica { flex-basis: 100%; font-size: 0.85rem; }

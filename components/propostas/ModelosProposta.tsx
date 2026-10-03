@@ -40,6 +40,13 @@ export function BarraModelo({
           "Proposta em branco"
         )}
       </span>
+      {/* Sem modelo ainda: explica como criar, em vez de esconder a opção. */}
+      {modelos.length === 0 && (
+        <span className="barra-modelo-dica muted">
+          Você ainda não tem modelos. Preencha esta proposta e use <strong>Salvar como modelo</strong> no rodapé: as
+          próximas propostas desse serviço já começam prontas.
+        </span>
+      )}
       {modelos.length > 0 && (
         <span className="barra-modelo-trocar">
           <label htmlFor="trocar-modelo" className="sr-only">
