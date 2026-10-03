@@ -13,6 +13,9 @@ documentação é em **português do Brasil**.
 **Anotações do usuário: `docs/ideias-e-ajustes.md`.** Leia no começo de cada conversa, lembre o usuário
 do que estiver pendente e mova para "Feito" o que for concluído.
 
+**Manual: `docs/manual/manual.md`.** Toda entrega que muda o que o usuário vê ou faz atualiza o capítulo
+correspondente e, se couber, o "Como resolver" (dúvida do cliente → causa → o que fazer), no mesmo commit.
+
 ## Produto
 - Promessa: "Seu cliente explica o que quer sozinho. Você só projeta."
 - Três áreas: site de vendas `(site)`, sistema do arquiteto `/app` (login), área do cliente
