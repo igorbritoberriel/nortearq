@@ -96,6 +96,7 @@ export default async function SistemaLayout({ children }: { children: React.Reac
             escritorioId={sessao.escritorio.id}
             iniciais={notificacoes.lista}
             naoLidasIniciais={notificacoes.naoLidas}
+            naoVistasIniciais={notificacoes.naoVistas}
           />
         )}
         <nav>

@@ -2,15 +2,26 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, CheckCheck, CircleCheck, ClipboardList, CreditCard, FilePlus, FileText, Inbox, PenLine, X } from "lucide-react";
-import { buscarNotificacoesDesde, marcarNotificacaoLida, marcarTodasLidas } from "@/app/app/notificacoes";
-import type { Notificacao, TipoNotificacao } from "@/lib/notificacoes";
+import { Bell, CheckCheck, CircleCheck, ClipboardList, CreditCard, FilePlus, FileText, Inbox, PenLine, Trash2, X } from "lucide-react";
+import {
+  buscarNotificacoesDesde,
+  dispensarNotificacoes,
+  lerNotificacoesDoLink,
+  marcarNotificacoesLidas,
+  marcarNotificacoesVistas,
+  marcarTodasLidas,
+} from "@/app/app/notificacoes";
+import { agrupar, type GrupoNotificacao, type Notificacao, type TipoNotificacao } from "@/lib/notificacoes";
 import { criarClienteNavegador } from "@/lib/supabase/client";
 
-// Sininho do menu + aviso discreto no canto da tela quando o cliente faz algo.
-// Regras para não incomodar: sem som; some sozinho em 8 s (pausa com o mouse em cima);
-// várias novidades juntas viram um aviso só; nada aparece com a lista aberta;
-// o arquiteto pode desligar os avisos na tela (fica só o sininho).
+// Sininho do menu + aviso discreto no canto da tela quando o cliente faz algo. Como GitHub, Linear e Slack:
+// * número vermelho = novidades ainda não vistas: zera ao abrir o sininho;
+// * "Não lidas" (padrão) e "Todas": abrir a notificação, ou a página daquele item, marca como lida;
+// * X dispensa (sai da lista); "Limpar lidas" dispensa todas as lidas;
+// * novidades do mesmo item viram um grupo ("3 novidades");
+// * leitura por pessoa: o que um membro da equipe lê não some para os outros.
+// Aviso na tela: sem som; some sozinho em 8 s (pausa com o mouse em cima); várias juntas viram um aviso só;
+// nada aparece com a lista aberta; dá para desligar (fica só o sininho).
 
 const ICONES: Record<TipoNotificacao, typeof Bell> = {
   contato: Inbox,
@@ -47,15 +58,19 @@ export function Notificacoes({
   escritorioId,
   iniciais,
   naoLidasIniciais,
+  naoVistasIniciais,
 }: {
   escritorioId: string;
   iniciais: Notificacao[];
   naoLidasIniciais: number;
+  naoVistasIniciais: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
   const [lista, setLista] = useState(iniciais);
   const [naoLidas, setNaoLidas] = useState(naoLidasIniciais);
+  const [naoVistas, setNaoVistas] = useState(naoVistasIniciais);
+  const [aba, setAba] = useState<"nao_lidas" | "todas">("nao_lidas");
   const [aberto, setAberto] = useState(false);
   const [aviso, setAviso] = useState<Notificacao[]>([]);
   const [avisosNaTela, setAvisosNaTela] = useState(true);
@@ -66,8 +81,8 @@ export function Notificacoes({
   const painel = useRef<HTMLDivElement>(null);
   const botao = useRef<HTMLButtonElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const estado = useRef({ aberto, avisosNaTela, pathname });
-  estado.current = { aberto, avisosNaTela, pathname };
+  const estado = useRef({ aberto, avisosNaTela, pathname, lista });
+  estado.current = { aberto, avisosNaTela, pathname, lista };
 
   useEffect(() => setAvisosNaTela(lerPreferencia()), []);
 
@@ -81,6 +96,15 @@ export function Notificacoes({
     timer.current = setTimeout(() => setAviso([]), DURACAO_AVISO);
   }, []);
 
+  // Marca como lidas na tela (na hora) e no banco (por trás).
+  const marcarLidasLocal = useCallback((ids: string[]) => {
+    const alvo = new Set(ids);
+    const novas = estado.current.lista.filter((n) => alvo.has(n.id) && !n.lida).length;
+    if (!novas) return;
+    setLista((atual) => atual.map((n) => (alvo.has(n.id) ? { ...n, lida: true } : n)));
+    setNaoLidas((q) => Math.max(0, q - novas));
+  }, []);
+
   // Chegou novidade (pelo tempo real ou ao voltar para a aba).
   const receber = useCallback(
     (novas: Notificacao[]) => {
@@ -90,13 +114,18 @@ export function Notificacoes({
       const ordenadas = [...ineditas].sort((a, b) => b.criada_em.localeCompare(a.criada_em));
       if (ordenadas[0].criada_em > maisRecente.current) maisRecente.current = ordenadas[0].criada_em;
 
-      setLista((atual) => [...ordenadas, ...atual].slice(0, 30));
-      setNaoLidas((n) => n + ordenadas.filter((x) => !x.lida_em).length);
+      setLista((atual) => [...ordenadas, ...atual].slice(0, 80));
+      setNaoLidas((n) => n + ordenadas.length);
 
       const { aberto: listaAberta, avisosNaTela: mostrar, pathname: caminho } = estado.current;
-      if (mostrar && !listaAberta) {
-        setAviso((atual) => [...ordenadas, ...atual]);
-        agendarFechamento();
+      if (listaAberta) {
+        void marcarNotificacoesVistas(); // já está vendo: não acende o número
+      } else {
+        setNaoVistas((n) => n + ordenadas.length);
+        if (mostrar) {
+          setAviso((atual) => [...ordenadas, ...atual]);
+          agendarFechamento();
+        }
       }
       // Se o arquiteto está justamente na tela daquela novidade, atualiza os dados dela.
       if (ordenadas.some((n) => n.link && caminho.startsWith(n.link))) router.refresh();
@@ -119,7 +148,7 @@ export function Notificacoes({
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "notificacoes", filter: `escritorio_id=eq.${escritorioId}` },
-          (mudanca) => receber([mudanca.new as Notificacao]),
+          (mudanca) => receber([{ ...(mudanca.new as Notificacao), lida: false }]),
         )
         .subscribe();
     })();
@@ -140,18 +169,25 @@ export function Notificacoes({
     return () => document.removeEventListener("visibilitychange", aoVoltar);
   }, [receber]);
 
+  // Entrou na página de um item com notificação não lida (pelo menu, por um link, por onde for): fica lida.
+  useEffect(() => {
+    const temAqui = estado.current.lista.some((n) => !n.lida && n.link === pathname);
+    if (!temAqui) return;
+    void lerNotificacoesDoLink(pathname).then((ids) => ids.length && marcarLidasLocal(ids));
+  }, [pathname, marcarLidasLocal]);
+
   // "(2) Contatos · NorteArq" na aba do navegador. Observa o <title> porque o Next troca a cada página.
   useEffect(() => {
     const aplicar = () => {
       const base = document.title.replace(/^\(\d+\) /, "");
-      const desejado = naoLidas > 0 ? `(${naoLidas}) ${base}` : base;
+      const desejado = naoVistas > 0 ? `(${naoVistas}) ${base}` : base;
       if (document.title !== desejado) document.title = desejado;
     };
     aplicar();
     const observador = new MutationObserver(aplicar);
     observador.observe(document.head, { subtree: true, childList: true, characterData: true });
     return () => observador.disconnect();
-  }, [naoLidas]);
+  }, [naoVistas]);
 
   // Fecha a lista com Esc ou clique fora.
   useEffect(() => {
@@ -183,22 +219,44 @@ export function Notificacoes({
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
-  function abrirNotificacao(n: Notificacao) {
-    if (!n.lida_em) {
-      setLista((atual) => atual.map((x) => (x.id === n.id ? { ...x, lida_em: new Date().toISOString() } : x)));
-      setNaoLidas((q) => Math.max(0, q - 1));
-      void marcarNotificacaoLida(n.id);
+  function abrirPainel() {
+    const abrir = !aberto;
+    setAberto(abrir);
+    fecharAviso();
+    if (abrir && naoVistas > 0) {
+      setNaoVistas(0);
+      void marcarNotificacoesVistas();
+    }
+  }
+
+  function abrirGrupo(ids: string[], link: string | null) {
+    const naoLidasDoGrupo = lista.filter((n) => ids.includes(n.id) && !n.lida).map((n) => n.id);
+    if (naoLidasDoGrupo.length) {
+      marcarLidasLocal(naoLidasDoGrupo);
+      void marcarNotificacoesLidas(naoLidasDoGrupo);
     }
     setAberto(false);
     fecharAviso();
-    if (n.link) router.push(n.link);
+    if (link) router.push(link);
+  }
+
+  function dispensar(g: GrupoNotificacao) {
+    const alvo = new Set(g.ids);
+    const naoLidasDoGrupo = lista.filter((n) => alvo.has(n.id) && !n.lida).length;
+    setLista((atual) => atual.filter((n) => !alvo.has(n.id)));
+    if (naoLidasDoGrupo) setNaoLidas((q) => Math.max(0, q - naoLidasDoGrupo));
+    void dispensarNotificacoes(g.ids);
   }
 
   function lerTodas() {
-    const agora = new Date().toISOString();
-    setLista((atual) => atual.map((x) => (x.lida_em ? x : { ...x, lida_em: agora })));
+    setLista((atual) => atual.map((n) => (n.lida ? n : { ...n, lida: true })));
     setNaoLidas(0);
     void marcarTodasLidas();
+  }
+
+  function limparLidas() {
+    setLista((atual) => atual.filter((n) => !n.lida));
+    void dispensarNotificacoes(null);
   }
 
   function alternarAvisos() {
@@ -211,6 +269,10 @@ export function Notificacoes({
     }
   }
 
+  const visiveis = aba === "nao_lidas" ? lista.filter((n) => !n.lida) : lista;
+  const grupos = agrupar(visiveis);
+  const temLidas = lista.some((n) => n.lida);
+
   return (
     <>
       <div className="notif">
@@ -220,17 +282,14 @@ export function Notificacoes({
           className="notif-botao"
           aria-expanded={aberto}
           aria-controls="notif-painel"
-          onClick={() => {
-            setAberto((a) => !a);
-            fecharAviso();
-          }}
+          onClick={abrirPainel}
         >
           <Bell size={18} aria-hidden="true" />
           <span>Notificações</span>
-          {naoLidas > 0 && (
+          {naoVistas > 0 && (
             <span className="notif-contador">
-              {naoLidas > 99 ? "99+" : naoLidas}
-              <span className="sr-only"> não lidas</span>
+              {naoVistas > 99 ? "99+" : naoVistas}
+              <span className="sr-only"> novas</span>
             </span>
           )}
         </button>
@@ -246,29 +305,68 @@ export function Notificacoes({
                 </button>
               )}
             </div>
-            {lista.length === 0 ? (
-              <p className="notif-vazio">
-                Nada por aqui ainda. Quando um cliente pedir orçamento, responder o briefing, aprovar uma proposta, assinar o
-                contrato ou responder uma etapa, aparece aqui.
-              </p>
+            <div className="notif-abas" role="tablist" aria-label="Filtrar notificações">
+              <button type="button" role="tab" aria-selected={aba === "nao_lidas"} className="notif-aba" onClick={() => setAba("nao_lidas")}>
+                Não lidas{naoLidas > 0 ? ` (${naoLidas > 99 ? "99+" : naoLidas})` : ""}
+              </button>
+              <button type="button" role="tab" aria-selected={aba === "todas"} className="notif-aba" onClick={() => setAba("todas")}>
+                Todas
+              </button>
+              {aba === "todas" && temLidas && (
+                <button type="button" className="botao-link notif-limpar" onClick={limparLidas}>
+                  <Trash2 size={14} aria-hidden="true" />
+                  Limpar lidas
+                </button>
+              )}
+            </div>
+            {grupos.length === 0 ? (
+              aba === "nao_lidas" ? (
+                <p className="notif-vazio">
+                  <CheckCheck size={22} aria-hidden="true" />
+                  Tudo em dia. Nenhuma notificação não lida.
+                  {lista.length > 0 && (
+                    <button type="button" className="botao-link" onClick={() => setAba("todas")}>
+                      Ver todas
+                    </button>
+                  )}
+                </p>
+              ) : (
+                <p className="notif-vazio">
+                  Nada por aqui ainda. Quando um cliente pedir orçamento, responder o briefing, aprovar uma proposta,
+                  assinar o contrato ou responder uma etapa, aparece aqui. As lidas saem sozinhas depois de 30 dias.
+                </p>
+              )
             ) : (
               <ul className="notif-lista">
-                {lista.map((n) => {
+                {grupos.map((g) => {
+                  const n = g.principal;
                   const Icone = ICONES[n.tipo] ?? Bell;
                   return (
-                    <li key={n.id}>
+                    <li key={g.chave} className="notif-linha">
                       <button
                         type="button"
-                        className={`notif-item ${n.lida_em ? "" : "notif-nova"}`}
-                        onClick={() => abrirNotificacao(n)}
+                        className={`notif-item ${g.lida ? "" : "notif-nova"}`}
+                        onClick={() => abrirGrupo(g.ids, n.link)}
                       >
                         <Icone size={18} aria-hidden="true" className="notif-icone" />
                         <span className="notif-textos">
                           <strong>{n.titulo}</strong>
                           {n.texto && <span>{n.texto}</span>}
-                          <time dateTime={n.criada_em}>{quando(n.criada_em)}</time>
+                          <time dateTime={n.criada_em}>
+                            {quando(n.criada_em)}
+                            {g.quantidade > 1 && ` · +${g.quantidade - 1} ${g.quantidade === 2 ? "novidade" : "novidades"} aqui`}
+                          </time>
                         </span>
-                        {!n.lida_em && <span className="notif-ponto" aria-label="não lida" />}
+                        {!g.lida && <span className="notif-ponto" aria-label="não lida" />}
+                      </button>
+                      <button
+                        type="button"
+                        className="notif-dispensar"
+                        onClick={() => dispensar(g)}
+                        aria-label={`Dispensar: ${n.titulo}`}
+                        title="Dispensar"
+                      >
+                        <X size={14} aria-hidden="true" />
                       </button>
                     </li>
                   );
@@ -287,7 +385,7 @@ export function Notificacoes({
         {aviso.length > 0 && (
           <div className="notif-aviso" onMouseEnter={() => timer.current && clearTimeout(timer.current)} onMouseLeave={agendarFechamento}>
             {aviso.length === 1 ? (
-              <button type="button" className="notif-aviso-corpo" onClick={() => abrirNotificacao(aviso[0])}>
+              <button type="button" className="notif-aviso-corpo" onClick={() => abrirGrupo([aviso[0].id], aviso[0].link)}>
                 {(() => {
                   const Icone = ICONES[aviso[0].tipo] ?? Bell;
                   return <Icone size={20} aria-hidden="true" className="notif-icone" />;
@@ -303,13 +401,15 @@ export function Notificacoes({
                 className="notif-aviso-corpo"
                 onClick={() => {
                   fecharAviso();
-                  setAberto(true);
+                  abrirPainel();
                 }}
               >
                 <Bell size={20} aria-hidden="true" className="notif-icone" />
                 <span className="notif-textos">
                   <strong>{aviso.length} novidades dos seus clientes</strong>
-                  <span>{aviso[0].titulo} e mais {aviso.length - 1}</span>
+                  <span>
+                    {aviso[0].titulo} e mais {aviso.length - 1}
+                  </span>
                 </span>
               </button>
             )}
