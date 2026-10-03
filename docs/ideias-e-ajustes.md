@@ -14,6 +14,12 @@ for concluído. **Toda pendência entra aqui.**
 - [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
+- [ ] **Sugestões a partir do concorrente COP** (análise em `docs/concorrentes/cop.md`, 03/10/2026).
+      Decidir quais entram: calculadora de honorários na proposta; "saúde do projeto"; dados de exemplo
+      no teste grátis; cobrança do cliente por Pix/boleto; importar clientes de planilha; preço do
+      Profissional com mais de 1 pessoa. Marketing: prova social, vídeo, SEO e calculadora gratuita.
+- [ ] Analisar os outros concorrentes: Vobi, Projete.app, ARQPROJECT, ArqDesk, ProjetoList, Plana
+      Software, escritorio.arq.br, Sole.
 - [ ] Pessoa em vários escritórios com seletor (como no Slack) e "acesso de suporte" autorizado pelo
       dono: hoje uma conta = um escritório. Mudança grande.
 - [ ] Assinatura digital com validade extra (ICP-Brasil): comparar ZapSign × Clicksign por envelope.
