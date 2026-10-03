@@ -62,8 +62,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 ## A fazer
 - [ ] **Manual completo do NorteArq** (aprovado em 03/10/2026). Fonte: `docs/manual/manual.md`, atualizada a
       cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
-      perguntas frequentes do cliente final (03/10/2026). Falta: gerar o PDF depois da revisão de UX e levar a
-      versão curta para uma central de ajuda dentro do sistema.
+      perguntas frequentes do cliente final (03/10/2026). A central de ajuda (menu Ajuda) e as perguntas
+      frequentes do cliente já leem o manual direto. Falta: gerar o PDF depois da conferência visual.
 - [ ] **A opção "Quando o cliente responde o briefing detalhado?" não faz nada** (achado ao escrever o manual,
       03/10/2026). Ela é salva nas Configurações e no passo 4 da configuração inicial, mas o sistema não usa a
       escolha: o link de briefing pode ser mandado a qualquer momento pela ficha do cliente. Decidir: tirar a
@@ -80,6 +80,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Menu "Ajuda" (índice, busca, tabelas) e "Dúvidas frequentes" no fim de um link do cliente.
 - [ ] Ficha do cliente → "Exportar dados do cliente": baixar e abrir o arquivo de um cliente de teste.
       Proposta enviada: "Salvar como modelo" embaixo da proposta.
 - [ ] Lote 4 da revisão de UX: **menu no celular** (botão Menu, abre e fecha ao trocar de tela, sininho à vista);
@@ -118,6 +119,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Central de ajuda (03/10/2026): menu "Ajuda" com o manual, índice e busca; "Dúvidas frequentes" no fim das páginas do cliente (links e portal). Tudo lido de docs/manual/manual.md; trechos só de suporte ficam de fora.
 - [x] Lote 5 (03/10/2026): exportar dados do cliente (LGPD); limites dos planos travados no banco (15 briefings/mês no Briefing, 15 projetos em andamento no Profissional, migração 0036) com aviso no painel; "Salvar como modelo" também em propostas enviadas e aprovadas.
 - [x] Revisão de UX, lote 4 (03/10/2026): menu recolhido no celular; reenviar o mesmo link do briefing; confirmação ao enviar etapa, excluir pedido e conceder cortesia; erros visíveis em Virar cliente, Nova proposta, Gerar contrato e Nova versão; explicação do deslocamento com aviso de valor na observação; busca pelo nome do cliente em Propostas, Projetos, Contratos e Briefings; linha do tempo com propostas e etapas.
 - [x] Revisão de UX, lote 3 (03/10/2026): próximo passo e seção Projeto na ficha do cliente; Perfil do Cliente no projeto; pedido de revisão do cliente no topo da etapa; "visível ao cliente" antes do envio de arquivos; "Falar com o escritório" e "Ver e responder" para o cliente; primeiros passos no painel; menu com a tela atual destacada e sem "Obras"; ações perigosas por último na ficha.

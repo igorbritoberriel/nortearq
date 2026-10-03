@@ -5,6 +5,9 @@ Fonte única do manual. Atualizada a cada entrega (regra no CLAUDE.md). Daqui sa
 2. **Central de ajuda** dentro do sistema (para os arquitetos): versão curta dos capítulos.
 3. **Perguntas frequentes** da área do cliente final: capítulo 14.
 
+A central de ajuda (menu **Ajuda**) e as perguntas frequentes do cliente leem este arquivo direto. Trechos só
+para o suporte ficam entre `<!-- suporte -->` e `<!-- /suporte -->` e não aparecem para os arquitetos.
+
 O PDF é gerado a partir deste texto. O antigo `Manual-NorteArq.pdf` (01/10/2026) está desatualizado.
 
 Situação de cada capítulo: ✅ escrito · 🟡 parcial · ⬜ a escrever (o PDF completo sai depois da revisão de UX).
@@ -83,6 +86,8 @@ menu fica recolhido no botão **Menu** (o sininho continua à vista) e fecha soz
 
 **Busca:** Clientes, Propostas, Contratos, Projetos e Briefings têm busca pelo nome do cliente.
 
+**Ajuda** (menu): este manual, com índice e busca por palavra. Não achou? "Relatar problema ou sugestão".
+
 ## 3. Equipe e perfis ✅
 
 | Ação | Dono | Administrador | Colaborador |
@@ -105,7 +110,7 @@ menu fica recolhido no botão **Menu** (o sininho continua à vista) e fecha soz
 
 ## 4. Pedidos de orçamento e filtro de compatibilidade ✅
 
-**O formulário** (`/e/[escritorio]`, com a marca do escritório) pede: nome, WhatsApp (obrigatório), e-mail,
+**O formulário** (o link do escritório, com a marca dele) pede: nome, WhatsApp (obrigatório), e-mail,
 serviços, área em m², local, quanto pretende investir, quando quer começar, mensagem e o aceite da política
 de privacidade. Leva uns 2 minutos.
 
@@ -345,7 +350,11 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
 - Novidades do mesmo item aparecem agrupadas ("+2 novidades aqui").
 - A leitura é de cada pessoa da equipe. Lidas saem da lista após 30 dias; tudo é apagado após 90 dias.
 
-**E-mails automáticos** (só saem com o Resend configurado; o sininho funciona sempre)
+**E-mails automáticos** (o sininho funciona sempre)
+
+<!-- suporte -->
+Os e-mails só saem com o Resend configurado na Vercel (`RESEND_API_KEY` e `EMAIL_REMETENTE`).
+<!-- /suporte -->
 
 | Quando | Quem recebe |
 |---|---|
@@ -383,7 +392,7 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
   modo leitura antes da suspensão.
 - Em qualquer situação, **o cliente final continua acessando os projetos**.
 - Equipe num plano sem equipe: os membros ficam sem acesso até o escritório voltar ao plano Escritório.
-- **Limites travados no banco:** plano Briefing, 15 briefings novos por mês (volta no dia 1º); plano
+- **Limites do plano:** plano Briefing, 15 briefings novos por mês (volta no dia 1º); plano
   Profissional e teste grátis, 15 projetos em andamento. Um projeto está "em andamento" enquanto tiver etapa
   não aprovada: aprovou todas, a vaga volta. No limite, o que trava é gerar contrato novo (a assinatura do
   cliente nunca é bloqueada). O painel avisa a 2 vagas do fim. Nada é perdido ao passar do limite.
@@ -398,15 +407,17 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 **Telas de erro**
 - Se algo quebrar, aparece "Algo deu errado nesta tela", com **Tentar de novo** e **Voltar ao início**.
 - O erro já foi avisado automaticamente. Nada do que foi salvo antes se perde.
-- O **código do erro** que aparece embaixo ajuda o suporte a achar o registro no painel interno.
+- O **código do erro** que aparece embaixo ajuda o suporte a achar o que aconteceu: mande junto ao relatar.
 - Dentro do sistema, há também o botão "Contar o que eu estava fazendo".
 
+<!-- suporte -->
 **Painel interno** (`/app/interno`, só para quem administra o NorteArq)
 - **Relatos:** de quem, de qual escritório, página e texto. Botões Responder (abre o e-mail), Marcar como
   visto e Resolvido.
 - **Erros automáticos** dos últimos 30 dias: página, quantas vezes aconteceu, escritório e detalhes técnicos.
   O mesmo erro na mesma página em 24 h é contado como um só. E-mail de aviso só na primeira vez.
 - Quem administra é definido na Vercel pela variável `NORTEARQ_ADMINS` (e-mails separados por vírgula).
+<!-- /suporte -->
 
 ## 14. Área do cliente final e perguntas frequentes ✅
 
@@ -422,6 +433,9 @@ WhatsApp do escritório.
 
 Quando há etapa ou aditivo esperando por ele, o aviso no topo tem o botão **Ver e responder**, que leva
 direto ao ponto da página.
+
+**Dúvidas frequentes:** no fim de todas as páginas do cliente (links e portal) aparecem as perguntas abaixo,
+abrindo uma por vez.
 
 **No projeto o cliente vê:** etapas e o que está esperando por ele, arquivos já enviados (ver e baixar),
 revisões usadas, aditivos para aprovar ou recusar, aprovações externas e pagamentos.

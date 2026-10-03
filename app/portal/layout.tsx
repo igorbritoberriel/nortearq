@@ -1,3 +1,4 @@
+import { PerguntasFrequentes } from "@/components/publico/PerguntasFrequentes";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -88,6 +89,7 @@ export default async function PortalLayout({ children }: { children: React.React
         </form>
       </header>
       <main className="publico-conteudo">{children}</main>
+      <PerguntasFrequentes />
       <footer className="publico-rodape">Portal do cliente · NorteArq</footer>
     </div>
   );

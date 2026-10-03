@@ -1,3 +1,4 @@
+import { PerguntasFrequentes } from "@/components/publico/PerguntasFrequentes";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Clock, MessageCircle } from "lucide-react";
@@ -94,6 +95,7 @@ export default async function LinkClienteLayout({
         )}
       </main>
 
+      {link.valido && <PerguntasFrequentes />}
       <footer className="publico-rodape">Link seguro e pessoal · NorteArq</footer>
     </div>
   );

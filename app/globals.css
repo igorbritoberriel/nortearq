@@ -1539,3 +1539,22 @@ p { margin: 0 0 1em; }
   .menu-movel-chave:checked ~ .relatar-botao { display: flex; }
   .menu-movel-chave:checked ~ .app-usuario { display: flex; }
 }
+
+/* ---------- Central de ajuda e perguntas frequentes (lido do manual) ---------- */
+.ajuda-indice ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+.ajuda-indice li { margin: 4px 0; break-inside: avoid; }
+.ajuda-indice a { color: var(--cor-norte); text-decoration: underline; }
+@media (max-width: 640px) { .ajuda-indice ol { columns: 1; } }
+.ajuda-capitulo { scroll-margin-top: 80px; }
+.texto-manual p { margin: 0 0 10px; }
+.texto-manual ul, .texto-manual ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 4px; }
+.texto-manual code { font-size: 0.88em; background: #f1efe9; padding: 1px 5px; border-radius: 4px; }
+.texto-manual .tabela-rolagem { overflow-x: auto; margin: 0 0 12px; }
+.texto-manual table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+.texto-manual th, .texto-manual td { border-bottom: 1px solid var(--cor-borda); padding: 8px; text-align: left; vertical-align: top; }
+.texto-manual th { background: #f7f5f1; }
+.perguntas-frequentes { max-width: 680px; width: 100%; margin: 24px auto 0; padding: 0 16px; }
+.perguntas-frequentes h2 { font-size: 1.05rem; margin: 0 0 8px; }
+.perguntas-frequentes details { border-bottom: 1px solid var(--cor-borda); padding: 10px 0; }
+.perguntas-frequentes summary { cursor: pointer; font-weight: 600; }
+.perguntas-frequentes details p { margin: 8px 0 0; color: var(--cor-texto-suave); }
