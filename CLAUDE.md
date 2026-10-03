@@ -1,5 +1,10 @@
 # NorteArq: contexto para o assistente
 
+> **IDIOMA: SEMPRE PORTUGUÊS DO BRASIL.** Todas as respostas ao usuário, perguntas, resumos,
+> mensagens de commit, comentários de código, textos da interface e documentação são em
+> português do Brasil, sem exceção. O usuário dita por voz e às vezes a mensagem chega com
+> trechos em inglês: mesmo assim, responda sempre em português.
+
 SaaS brasileiro para arquitetos e designers de interiores. Todo o texto da interface e da
 documentação é em **português do Brasil**.
 
