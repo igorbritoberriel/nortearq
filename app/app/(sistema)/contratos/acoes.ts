@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { linkDoCliente } from "@/lib/clientes";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { confirmarSenha } from "@/lib/confirmar-senha";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -67,12 +68,20 @@ export async function enviarContrato(id: string): Promise<{ link: string } | { e
   return { link: linkDoCliente(urlDoSite(), data as string, "contrato") };
 }
 
-export async function cancelarContrato(id: string) {
+const SENHA_ERRADA = "Senha incorreta. Digite a senha que você usa para entrar no NorteArq.";
+
+// Cancelar contrato invalida um documento já enviado ao cliente: pede a senha.
+export async function cancelarContrato(id: string, senha: string): Promise<{ erro: string } | { ok: true }> {
   const ctx = await contexto();
-  if (!ctx || !UUID.test(id)) return;
+  if (!ctx || !UUID.test(id)) return { erro: SEM_SUPABASE.mensagem! };
+  if (!(await confirmarSenha(ctx.sessao.email, senha))) return { erro: SENHA_ERRADA };
   const { error } = await ctx.supabase.rpc("cancelar_contrato", { p_contrato: id });
-  if (error) console.error("[contratos] cancelar", error.message);
+  if (error) {
+    console.error("[contratos] cancelar", error.message);
+    return { erro: "Não foi possível cancelar. Tente de novo." };
+  }
   revalidatePath("/app", "layout");
+  return { ok: true };
 }
 
 // ---------- Pagamentos protegidos (migração 0015) ----------
@@ -123,6 +132,7 @@ export async function registrarPagamento(_anterior: EstadoFormulario, formData: 
 }
 
 const esquemaEstorno = z.object({
+  senha: z.string().min(1, "Digite a sua senha."),
   pagamento_id: z.uuid(),
   motivo: z.string().trim().min(5, "Explique o motivo do estorno.").max(300, "Use até 300 caracteres."),
 });
@@ -135,6 +145,9 @@ export async function estornarPagamento(_anterior: EstadoFormulario, formData: F
   }
   const ctx = await contexto();
   if (!ctx) return { ...SEM_SUPABASE, valores };
+  if (!(await confirmarSenha(ctx.sessao.email, resultado.data.senha))) {
+    return { status: "erro", mensagem: SENHA_ERRADA, erros: { senha: "Senha incorreta." }, valores };
+  }
   const { error } = await ctx.supabase.rpc("estornar_pagamento", {
     p_pagamento: resultado.data.pagamento_id,
     p_motivo: resultado.data.motivo,

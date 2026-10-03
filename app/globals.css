@@ -1269,3 +1269,4 @@ p { margin: 0 0 1em; }
 .botao-perigo { background: var(--cor-erro) !important; color: #fff !important; }
 .botao-texto-perigo { color: var(--cor-erro); }
 .filtro-arquivados { margin: 0; align-self: center; }
+.confirmar-senha { width: 100%; max-width: 480px; }

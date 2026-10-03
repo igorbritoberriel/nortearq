@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { confirmarSenha } from "@/lib/confirmar-senha";
 import { enviarEmail, escaparHtml, modeloEmail } from "@/lib/email";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
@@ -99,10 +100,18 @@ export async function mudarPapel(id: string, papel: "administrador" | "colaborad
   return !error;
 }
 
-export async function removerMembro(id: string) {
+// Remover corta o acesso na hora: pede a senha do dono.
+export async function removerMembro(id: string, senha: string): Promise<{ erro: string } | { ok: true }> {
   const ctx = await contexto();
-  if (!ctx) return;
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!(await confirmarSenha(ctx.sessao.email, senha))) {
+    return { erro: "Senha incorreta. Digite a senha que você usa para entrar no NorteArq." };
+  }
   const { error } = await ctx.supabase.rpc("remover_membro", { p_membro: id });
-  if (error) console.error("[equipe] remover", error.message);
+  if (error) {
+    console.error("[equipe] remover", error.message);
+    return { erro: erroDe(error.message) };
+  }
   revalidatePath("/app/configuracoes");
+  return { ok: true };
 }

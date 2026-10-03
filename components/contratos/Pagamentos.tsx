@@ -235,6 +235,9 @@ function FormEstorno({ pagamento, fechar }: { pagamento: PagamentoComBaixa; fech
           defaultValue={estado.valores?.motivo}
         />
       </Campo>
+      <Campo id={`senha-estorno-${pagamento.id}`} rotulo="Para confirmar, digite a sua senha do NorteArq" erro={estado.erros?.senha}>
+        <input id={`senha-estorno-${pagamento.id}`} name="senha" type="password" autoComplete="current-password" />
+      </Campo>
       <p className="campo-ajuda">
         A parcela volta a ficar pendente, o recibo nº {pagamento.baixa?.recibo_numero ?? "—"} passa a aparecer como cancelado e o
         estorno fica registrado no histórico com o seu nome.

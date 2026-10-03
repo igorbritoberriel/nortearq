@@ -3,6 +3,7 @@
 import { useActionState, useOptimistic, useState, useTransition } from "react";
 import { Check, Copy, Mail, RotateCw, UserMinus, UserPlus, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
+import { ConfirmarComSenha } from "@/components/ConfirmarComSenha";
 import {
   cancelarConvite,
   convidar,
@@ -115,18 +116,18 @@ export function Equipe({
                     <option value="colaborador">Colaborador</option>
                   </select>
                 </label>
-                <button
-                  type="button"
-                  className="botao-icone"
-                  aria-label={`Remover ${m.nome}`}
-                  disabled={pendente}
-                  onClick={() => {
-                    if (!window.confirm(`Remover ${m.nome} da equipe? A pessoa perde o acesso na hora; o que ela fez continua registrado.`)) return;
-                    iniciar(() => removerMembro(m.id));
-                  }}
-                >
-                  <UserMinus size={16} aria-hidden="true" />
-                </button>
+                <ConfirmarComSenha
+                  rotulo="Remover"
+                  icone={<UserMinus size={16} aria-hidden="true" />}
+                  aviso={
+                    <p>
+                      <strong>Remover {m.nome} da equipe?</strong> A pessoa perde o acesso na hora; o que ela fez continua
+                      registrado.
+                    </p>
+                  }
+                  confirmar="Remover da equipe"
+                  acao={removerMembro.bind(null, m.id)}
+                />
               </>
             )}
           </li>

@@ -7,6 +7,7 @@ import { EditorContrato } from "@/components/contratos/EditorContrato";
 import { TrocarModelo, type ModeloResumo } from "@/components/contratos/ModelosContrato";
 import { Pagamentos } from "@/components/contratos/Pagamentos";
 import { EmConstrucao } from "@/components/EmConstrucao";
+import { ConfirmarComSenha } from "@/components/ConfirmarComSenha";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import {
   COLUNAS_CONTRATO,
@@ -90,11 +91,19 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
           </div>
           <div className="perfil-acoes">
             {aberto && (
-              <form action={cancelarContrato.bind(null, contrato.id)}>
-                <button type="submit" className="botao botao-fantasma">
-                  <Ban size={18} aria-hidden="true" /> Cancelar contrato
-                </button>
-              </form>
+              <ConfirmarComSenha
+                rotulo="Cancelar contrato"
+                icone={<Ban size={18} aria-hidden="true" />}
+                classe="botao botao-fantasma"
+                aviso={
+                  <p>
+                    <strong>Cancelar este contrato?</strong> O link enviado ao cliente deixa de valer e o contrato não pode mais
+                    ser assinado. Não dá para desfazer.
+                  </p>
+                }
+                confirmar="Cancelar contrato"
+                acao={cancelarContrato.bind(null, contrato.id)}
+              />
             )}
             {contrato.status === "assinado" && <BotaoImprimir />}
           </div>

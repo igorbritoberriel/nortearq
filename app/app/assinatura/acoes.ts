@@ -14,6 +14,7 @@ import {
 import { hojeBrasilia, planoPorId, precoDo, somarDias, type Periodo } from "@/lib/assinatura";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
 import { errosDe, valoresDe, type EstadoFormulario } from "@/lib/formulario";
+import { confirmarSenha } from "@/lib/confirmar-senha";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Assinatura do arquiteto pelo Asaas. Só o dono assina, troca de plano ou cancela.
@@ -126,10 +127,13 @@ export async function pagarAgora() {
 }
 
 // RG-6: cancela sem multa; o acesso vale até o fim do período pago.
-export async function cancelarAssinatura(): Promise<{ ok: true } | { erro: string }> {
+export async function cancelarAssinatura(senha: string): Promise<{ ok: true } | { erro: string }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_ASAAS };
   const { sessao, admin } = ctx;
+  if (!(await confirmarSenha(sessao.email, senha))) {
+    return { erro: "Senha incorreta. Digite a senha que você usa para entrar no NorteArq." };
+  }
   if (sessao.membro.papel !== "dono") return { erro: "Só o dono do escritório pode cancelar a assinatura." };
   const id = sessao.escritorio.asaas_assinatura_id;
   if (!id) return { erro: "Não há assinatura para cancelar." };

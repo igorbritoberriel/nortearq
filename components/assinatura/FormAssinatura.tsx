@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState, useState } from "react";
 import { Check } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
+import { ConfirmarComSenha } from "@/components/ConfirmarComSenha";
 import { InputMascara } from "@/components/InputMascara";
 import { assinar, cancelarAssinatura } from "@/app/app/assinatura/acoes";
 import { precoDo, type Periodo } from "@/lib/assinatura";
@@ -98,29 +99,17 @@ export function FormAssinatura({
 }
 
 export function CancelarAssinatura({ ate }: { ate: string | null }) {
-  const [pendente, iniciar] = useTransition();
-  const [erro, setErro] = useState<string | null>(null);
   return (
-    <>
-      {erro && <Aviso tipo="erro">{erro}</Aviso>}
-      <button
-        type="button"
-        className="botao botao-fantasma botao-pequeno"
-        disabled={pendente}
-        onClick={() => {
-          const texto = ate
-            ? `Cancelar a assinatura? Não há multa, e você continua usando até ${ate}.`
-            : "Cancelar a assinatura? Não há multa.";
-          if (!window.confirm(texto)) return;
-          setErro(null);
-          iniciar(async () => {
-            const r = await cancelarAssinatura();
-            if ("erro" in r) setErro(r.erro);
-          });
-        }}
-      >
-        {pendente ? "Cancelando..." : "Cancelar assinatura"}
-      </button>
-    </>
+    <ConfirmarComSenha
+      rotulo="Cancelar assinatura"
+      aviso={
+        <p>
+          <strong>Cancelar a assinatura?</strong> Não há multa.{" "}
+          {ate ? `Você continua usando até ${ate}; depois o sistema entra em modo leitura.` : "O sistema entra em modo leitura."}
+        </p>
+      }
+      confirmar="Cancelar assinatura"
+      acao={cancelarAssinatura}
+    />
   );
 }
