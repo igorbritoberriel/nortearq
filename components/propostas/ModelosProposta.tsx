@@ -87,14 +87,22 @@ export function SalvarComoModelo({
   servicosDaProposta,
   modelos,
   salvarAntes,
+  aberto: abertoFora,
+  aoMudar,
 }: {
   propostaId: string;
   servicos: Servico[];
   servicosDaProposta: string[]; // nomes dos serviços nos itens da proposta
   modelos: ModeloResumoProposta[];
   salvarAntes: () => Promise<boolean>;
+  // Controlado de fora (botão no rodapé da proposta): sem isso, o próprio componente mostra o botão.
+  aberto?: boolean;
+  aoMudar?: (aberto: boolean) => void;
 }) {
-  const [aberto, setAberto] = useState(false);
+  const [abertoDentro, setAbertoDentro] = useState(false);
+  const controlado = abertoFora !== undefined;
+  const aberto = controlado ? abertoFora : abertoDentro;
+  const setAberto = (v: boolean) => (controlado ? aoMudar?.(v) : setAbertoDentro(v));
   const acao = useMemo(() => salvarComoModelo.bind(null, propostaId), [propostaId]);
   const [estado, enviar, enviando] = useActionState(acao, inicial);
   const [salvando, iniciar] = useTransition();
@@ -106,9 +114,13 @@ export function SalvarComoModelo({
 
   useEffect(() => {
     if (estado.status === "sucesso") setAberto(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fecha só quando o estado da ação muda
   }, [estado]);
 
   if (!aberto) {
+    if (controlado) {
+      return estado.status === "sucesso" && estado.mensagem ? <Aviso tipo="sucesso">{estado.mensagem}</Aviso> : null;
+    }
     return (
       <>
         {estado.status === "sucesso" && estado.mensagem && <Aviso tipo="sucesso">{estado.mensagem}</Aviso>}
@@ -122,6 +134,7 @@ export function SalvarComoModelo({
 
   return (
     <form
+      id="salvar-modelo"
       className="pagamento-form salvar-modelo"
       noValidate
       onSubmit={(e) => {

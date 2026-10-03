@@ -198,7 +198,12 @@ deslocamento, o que não está incluído e validade (dias contados a partir do e
 ou reembolso das despesas. Com cidade-sede, as visitas dentro dela não pagam deslocamento. A tela mostra
 "Como o cliente vai ler".
 
-**Enviar:** fecha a versão (não edita mais) e gera o link para o WhatsApp. Exige valor total e pelo menos um
+**Salvamento:** o rascunho salva sozinho 3 segundos depois da última alteração; o rodapé mostra "Rascunho salvo
+às 14:32" ou "Alterações ainda não salvas". Sair da página com algo não salvo pede confirmação. Se algum campo
+estiver errado, o aviso aparece no rodapé, junto dos botões, e a tela rola até o campo.
+
+**Revisar e enviar:** salva e abre a proposta exatamente como o cliente vai ler. Dali, **Voltar e ajustar** ou
+**Enviar no WhatsApp**. Enviar fecha a versão (não edita mais) e gera o link. Exige valor total e pelo menos um
 serviço. "Gerar link novo" desliga o anterior.
 
 **O cliente responde pelo link:** **aprovar** (escolhendo como quer pagar), **pedir ajuste** (comentário
@@ -210,7 +215,7 @@ data, hora e IP; o escritório é avisado.
 - **Expirada:** passada a validade, o link mostra que a proposta venceu e o cliente não consegue aprovar.
 
 **Modelos** (Propostas → Modelos)
-- **Salvar como modelo** a partir de uma proposta: modelo novo ou substituindo um existente. Nome não repete.
+- **Salvar como modelo** (no rodapé da proposta, ao lado de Salvar rascunho): modelo novo ou substituindo um existente. Nome não repete.
 - Valor no modelo: em branco ("cada projeto é um preço"), fixo, ou por m² (calculado com a área que o
   cliente informou no pedido de orçamento).
 - Num rascunho: **Trocar modelo…** (substitui o conteúdo) ou **Em branco**.

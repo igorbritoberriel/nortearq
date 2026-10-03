@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Check, Copy, MessageCircle, Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { BookmarkPlus, Check, Copy, Eye, MessageCircle, Plus, Trash2, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
 import { BarraModelo, SalvarComoModelo, type ModeloResumoProposta } from "@/components/propostas/ModelosProposta";
+import { VisualizacaoProposta } from "@/components/propostas/VisualizacaoProposta";
 import { DESTINOS_LINK } from "@/lib/clientes";
 import { linkWhatsapp } from "@/lib/contatos";
 import {
@@ -71,6 +72,10 @@ export function FormProposta({
   const [erros, setErros] = useState<Record<string, string>>({});
   const [link, setLink] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [previa, setPrevia] = useState(false);
+  const [modeloAberto, setModeloAberto] = useState(false);
+  const [salvoAs, setSalvoAs] = useState<string | null>(null);
+  const salvando = useRef(false);
 
   const valorTotal = lerReais(total);
   const soma = parcelas.reduce((s, p) => s + (lerReais(p.valor) ?? 0), 0);
@@ -112,16 +117,82 @@ export function FormProposta({
     };
   }
 
+  // O que já está gravado, para saber se há alteração sem salvar (A3 da revisão de UX).
+  const atual = JSON.stringify(dados());
+  const [salvo, setSalvo] = useState(atual);
+  const sujo = atual !== salvo;
+  const agora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
   async function salvar() {
     setMensagem(null);
-    const resultado = await salvarProposta(proposta.id, dados());
+    const enviado = dados();
+    salvando.current = true;
+    const resultado = await salvarProposta(proposta.id, enviado).finally(() => (salvando.current = false));
     if ("erro" in resultado) {
       setErros(resultado.erros ?? {});
       setMensagem({ tipo: "erro", texto: resultado.erro });
       return false;
     }
     setErros({});
+    setSalvo(JSON.stringify(enviado));
+    setSalvoAs(agora());
     return true;
+  }
+
+  // Salva sozinho 3 segundos depois da última alteração, sem marcar erros (o arquiteto ainda está digitando).
+  useEffect(() => {
+    if (!sujo || link) return;
+    const t = setTimeout(async () => {
+      if (salvando.current) return;
+      const enviado = dados();
+      salvando.current = true;
+      const r = await salvarProposta(proposta.id, enviado).finally(() => (salvando.current = false));
+      if (!("erro" in r)) {
+        setSalvo(JSON.stringify(enviado));
+        setSalvoAs(agora());
+      }
+    }, 3000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `atual` já resume todos os campos
+  }, [atual, sujo, link]);
+
+  // Aviso ao fechar a aba ou sair por um link com alteração ainda não gravada.
+  useEffect(() => {
+    if (!sujo || link) return;
+    const aoFechar = (e: BeforeUnloadEvent) => e.preventDefault();
+    const aoClicar = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement).closest("a[href]") as HTMLAnchorElement | null;
+      if (!a || a.target === "_blank" || a.origin !== window.location.origin || a.pathname === window.location.pathname) return;
+      if (!window.confirm("Esta proposta tem alterações que ainda não foram salvas. Sair mesmo assim?")) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("beforeunload", aoFechar);
+    document.addEventListener("click", aoClicar, true);
+    return () => {
+      window.removeEventListener("beforeunload", aoFechar);
+      document.removeEventListener("click", aoClicar, true);
+    };
+  }, [sujo, link]);
+
+  // Com erro, leva até o primeiro campo marcado (A2 da revisão de UX).
+  useEffect(() => {
+    if (!Object.keys(erros).length) return;
+    const campo = document.querySelector(".form-proposta .com-erro");
+    campo?.scrollIntoView({ behavior: "smooth", block: "center" });
+    (campo?.querySelector("input, textarea, select") as HTMLElement | null)?.focus({ preventScroll: true });
+  }, [erros]);
+
+  // Antes de enviar: salva e mostra a proposta como o cliente vai ler (A4 da revisão de UX).
+  function revisar() {
+    if (Math.abs(diferenca) >= 0.01) {
+      setMensagem({ tipo: "erro", texto: "A soma das parcelas está diferente do valor total." });
+      return;
+    }
+    iniciar(async () => {
+      if (await salvar()) setPrevia(true);
+    });
   }
 
   function enviar() {
@@ -132,13 +203,17 @@ export function FormProposta({
     // Abre a aba já no clique: navegador de celular bloqueia janela aberta depois de esperar o servidor.
     const aba = cliente.telefone ? window.open("", "_blank") : null;
     iniciar(async () => {
-      if (!(await salvar())) return void aba?.close();
+      if (!(await salvar())) {
+        setPrevia(false);
+        return void aba?.close();
+      }
       const resultado = await enviarProposta(proposta.id);
       if ("erro" in resultado) {
         aba?.close();
         setMensagem({ tipo: "erro", texto: resultado.erro });
         return;
       }
+      setPrevia(false);
       setLink(resultado.link);
       if (aba && cliente.telefone) {
         aba.location.href = linkWhatsapp(cliente.telefone, DESTINOS_LINK.proposta.mensagem(primeiroNome, escritorio, resultado.link));
@@ -205,7 +280,6 @@ export function FormProposta({
         });
       }}
     >
-      {mensagem && <Aviso tipo={mensagem.tipo}>{mensagem.texto}</Aviso>}
       <BarraModelo propostaId={proposta.id} origem={proposta.modelo_origem ?? null} modelos={modelos} />
 
       <section className="cartao secao-config">
@@ -466,14 +540,31 @@ export function FormProposta({
         </Campo>
       </section>
 
-      <div className="form-rodape proposta-rodape">
-        <button className="botao botao-secundario" type="submit" disabled={pendente}>
-          {pendente ? "Salvando..." : "Salvar rascunho"}
-        </button>
-        <button className="botao botao-primario" type="button" onClick={enviar} disabled={pendente}>
-          <MessageCircle size={18} aria-hidden="true" />
-          {cliente.telefone ? "Enviar no WhatsApp" : "Enviar e gerar link"}
-        </button>
+      <div className="proposta-rodape">
+        {mensagem && !previa && <Aviso tipo={mensagem.tipo}>{mensagem.texto}</Aviso>}
+        <div className="form-rodape">
+          <span className="proposta-salvo muted" aria-live="polite">
+            {sujo ? "Alterações ainda não salvas" : salvoAs ? `Rascunho salvo às ${salvoAs}` : "Rascunho salvo"}
+          </span>
+          <button
+            type="button"
+            className="botao botao-fantasma"
+            onClick={() => {
+              setModeloAberto(true);
+              setTimeout(() => document.getElementById("salvar-modelo")?.scrollIntoView({ behavior: "smooth" }), 50);
+            }}
+          >
+            <BookmarkPlus size={18} aria-hidden="true" />
+            Salvar como modelo
+          </button>
+          <button className="botao botao-secundario" type="submit" disabled={pendente}>
+            {pendente ? "Salvando..." : "Salvar rascunho"}
+          </button>
+          <button className="botao botao-primario" type="button" onClick={revisar} disabled={pendente}>
+            <Eye size={18} aria-hidden="true" />
+            Revisar e enviar
+          </button>
+        </div>
       </div>
     </form>
     <div className="proposta-salvar-modelo">
@@ -483,8 +574,72 @@ export function FormProposta({
         servicosDaProposta={itens.map((i) => i.servico)}
         modelos={modelos}
         salvarAntes={salvar}
+        aberto={modeloAberto}
+        aoMudar={setModeloAberto}
       />
     </div>
+    {previa && (
+      <div className="previa-fundo" onClick={(e) => e.target === e.currentTarget && !pendente && setPrevia(false)}>
+        <div
+          className="previa-janela"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="previa-titulo"
+          onKeyDown={(e) => e.key === "Escape" && !pendente && setPrevia(false)}
+        >
+          <div className="previa-topo">
+            <strong id="previa-titulo">Assim {primeiroNome} vai ver a proposta</strong>
+            <button type="button" className="botao-icone" onClick={() => setPrevia(false)} aria-label="Fechar" disabled={pendente}>
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="previa-conteudo proposta-previa">
+            <VisualizacaoProposta
+              proposta={{
+                ...proposta,
+                titulo,
+                escopo: apresentacao || null,
+                itens: (dados().itens as Proposta["itens"]) ?? [],
+                valor_total: valorTotal,
+                modo_pagamento: modo,
+                entrada_pct: modo === "parcelado" && Number.isFinite(pctNumero) ? pctNumero : null,
+                parcelas_max: modo === "parcelado" ? Number(parcelasMax) || 1 : null,
+                desconto_avista_pct: modo === "parcelado" && pctDesconto > 0 ? pctDesconto : null,
+                parcelas:
+                  modo === "manual" ? parcelas.map((p) => ({ descricao: p.descricao, valor: lerReais(p.valor) ?? 0 })) : [],
+                parcelas_escolhidas: null,
+                avista: false,
+                forma_pagamento: formaPagamento || null,
+                prazo: prazo || null,
+                revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
+                visitas_incluidas: Number.parseInt(visitas, 10) || 0,
+                nao_incluido: naoIncluido || null,
+                deslocamento_tipo: deslocamento,
+                deslocamento_valor: deslocamento === "fixo" || deslocamento === "km" ? lerReais(deslocValor) : null,
+                deslocamento_cidade: deslocamento === "incluido" ? null : deslocCidade || null,
+                deslocamento_obs: deslocObs || null,
+                validade_dias: Number.parseInt(validade, 10) || 0,
+                validade_ate: null,
+                enviada_em: null,
+              }}
+            />
+          </div>
+          <div className="previa-rodape">
+            {mensagem?.tipo === "erro" && <Aviso tipo="erro">{mensagem.texto}</Aviso>}
+            <p className="campo-ajuda">Depois de enviada, a proposta não muda mais. Para corrigir, é preciso criar uma nova versão.</p>
+            <div className="form-rodape">
+              <button type="button" className="botao botao-fantasma" onClick={() => setPrevia(false)} disabled={pendente} autoFocus>
+                Voltar e ajustar
+              </button>
+              <button type="button" className="botao botao-primario" onClick={enviar} disabled={pendente}>
+                <MessageCircle size={18} aria-hidden="true" />
+                {pendente ? "Enviando..." : cliente.telefone ? "Enviar no WhatsApp" : "Enviar e gerar link"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

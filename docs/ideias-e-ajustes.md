@@ -70,10 +70,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       opção, ou fazer ela valer (ex.: "Antes da proposta" sugere enviar o briefing ao virar cliente; "Depois do
       contrato" mostra o envio do briefing como próximo passo no projeto recém-criado).
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: A1, A5 e
-      A8. Próximos na ordem: proposta (erro longe dos botões, perder o não salvo, prévia antes de enviar) e
-      painel (pedidos já vistos somem; falta "proposta aprovada, falta o contrato"). Falta ainda a conferência
-      visual no navegador (prints).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: A1, A2,
+      A3, A4, A5, A8 e M15. Próximo na ordem: painel (pedidos já vistos somem; falta "proposta aprovada, falta o
+      contrato"). Falta ainda a conferência visual no navegador (prints).
 - [ ] Exportar os dados de um cliente quando ele pedir (LGPD, RG-9): hoje dá para arquivar, excluir,
       anonimizar e juntar, mas não exportar.
 - [ ] Limites dos planos no banco: 15 briefings por mês (plano Briefing) e 15 projetos ativos
@@ -82,6 +81,11 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Proposta em rascunho: "Rascunho salvo às..." no rodapé, aviso ao sair com algo não salvo, erro no rodapé
+      (ex.: apagar o valor total e clicar em "Revisar e enviar"), a janela da prévia no computador e no celular e
+      "Salvar como modelo" no rodapé.
+- [ ] Contrato em rascunho com dado do escritório faltando: caixa amarela com a lista e botão de enviar travado.
+      Configurações: seção "Modelos e textos prontos".
 - [ ] Logado no sistema: botão "Relatar problema ou sugestão" no menu (enviar um de teste) e o
       "Painel interno" (só aparece para o seu e-mail). O e-mail de aviso só sai com o Resend configurado.
 - [ ] Sininho novo: número zera ao abrir, abas Não lidas/Todas, X para dispensar, Limpar lidas.
@@ -107,6 +111,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Revisão de UX, proposta (03/10/2026): salvamento automático e aviso ao sair; erro no rodapé com rolagem até o campo; "Revisar e enviar" mostra a proposta como o cliente vê antes de enviar; "Salvar como modelo" no rodapé.
 - [x] Revisão de UX, primeiros ajustes (03/10/2026): contrato não sai mais com "[a preencher]" (lista do que falta e envio travado, também no banco, migração 0035); "Apagar rascunho" pede confirmação; Configurações com atalhos para os modelos no lugar da lista "Em breve".
 - [x] Aviso automático de erros (servidor e telas, com repetições juntadas), telas de erro em português, botão "Relatar problema ou sugestão" e painel interno /app/interno (03/10/2026).
 - [x] Permissões: matriz única (Dono, Administrador, Colaborador) no código, nas telas e no banco; documentada na especificação (03/10/2026).

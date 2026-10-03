@@ -16,18 +16,18 @@ Se faltam CPF/CNPJ, endereço ou responsável do escritório, a tela só mostra 
 funciona mesmo assim. O cliente recebe e assina um contrato com lacunas.
 → Bloquear o envio enquanto houver "[a preencher]" no texto, com o link "Preencher agora".
 
-**A2. Proposta: a mensagem de erro aparece no topo, longe dos botões.**
+**A2. Proposta: a mensagem de erro aparece no topo, longe dos botões.**  ✅ Feito (03/10/2026).
 Os botões "Salvar rascunho" e "Enviar no WhatsApp" ficam no fim de um formulário longo, mas o erro
 ("Confira os campos destacados", "A soma das parcelas...") aparece lá em cima. Quem clica em Enviar não vê
 nada acontecer.
 → Mostrar a mensagem junto dos botões e rolar até o primeiro campo com erro.
 
-**A3. Proposta: sair da página perde tudo o que não foi salvo.**
+**A3. Proposta: sair da página perde tudo o que não foi salvo.**  ✅ Feito (03/10/2026): salvamento automático e aviso ao sair.
 Não há salvamento automático nem aviso ao fechar a aba ou clicar no menu. O mesmo vale para o texto do
 contrato em rascunho.
 → Aviso "Você tem alterações não salvas" ao sair e, se possível, salvamento automático como no briefing.
 
-**A4. Proposta: dá para enviar sem ver como o cliente vai ler.**
+**A4. Proposta: dá para enviar sem ver como o cliente vai ler.**  ✅ Feito (03/10/2026): "Revisar e enviar".
 O envio é definitivo (depois só com nova versão), mas não existe uma prévia. Só o deslocamento tem o
 "Como o cliente vai ler".
 → Botão "Ver como o cliente vê" antes de enviar, abrindo a mesma visualização do link.
@@ -119,7 +119,7 @@ Para quem testa, parece coisa quebrada.
 botão simplesmente não faz nada.
 → Mensagem de erro em cada uma.
 
-**M15. Proposta: "Salvar como modelo" fica escondido embaixo** (já anotado).
+**M15. Proposta: "Salvar como modelo" fica escondido embaixo** (já anotado).  ✅ Feito (03/10/2026).
 → Junto de "Salvar rascunho" e "Enviar no WhatsApp".
 
 **M16. Proposta: valor do deslocamento digitado na observação** (já anotado).
@@ -162,7 +162,7 @@ do sistema.
 ## Ordem sugerida
 
 1. ~~A1, A5 e A8~~ feitos.
-2. A2, A3 e A4 (proposta).
+2. ~~A2, A3 e A4 (proposta)~~ feitos, com o M15.
 3. A6 e A7 (painel).
 4. M1 a M3 (ligações entre ficha, proposta, contrato e projeto) e M10 (primeiros passos).
 5. Resto das médias. As baixas, junto com a conferência visual no navegador.
