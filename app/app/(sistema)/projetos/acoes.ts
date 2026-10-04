@@ -74,7 +74,9 @@ function erroArquivo(mensagem: string) {
   if (mensagem.includes("etapa_fechada")) return "Esta etapa já foi aprovada. Mudanças viram aditivo.";
   if (mensagem.includes("espaco_esgotado")) return "O espaço do seu plano acabou. Apague arquivos que não usa ou mude de plano.";
   if (mensagem.includes("assinatura_pendente")) return "Sua assinatura está pendente: o sistema está só para consulta.";
-  if (mensagem.includes("capa_invalida")) return "Só um render visível ao cliente pode ser a capa.";
+  if (mensagem.includes("capa_invalida")) return "Só um render em destaque e visível ao cliente pode ser a capa.";
+  if (mensagem.includes("limite_destaque")) return "Já são 12 renders em destaque. Tire um para destacar outro.";
+  if (mensagem.includes("destaque_invalido")) return "Só imagens do tipo Render 3D podem ficar em destaque.";
   return "Não foi possível salvar. Tente de novo.";
 }
 
@@ -118,6 +120,24 @@ export async function definirCapa(projetoId: string, arquivoId: string | null): 
   atualizar(projetoId);
   revalidatePath("/app/projetos");
   return { ok: true };
+}
+
+// Mural "Renders do projeto": o arquiteto escolhe quais renders aparecem (até 12).
+export async function destacarRender(projetoId: string, arquivoId: string, destacar: boolean): Promise<Resultado> {
+  const ctx = await contexto();
+  if (!ctx || !UUID.test(projetoId) || !UUID.test(arquivoId)) return { erro: "Arquivo não encontrado." };
+  const { error } = await ctx.supabase.rpc("destacar_render", { p_projeto: projetoId, p_arquivo: arquivoId, p_destacar: destacar });
+  if (error) {
+    console.error("[projeto] destaque", error.message);
+    return { erro: erroArquivo(error.message) };
+  }
+  atualizar(projetoId);
+  revalidatePath("/app/projetos");
+  return { ok: true };
+}
+
+export async function tirarDoDestaque(projetoId: string, arquivoId: string): Promise<Resultado> {
+  return destacarRender(projetoId, arquivoId, false);
 }
 
 // Baixar o original com o nome certo ("Planta baixa - Rev02.pdf"), não o nome técnico do Storage.

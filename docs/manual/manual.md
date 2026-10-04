@@ -357,7 +357,8 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 **Arquivos**
 - Antes do botão de enviar arquivos, a opção "Os próximos arquivos ficam visíveis ao cliente" (vale para os
   arquivos enviados depois de marcar).
-- Cada arquivo tem um tipo: Prancha técnica, Render 3D, Documento ou Outro (sugerido pela extensão).
+- Cada arquivo tem um tipo: Prancha técnica, Render 3D, Documento ou Outro (sugerido pela extensão; imagem com
+  "planta", "layout", "corte", "humanizada" e parecidos no nome entra como Prancha técnica).
 - Imagens e PDFs ganham miniatura. Clicar abre o visualizador: zoom (roda do mouse, pinça, duplo toque),
   páginas do PDF, troca de revisão, **Baixar** (com o nome certo, ex.: "Planta - Rev02.pdf") e **Nova aba**.
 - DWG, SKP e outros formatos técnicos só baixam.
@@ -366,8 +367,13 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 - **O cliente só vê o que já foi enviado:** arquivo visível de uma etapa enviada para aprovação.
   Arquivo novo numa etapa em andamento ou em revisão aparece com "vai no próximo envio".
 - Arquivo só pode ser apagado enquanto a etapa não foi enviada ao cliente.
-- **Renders do projeto:** mural com a versão atual de cada render. A estrela escolhe a **capa** (só render
-  visível ao cliente). Sem capa escolhida, vale o render mais recente.
+- **Renders do projeto:** só os renders que você escolher. No arquivo (tipo Render 3D, em imagem), toque em
+  **Destacar**: até 12 por projeto. O mural fica abaixo das etapas, numa linha com setas para os lados; clicar
+  abre a imagem. A estrela escolhe a **capa** (só render visível ao cliente) e o X tira do destaque (o arquivo
+  continua na etapa). Versão nova do mesmo arquivo continua em destaque.
+- **Capa:** o render escolhido na estrela ou, sem escolha, o primeiro destaque. Aparece como faixa no topo do
+  projeto e na lista de projetos. Sem render em destaque, o projeto fica sem capa.
+- **Para o cliente:** a capa e o mural ficam no topo da página dele, com os renders em destaque já enviados.
 
 **Lembretes e revisões**
 - Etapa esperando aprovação: o cliente recebe e-mail com 3 e com 7 dias. No de 7 dias, o escritório também é

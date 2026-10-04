@@ -9,7 +9,7 @@ import { ProvedorArquivos } from "@/components/arquivos/ProvedorArquivos";
 import { RespostaAditivo } from "@/components/projetos/RespostaAditivo";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
 import { SITUACOES_EXTERNAS, STATUS_ADITIVO, resumoAditivo } from "@/lib/aditivos";
-import { assinarCaminhos, rendersAtuais, type ArquivoVisivel } from "@/lib/arquivos";
+import { assinarCaminhos, chaveArquivo, rendersEmDestaque, type ArquivoVisivel } from "@/lib/arquivos";
 import { STATUS_ETAPA, versoesAtuais, type ProjetoPublico } from "@/lib/projetos";
 import { dataCurta, reais } from "@/lib/propostas";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
@@ -87,7 +87,8 @@ export async function ProjetoCliente({
       previa: a.previa ? (urls[a.previa] ?? null) : null,
     })),
   );
-  const renders = rendersAtuais(todos);
+  // Mural: só os renders que o escritório destacou (versão mais recente já enviada de cada um).
+  const renders = rendersEmDestaque(todos, (projeto.destaque ?? []).map(chaveArquivo));
   const capa = (projeto.capa && todos.find((a) => a.id === projeto.capa!.id)) || null;
 
   const aprovadas = projeto.etapas.filter((e) => e.status === "aprovada").length;
@@ -96,7 +97,7 @@ export async function ProjetoCliente({
 
   return (
     <ProvedorArquivos todos={todos} baixar={baixarArquivoCliente.bind(null, token)}>
-      {capa && <CapaProjeto nome={projeto.nome} capa={capa} lista={renders.length ? renders : [capa]} />}
+      <CapaProjeto capa={capa} lista={renders.length ? renders : capa ? [capa] : []} />
       <p className="muted">Olá, {clienteNome}! Aqui você acompanha o seu projeto com o {escritorioNome}.</p>
       <h1>{projeto.nome}</h1>
 

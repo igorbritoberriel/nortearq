@@ -96,13 +96,10 @@ export default async function ProjetosPage({ searchParams }: { searchParams: Pro
                   <tr key={p.id}>
                     <td>
                       <span className="projeto-linha">
-                        {capaDe.get(p.id) ? (
+                        {/* Miniatura só quando há capa (render em destaque); sem quadro com inicial. */}
+                        {capaDe.get(p.id) && (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img className="projeto-miniatura" src={capaDe.get(p.id)!} alt="" loading="lazy" />
-                        ) : (
-                          <span className="projeto-miniatura projeto-miniatura-vazia" aria-hidden="true">
-                            {p.nome.trim()[0]?.toUpperCase()}
-                          </span>
                         )}
                         <span>
                           <Link className="tabela-link" href={`/app/projetos/${p.id}`}>

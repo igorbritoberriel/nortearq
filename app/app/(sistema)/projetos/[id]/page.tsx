@@ -16,10 +16,20 @@ import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritorio";
 import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
-import { assinarCaminhos, formatarEspaco, formatoDe, rendersAtuais, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
+import {
+  LIMITE_DESTAQUE,
+  assinarCaminhos,
+  chaveArquivo,
+  formatarEspaco,
+  formatoDe,
+  podeSerDestaque,
+  rendersEmDestaque,
+  type ArquivoVisivel,
+  type Categoria,
+} from "@/lib/arquivos";
 import type { StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { baixarArquivo, definirCapa, linkDoProjeto } from "../acoes";
+import { baixarArquivo, definirCapa, linkDoProjeto, tirarDoDestaque } from "../acoes";
 
 export const metadata: Metadata = { title: "Projeto" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -44,7 +54,7 @@ export default async function ProjetoPage({
 
   const { data: projeto } = await supabase
     .from("projetos")
-    .select("id, nome, contrato_id, capa_arquivo_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
+    .select("id, nome, contrato_id, capa_arquivo_id, renders_destaque, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
     .eq("id", id)
     .maybeSingle();
   if (!projeto) notFound();
@@ -105,12 +115,17 @@ export default async function ProjetoPage({
       };
     });
 
-  // Capa: a escolhida (se ainda é render visível) ou o render visível mais recente.
-  const renders = rendersAtuais(todos);
-  const capa =
-    todos.find((a) => a.id === projeto.capa_arquivo_id && a.categoria === "render" && a.visivel) ??
-    renders.find((r) => r.visivel) ??
-    null;
+  // Mural: só os renders destacados pelo arquiteto (versão mais recente de cada um, na ordem do destaque).
+  const porId = new Map(todos.map((a) => [a.id, a]));
+  const chavesDestaque = ((projeto.renders_destaque ?? []) as string[])
+    .map((d) => porId.get(d))
+    .filter((a): a is ArquivoVisivel => !!a)
+    .map(chaveArquivo);
+  const destaques = rendersEmDestaque(todos, chavesDestaque);
+  // Capa: o destaque escolhido na estrela (se visível) ou o primeiro destaque visível. Sem destaque, sem capa.
+  const escolhido = projeto.capa_arquivo_id ? porId.get(projeto.capa_arquivo_id) : undefined;
+  const escolhidaAtual = escolhido ? destaques.find((d) => chaveArquivo(d) === chaveArquivo(escolhido)) : undefined;
+  const capa = (escolhidaAtual?.visivel ? escolhidaAtual : undefined) ?? destaques.find((d) => d.visivel) ?? null;
 
   // Arquivos antigos sem miniatura (imagem e PDF): o navegador gera uma vez, em segundo plano.
   const dezMinutos = Date.now() - 10 * 60 * 1000;
@@ -171,8 +186,8 @@ export default async function ProjetoPage({
         <ArrowLeft size={16} aria-hidden="true" />
         Projetos
       </Link>
-      <div className="titulo-com-acao projeto-cabecalho">
-        <CapaProjeto nome={projeto.nome} capa={capa} lista={renders.length ? renders : capa ? [capa] : []} />
+      <div className={`titulo-com-acao projeto-cabecalho ${capa ? "com-capa" : ""}`}>
+        <CapaProjeto capa={capa} lista={destaques} />
         <div>
           <h1>{projeto.nome}</h1>
           <p className="muted ficha-contato">
@@ -233,13 +248,6 @@ export default async function ProjetoPage({
         )}
       </div>
 
-      <GaleriaRenders
-        renders={renders}
-        capaId={capa?.id ?? null}
-        escolhidaId={projeto.capa_arquivo_id}
-        definirCapa={definirCapa.bind(null, id)}
-      />
-
       <section className="cartao secao-config">
         <h2>Link do cliente</h2>
         <p className="muted">
@@ -267,6 +275,8 @@ export default async function ProjetoPage({
               etapa={e}
               arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
+              destaques={destaques.map(chaveArquivo)}
+              limiteDestaque={destaques.length >= LIMITE_DESTAQUE}
               podeCobrar={pode(sessao.membro.papel, "gerir_aditivos")}
               cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
             />
@@ -274,6 +284,16 @@ export default async function ProjetoPage({
         }))}
       />
       <NovaEtapa projetoId={id} />
+
+      {/* Depois das etapas: cada render nasce e é aprovado na sua etapa; aqui ficam os escolhidos e a capa. */}
+      <GaleriaRenders
+        renders={destaques}
+        capaId={capa?.id ?? null}
+        escolhidaId={escolhidaAtual?.id ?? null}
+        definirCapa={definirCapa.bind(null, id)}
+        tirarDestaque={tirarDoDestaque.bind(null, id)}
+        dica={todos.some(podeSerDestaque)}
+      />
 
       {verValores && (
       <Aditivos

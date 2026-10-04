@@ -15,11 +15,14 @@ export function extensao(nome: string) {
   return ponto > 0 ? nome.slice(ponto + 1).toLowerCase() : "";
 }
 
+// Desenho técnico exportado em imagem (planta humanizada, layout, corte...) é prancha, não render.
+const NOME_DE_PRANCHA = /planta|layout|corte|eleva[cç][aã]o|detalhamento|prancha|humanizad|implanta[cç][aã]o|pagina[cç][aã]o|forro/i;
+
 // Sugestão ao enviar (o arquiteto troca com um clique).
 export function sugerirCategoria(nome: string): Categoria {
   const ext = extensao(nome);
   if (["pdf", "dwg", "dxf", "skp", "rvt", "ifc", "pln"].includes(ext)) return "prancha";
-  if (["jpg", "jpeg", "png", "webp"].includes(ext)) return "render";
+  if (["jpg", "jpeg", "png", "webp"].includes(ext)) return NOME_DE_PRANCHA.test(nome) ? "prancha" : "render";
   if (["doc", "docx", "xls", "xlsx", "odt", "ods", "txt", "csv"].includes(ext)) return "documento";
   return "outro";
 }
@@ -50,16 +53,25 @@ export function formatarEspaco(bytes: number) {
   return `${Math.round(bytes / 1024 ** 2).toLocaleString("pt-BR")} MB`;
 }
 
-// Galeria "Renders do projeto": a versão atual de cada render, de todas as etapas, do mais novo ao mais antigo.
-export function rendersAtuais(arquivos: ArquivoVisivel[]) {
+// Renders em destaque (escolhidos pelo arquiteto, migração 0039): no máximo 12, numa linha com setas.
+export const LIMITE_DESTAQUE = 12;
+
+// O mesmo arquivo em todas as versões: etapa + nome.
+export const chaveArquivo = (a: { etapa_id: string | null; nome: string }) => `${a.etapa_id}:${a.nome.toLowerCase()}`;
+
+export const podeSerDestaque = (a: ArquivoVisivel) => a.categoria === "render" && formatoDe(a.nome, a.tipo) === "imagem";
+
+// Mural "Renders do projeto": a versão mais recente de cada arquivo destacado, na ordem do destaque.
+// "arquivos" já vem filtrado para quem vê (o cliente só recebe o que foi enviado a ele).
+export function rendersEmDestaque(arquivos: ArquivoVisivel[], chaves: string[]) {
   const atual = new Map<string, ArquivoVisivel>();
   for (const a of arquivos) {
-    if (a.categoria !== "render" || formatoDe(a.nome, a.tipo) !== "imagem") continue;
-    const chave = `${a.etapa_id}:${a.nome.toLowerCase()}`;
+    if (!podeSerDestaque(a)) continue;
+    const chave = chaveArquivo(a);
     const existente = atual.get(chave);
     if (!existente || a.versao > existente.versao) atual.set(chave, a);
   }
-  return [...atual.values()].sort((x, y) => y.criado_em.localeCompare(x.criado_em));
+  return chaves.map((c) => atual.get(c.toLowerCase())).filter((a): a is ArquivoVisivel => !!a);
 }
 
 // Endereços temporários (bucket privado) de vários caminhos de uma vez.
