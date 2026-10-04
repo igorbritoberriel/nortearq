@@ -145,6 +145,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Rotinas automáticas ligadas (03/10/2026): faltava o CRON_SECRET na Vercel, e os lembretes de etapa (3 e 7 dias), o fim do teste grátis e a limpeza de notificações nunca tinham rodado. Chave criada e sistema publicado de novo. Ainda faltam na Vercel: RESEND_API_KEY e EMAIL_REMETENTE (e-mail, em andamento) e as chaves do Asaas (cobrança, quando for cobrar).
 - [x] Favicon e aplicativo instalável (03/10/2026): ícone do NorteArq (avatar dourado sobre azul) na aba, no iPhone e no Android; botão "Instalar aplicativo" no menu do arquiteto (no iPhone, passo a passo); páginas do cliente final usam a logo do escritório na aba.
 - [x] Domínio próprio no ar (03/10/2026): **nortearq.com.br** registrado na HostGator, DNS no Cloudflare (conta agenciaberrielmkt@gmail.com, junto com o outro SaaS), domínio na Vercel com cadeado, www redireciona, endereço oficial do sistema e do Supabase trocados para https://nortearq.com.br. Links antigos (nortearq.vercel.app) continuam funcionando. Chave da Vercel no .env.local vence em 30 dias.
 - [x] Corrigido "Nova proposta" e "aplicar modelo" que falhavam para todo cliente desde a migração de duplicidade (duas ligações entre clientes e pedidos de orçamento) e o texto ilegível do aviso flutuante de notificação (03/10/2026, achados pelos prints).
