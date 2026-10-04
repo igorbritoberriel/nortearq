@@ -12,11 +12,11 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       para todos os SaaS; NorteArq é o primeiro produto), e-mail central **contas@berriellabs.com.br** dono de todas
       as contas. Passos, na ordem:
       1. Busca no INPI (busca.inpi.gov.br → Marca → Radical): "NorteArq", "Norte Arq" e "Berriel Labs", classes 42 e 9.
-      2. Registrar com CPF no registro.br: berriellabs.com.br e nortearq.com.br (cerca de R$ 40/ano cada); se quiser,
-         nortearq.com e berriellabs.com (livres em 03/10/2026).
+      2. ~~nortearq.com.br~~ feito em 03/10/2026 (HostGator, no CPF, vence em 10/2027; DNS no Cloudflare, ligado à
+         Vercel). Falta, se quiser: berriellabs.com.br (e .com), livres em 03/10/2026.
       3. Criar contas@berriellabs.com.br (Cloudflare Email Routing para receber, grátis; Zoho Mail grátis para enviar),
          gerenciador de senhas (Bitwarden) e verificação em duas etapas em tudo.
-      4. Eu ligo o domínio à Vercel pelo Cloudflare e configuro o Resend.
+      4. ~~Ligar o domínio~~ feito. Falta configurar o Resend com o nortearq.com.br (e-mails do sistema).
       5. Começar a cobrar no **CPF** (decisão de 03/10/2026): conta do Asaas como pessoa física, carnê-leão todo mês
          (rendimentos até cerca de R$ 5 mil/mês são isentos desde 2026), planilha simples do que entrou. Termos e
          Privacidade com o seu nome e um e-mail de contato (sem expor o CPF). **Antes da primeira cobrança:**
@@ -103,6 +103,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
+      testar "Esqueci a senha" (o e-mail deve trazer o link novo).
 - [ ] Menu "Ajuda" (índice, busca, tabelas) e "Dúvidas frequentes" no fim de um link do cliente.
 - [ ] Ficha do cliente → "Exportar dados do cliente": baixar e abrir o arquivo de um cliente de teste.
       Proposta enviada: "Salvar como modelo" embaixo da proposta.
@@ -142,6 +144,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Domínio próprio no ar (03/10/2026): **nortearq.com.br** registrado na HostGator, DNS no Cloudflare (conta agenciaberrielmkt@gmail.com, junto com o outro SaaS), domínio na Vercel com cadeado, www redireciona, endereço oficial do sistema e do Supabase trocados para https://nortearq.com.br. Links antigos (nortearq.vercel.app) continuam funcionando. Chave da Vercel no .env.local vence em 30 dias.
 - [x] Corrigido "Nova proposta" e "aplicar modelo" que falhavam para todo cliente desde a migração de duplicidade (duas ligações entre clientes e pedidos de orçamento) e o texto ilegível do aviso flutuante de notificação (03/10/2026, achados pelos prints).
 - [x] Opção do momento do briefing passou a valer (03/10/2026): "antes da proposta" faz a ficha do cliente sugerir o briefing (e esperar a resposta) antes de montar a proposta; "depois do contrato" sugere o briefing quando o contrato é assinado.
 - [x] Central de ajuda (03/10/2026): menu "Ajuda" com o manual, índice e busca; "Dúvidas frequentes" no fim das páginas do cliente (links e portal). Tudo lido de docs/manual/manual.md; trechos só de suporte ficam de fora.
