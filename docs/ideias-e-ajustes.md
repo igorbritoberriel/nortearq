@@ -71,16 +71,24 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
-- [ ] **Piloto enxuto com a Débora** (iniciado em 03/10/2026; decisão do Igor: fazer com o que temos, 2 clientes
-      reais: o que está em andamento e o Luiz Cláudio, que começou hoje). Critério de pronto revisto:
-      1. **Teste completo pelo Igor** no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do
-         cliente com outro e-mail: pedido → proposta aprovada → contrato assinado → briefing com quiz → etapa com
-         arquivo aprovada → revisão pedida → aditivo → "Esqueci a senha"; parte no computador, parte no celular.
-         (Eu passo o roteiro clique a clique.)
-      2. Os 2 clientes reais da Débora andando sem erro que trave; atritos pelo "Relatar problema".
-      3. 48 horas sem erro que trave no painel interno. **Prazo máximo: 2 dias** (dia 1: teste completo;
-         dia 2: clientes reais da Débora + conferência do painel). Decisão do Igor em 03/10/2026.
-      Cumprido: fim do piloto e início da fase dos arquitetos parceiros. A cada "retomar", olhar o painel interno.
+- [ ] **Piloto com a Débora: lista de tarefas** (sem prazo; decisão do Igor em 03/10/2026: acabando as tarefas,
+      seguimos para os arquitetos parceiros). Clientes reais: o que está em andamento e o Luiz Cláudio.
+      Teste completo pelo Igor, no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do cliente
+      com outro e-mail (eu passo o roteiro clique a clique):
+      - [ ] 1. Pedido de orçamento pelo formulário (celular)
+      - [ ] 2. Virar cliente e montar a proposta; salvar como modelo
+      - [ ] 3. Cliente aprova a proposta pelo link (celular)
+      - [ ] 4. Gerar o contrato e o cliente assinar (celular); convite do portal
+      - [ ] 5. Briefing com o quiz de estilo respondido pelo cliente; Perfil do Cliente
+      - [ ] 6. Etapa com arquivo enviada; e-mail chega ao cliente; cliente pede revisão
+      - [ ] 7. Reenviar a etapa e o cliente aprovar
+      - [ ] 8. Aditivo criado e respondido pelo cliente; pagamento registrado e recibo
+      - [ ] 9. "Esqueci a senha" (e-mail chega e funciona)
+      Débora:
+      - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; primeiro modelo de proposta
+      - [ ] 11. Os 2 clientes reais andando sem erro que trave (atritos pelo "Relatar problema")
+      Eu:
+      - [ ] 12. Painel interno sem erro grave pendente e tudo que aparecer corrigido
 - [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
       para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
       (pasta arquivos/ não expira): apagar também do R2 quando excluir ou anonimizar um cliente.
