@@ -79,15 +79,10 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       permissão de saque), e cada cobrança leva o split para a carteira do NorteArq; (b) com CNPJ (ME Berriel Labs):
       subcontas criadas pelo NorteArq, cadastro mais simples para o arquiteto. Começar por (a) e migrar para (b)
       quando abrir a ME.
-- [ ] **Cobrança completa pela plataforma via Asaas** (depois do piloto; decisão do Igor em 04/10/2026: **opcional**.
-      Níveis 1 "só controle" e 2 "Pix direto" em todos os planos, grátis; nível 3 "cobrança integrada" como diferencial
-      do Profissional e do Escritório, com taxa por cobrança só para quem ativar. Transparência como as plataformas
-      profissionais: página "Tarifas" separando "tarifa de processamento, cobrada pelo Asaas" da "taxa de serviço
-      NorteArq"; conta Asaas no nome do arquiteto, com os termos do Asaas aceitos por ele; extrato com valor bruto,
-      tarifas e líquido em cada pagamento): subconta Asaas por arquiteto, Pix dinâmico,
-      boleto e cartão parcelado com baixa automática; o dinheiro cai na conta do arquiteto no Asaas e o NorteArq
-      fica com uma pequena taxa por cobrança (split): receita extra. Junto: ligar o Asaas de produção da assinatura
-      do NorteArq (conta no CPF do Igor, chave e webhook para nortearq.com.br).
+- [ ] Cobrança automática, pendências: (1) Igor mandar o link de indicação do Asaas (menu → Indicar amigo) para eu
+      colocar em NEXT_PUBLIC_ASAAS_INDICACAO; (2) primeiro teste real com dinheiro (uma parcela pequena paga por Pix
+      numa conta Asaas de arquiteto de verdade, para ver o split de R$ 0,99 cair na conta do NorteArq); (3) página
+      pública "Tarifas" no site; (4) quando abrir a ME, migrar para subcontas (cadastro do arquiteto dentro do NorteArq).
 - [ ] Débora: acrescentar no modelo de contrato dela a cláusula de multa de 2% e juros de 1% ao mês (os modelos
       existentes não mudam sozinhos) e cadastrar a chave Pix em Configurações.
 - [ ] **Piloto com a Débora: lista de tarefas** (sem prazo; decisão do Igor em 03/10/2026: acabando as tarefas,
@@ -183,6 +178,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Cobrança automática pelo Asaas do arquiteto, nível 3 (04/10/2026, migração 0038): conexão da conta Asaas do escritório (chave criptografada, sem saque), cobrança por parcela (Pix, boleto ou cartão, o cliente escolhe) com split de R$ 0,99 para a carteira do NorteArq, baixa automática com recibo e aviso ao arquiteto, extrato com líquido e tarifas, link no projeto/portal/lembrete, geração automática das parcelas que vencem em 10 dias, Termos e site atualizados. Testada de ponta a ponta com a conta de teste do Asaas (escritório de teste apagado depois).
 - [x] Asaas de produção ligado para a assinatura do NorteArq (04/10/2026): conta no CPF do Igor (agenciaberrielmkt@gmail.com; dados comerciais aprovados, documentos e conta bancária pendentes de aprovação), chave de produção sem permissão de saque, webhook criado por API (https://nortearq.com.br/api/asaas/webhook, eventos de pagamento confirmado, recebido, vencido e estornado) e testado (sem senha 401, com senha 200). Vercel com ASAAS_API_KEY, ASAAS_AMBIENTE=producao e ASAAS_WEBHOOK_TOKEN. No computador, a ASAAS_API_KEY continua a de teste (sandbox).
 - [x] Aba aberta durante uma publicação nova (04/10/2026): em vez da tela "Algo deu errado", o sistema recarrega sozinho uma vez, já na versão nova, e não registra como erro. Eram os 3 erros automáticos de 03/10 (marcados como resolvidos). Primeira cópia de segurança automática da madrugada: sucesso.
 - [x] "O pagamento não passa pelo NorteArq" explicado (04/10/2026): pergunta frequente no site, cláusula nos Termos de uso (seção 6; revisar com o advogado) e linha na Ajuda.

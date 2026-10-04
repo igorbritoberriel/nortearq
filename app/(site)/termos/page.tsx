@@ -92,9 +92,15 @@ export default function TermosPage() {
           <li>
             Os pagamentos dos seus clientes não passam pelo NorteArq: eles pagam diretamente a você (por exemplo, pela chave
             Pix que você cadastra). O NorteArq não recebe, não guarda e não repassa esses valores, e não responde por
-            cobranças, atrasos ou inadimplência; o sistema apenas organiza parcelas, vencimentos, lembretes e recibos. Se no
-            futuro for oferecida a cobrança integrada por uma instituição de pagamento parceira, ela será opcional, feita em
-            conta no seu nome, com termos e tarifas próprios informados antes da ativação.
+            cobranças, atrasos ou inadimplência; o sistema apenas organiza parcelas, vencimentos, lembretes e recibos.
+          </li>
+          <li>
+            <strong>Cobrança automática (opcional):</strong> se você ativar, as parcelas viram cobranças (Pix, boleto ou
+            cartão) na sua própria conta do Asaas, instituição de pagamento autorizada pelo Banco Central, aberta e mantida
+            por você, com os termos e as tarifas do Asaas. O dinheiro cai na sua conta Asaas. Pela cobrança automática, o
+            NorteArq cobra uma taxa de serviço de R$ 0,99 por parcela paga, descontada automaticamente no momento do
+            pagamento; parcela não paga não tem taxa. A chave que você cadastra não permite saques, e você pode desativar a
+            cobrança automática a qualquer momento.
           </li>
         </ul>
 

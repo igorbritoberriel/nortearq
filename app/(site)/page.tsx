@@ -59,6 +59,11 @@ const FAQ = [
       "Não. Você combina as parcelas na proposta e o cliente paga direto para você, por Pix ou como preferir: o pagamento não passa pelo NorteArq. O sistema controla vencimentos, lembra o cliente e emite os recibos.",
   },
   {
+    pergunta: "Meu cliente pode pagar por Pix, boleto ou cartão?",
+    resposta:
+      "Pode. Cadastrando sua chave Pix, cada parcela já mostra o QR Code para o cliente, sem custo. Se quiser também boleto e cartão com baixa automática, ative a cobrança automática com a sua conta do Asaas (opcional; R$ 0,99 por parcela paga, além das tarifas do Asaas).",
+  },
+  {
     pergunta: "Vou poder cancelar quando quiser?",
     resposta: "Sim, sem multa. Os planos terão 14 dias grátis, sem cartão, e no anual você ganha 2 meses.",
   },

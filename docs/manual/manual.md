@@ -318,6 +318,20 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 - **Atrasada:** a parcela vencida aparece em vermelho para os dois lados, e o painel mostra o total **em atraso**.
 - **Cobrar no WhatsApp:** botão em cada parcela em aberto, com valor, vencimento e o Pix copia e cola na mensagem.
 - Quando o cliente pagar, o escritório confere no banco e usa **Registrar pagamento** (o recibo sai na hora).
+**Cobrança automática pelo Asaas (opcional)**
+- Em Configurações → **Cobrança automática**, o **dono** conecta a conta Asaas do escritório: abre a conta grátis no
+  Asaas (no nome dele ou do escritório), gera uma **chave de API sem permissão de saque** e cola no NorteArq,
+  aceitando a taxa de serviço.
+- **Tarifas:** a do Asaas (Pix, boleto ou cartão, pela tabela da conta dele) + **R$ 0,99 por parcela paga** de taxa
+  NorteArq, descontada sozinha no pagamento. Parcela não paga não tem taxa.
+- Parcelas que vencem nos próximos 10 dias ganham a cobrança sozinhas, todo dia; dá para gerar na hora pelo botão
+  **Gerar cobrança**. O Asaas exige o **CPF ou CNPJ do cliente** na ficha.
+- O cliente vê **Pagar agora (Pix, boleto ou cartão)** no projeto, no portal e nos lembretes por e-mail.
+- Quando ele paga, o pagamento é **registrado sozinho**, com recibo, e o escritório é avisado no sininho com o valor
+  líquido. A parcela mostra o extrato: pago, líquido e tarifas.
+- Estorno ou cobrança apagada no Asaas: o escritório é avisado para conferir (o estorno do registro continua manual).
+- Desativar (com senha): novas parcelas deixam de gerar cobrança; as já geradas continuam valendo no Asaas.
+
 - O contrato padrão (modelos criados daqui para frente) traz a cláusula de **multa de 2% e juros de 1% ao mês** por
   atraso. Modelos já existentes não mudam: dá para acrescentar a frase no próprio modelo.
 
@@ -451,6 +465,10 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 - Webhook: https://nortearq.com.br/api/asaas/webhook, senha em `ASAAS_WEBHOOK_TOKEN` (Vercel) e
   `ASAAS_WEBHOOK_TOKEN_PRODUCAO` (computador). Eventos: pagamento confirmado, recebido, vencido e estornado.
 - A chave não tem permissão de saque: saques só pelo painel ou app do Asaas.
+- Cobrança automática dos escritórios: chaves dos arquitetos criptografadas com `COBRANCA_CHAVE` (Vercel e
+  .env.local). **Não perder essa chave**: sem ela, as conexões salvas não abrem e cada escritório teria de conectar de
+  novo. Split de R$ 0,99 vai para a carteira `ASAAS_CARTEIRA_NORTEARQ`. Avisos em /api/asaas/cobrancas?e=<escritório>.
+- Link de indicação do Asaas (créditos para você e o arquiteto): colocar em `NEXT_PUBLIC_ASAAS_INDICACAO` na Vercel.
 <!-- /suporte -->
 
 <!-- suporte -->
@@ -542,5 +560,8 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "O cliente pediu os dados dele" | Direito do titular (LGPD) | Ficha do cliente → Exportar dados do cliente |
 | "O cliente não vê o botão de Pix" | O escritório não cadastrou a chave Pix, ou a parcela já foi paga | Configurações → Recebimento por Pix |
 | "A parcela não tem data / não manda lembrete" | Parcela manual ou de contrato anterior aos vencimentos automáticos | Na parcela, "Definir vencimento" |
+| "Não consigo gerar a cobrança" | Falta o CPF/CNPJ do cliente, ou a cobrança automática não está ativa | Completar a ficha do cliente; Configurações → Cobrança automática |
+| "O Asaas não aceitou a chave" | Chave copiada errada, de outra conta, ou sem as permissões de cobrança | Gerar outra chave no Asaas (Integrações) e colar de novo |
+| "Paguei e não baixou" (cliente) | O Asaas ainda não confirmou (boleto leva até 3 dias úteis) ou o pagamento foi por fora | Aguardar a confirmação, ou registrar à mão |
 | "Não consigo excluir o cliente" | Tem contrato assinado ou pagamento registrado | Arquivar |
 | "O cliente não consegue entrar no portal" | Não criou o acesso, ou esqueceu a senha | Mandar o link do projeto (o convite aparece nele); "Esqueci a senha" |
