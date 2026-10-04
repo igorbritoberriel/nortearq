@@ -53,6 +53,15 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
 
   return (
     <>
+      {!cobrancaAtiva && pagamentos.some((p) => !p.pago_em) && (
+        <p className="cobranca-convite">
+          <CreditCard size={16} aria-hidden="true" />
+          <span>Receba por Pix, boleto e cartão com baixa automática e recibo.</span>
+          <a className="tabela-link" href="/app/configuracoes#cobranca">
+            Ativar cobrança automática
+          </a>
+        </p>
+      )}
       <ul className="pagamentos">
         {pagamentos.map((p) => {
           const b = p.baixa;

@@ -163,7 +163,12 @@ export async function gerarCobranca(
     return { link: cobranca.invoiceUrl };
   } catch (e) {
     console.error("[cobrança] gerar", (e as Error).message);
-    return { erro: `O Asaas recusou a cobrança: ${(e as Error).message}` };
+    const m = (e as Error).message;
+    if (/aprova|an[aá]lise|documenta|cadastro (n[aã]o|incompleto)|conta (n[aã]o|ainda)/i.test(m)) {
+      return { erro: "A sua conta Asaas ainda está em análise. Termine o cadastro no Asaas e tente de novo quando for aprovada." };
+    }
+    if (/cpf|cnpj/i.test(m)) return { erro: "O Asaas recusou o CPF ou CNPJ do cliente. Confira na ficha dele." };
+    return { erro: `O Asaas recusou a cobrança: ${m}` };
   }
 }
 

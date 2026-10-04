@@ -319,6 +319,8 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 - **Cobrar no WhatsApp:** botão em cada parcela em aberto, com valor, vencimento e o Pix copia e cola na mensagem.
 - Quando o cliente pagar, o escritório confere no banco e usa **Registrar pagamento** (o recibo sai na hora).
 **Cobrança automática pelo Asaas (opcional)**
+- O sistema convida a ativar: faixa "Ativar cobrança automática" nos pagamentos do contrato e item nos
+  Primeiros passos do painel (que conta como feito com o Pix cadastrado ou a cobrança ativa).
 - Em Configurações → **Cobrança automática**, o **dono** conecta a conta Asaas do escritório: abre a conta grátis no
   Asaas (no nome dele ou do escritório), gera uma **chave de API sem permissão de saque** e cola no NorteArq,
   aceitando a taxa de serviço.
@@ -560,6 +562,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "O cliente pediu os dados dele" | Direito do titular (LGPD) | Ficha do cliente → Exportar dados do cliente |
 | "O cliente não vê o botão de Pix" | O escritório não cadastrou a chave Pix, ou a parcela já foi paga | Configurações → Recebimento por Pix |
 | "A parcela não tem data / não manda lembrete" | Parcela manual ou de contrato anterior aos vencimentos automáticos | Na parcela, "Definir vencimento" |
+| "Diz que a conta Asaas está em análise" | O Asaas ainda não aprovou o cadastro (documentos e selfie) | Concluir o cadastro no app do Asaas e tentar de novo |
 | "Não consigo gerar a cobrança" | Falta o CPF/CNPJ do cliente, ou a cobrança automática não está ativa | Completar a ficha do cliente; Configurações → Cobrança automática |
 | "O Asaas não aceitou a chave" | Chave copiada errada, de outra conta, ou sem as permissões de cobrança | Gerar outra chave no Asaas (Integrações) e colar de novo |
 | "Paguei e não baixou" (cliente) | O Asaas ainda não confirmou (boleto leva até 3 dias úteis) ou o pagamento foi por fora | Aguardar a confirmação, ou registrar à mão |

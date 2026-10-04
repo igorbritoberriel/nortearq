@@ -1584,3 +1584,4 @@ p { margin: 0 0 1em; }
 .cobranca-status { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0 0 6px; color: var(--cor-sucesso); }
 .cobranca-ativa { display: grid; gap: 8px; justify-items: start; }
 .pagamento-asaas { font-size: 0.84rem; }
+.cobranca-convite { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; padding: 8px 12px; border-radius: 8px; background: #e8eef6; color: var(--cor-norte); font-size: 0.88rem; }

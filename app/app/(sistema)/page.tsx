@@ -152,6 +152,11 @@ export default async function PainelPage() {
         { feito: (clientes.count ?? 0) > 0, texto: "Cadastrar o primeiro cliente (ou testar o seu formulário)", href: "/app/clientes/novo" },
         { feito: (briefingsEnviados.count ?? 0) > 0, texto: "Enviar o primeiro briefing", href: "/app/clientes" },
         { feito: (propostasEnviadas.count ?? 0) > 0, texto: "Enviar a primeira proposta", href: "/app/clientes" },
+        {
+          feito: !!(e.pix_chave || e.cobranca_ativa),
+          texto: "Receber pelo NorteArq: cadastrar o Pix ou ativar a cobrança automática (Pix, boleto e cartão)",
+          href: "/app/configuracoes#pix",
+        },
       ])
     : [];
   const faltamPassos = passos.filter((p) => !p.feito).length;
