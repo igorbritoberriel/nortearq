@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { History, Lock, MessageCircle, Receipt, Undo2 } from "lucide-react";
+import { useActionState, useEffect, useState, useTransition } from "react";
+import { CalendarDays, History, Lock, MessageCircle, Receipt, Undo2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
-import { estornarPagamento, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
+import { definirVencimento, estornarPagamento, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
 import { linkWhatsapp } from "@/lib/contatos";
 import type { EstadoFormulario } from "@/lib/formulario";
 import {
@@ -14,6 +14,7 @@ import {
   type PagamentoComBaixa,
 } from "@/lib/pagamentos";
 import { dataCurta, reais } from "@/lib/propostas";
+import { pixCopiaECola, type DadosPix } from "@/lib/pix";
 
 // Pagamentos do contrato (RN-01.16), protegidos:
 // - registrar pagamento pede data, forma e confirmação; depois disso fica travado;
@@ -39,10 +40,11 @@ type Props = {
   site: string;
   cliente: { nome: string; telefone: string | null };
   escritorio: string;
+  pix?: DadosPix | null; // chave Pix do escritório: vai no "Cobrar no WhatsApp"
 };
 
-export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, escritorio }: Props) {
-  const [aberto, setAberto] = useState<{ id: string; modo: "baixa" | "estorno" } | null>(null);
+export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, escritorio, pix = null }: Props) {
+  const [aberto, setAberto] = useState<{ id: string; modo: "baixa" | "estorno" | "vencimento" } | null>(null);
   const pago = pagamentos.filter((p) => p.pago_em).reduce((s, p) => s + p.valor, 0);
   const total = pagamentos.reduce((s, p) => s + p.valor, 0);
   const nomePagamento = new Map(pagamentos.map((p) => [p.id, p.descricao]));
@@ -65,8 +67,12 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                       Pago em {dataCurta(p.pago_em)} · {rotuloForma(b?.forma ?? null)}
                       {b?.recibo_numero ? ` · recibo nº ${b.recibo_numero}` : ""}
                     </small>
+                  ) : p.vencimento && p.vencimento < hoje ? (
+                    <small className="pagamento-atrasada">Atrasada · venceu em {dataCurta(p.vencimento)}</small>
                   ) : (
-                    <small className="muted">Pendente{p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : ""}</small>
+                    <small className="muted">
+                      Pendente{p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : " · sem data de vencimento"}
+                    </small>
                   )}
                 </span>
                 <strong>{reais(p.valor)}</strong>
@@ -81,6 +87,32 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                   >
                     Registrar pagamento
                   </button>
+                )}
+                {!p.pago_em && !p.vencimento && aberto?.id !== p.id && (
+                  <button
+                    type="button"
+                    className="botao botao-fantasma botao-pequeno"
+                    onClick={() => setAberto({ id: p.id, modo: "vencimento" })}
+                  >
+                    <CalendarDays size={16} aria-hidden="true" />
+                    Definir vencimento
+                  </button>
+                )}
+                {!p.pago_em && cliente.telefone && aberto?.id !== p.id && (
+                  <a
+                    className="botao botao-fantasma botao-pequeno"
+                    href={linkWhatsapp(
+                      cliente.telefone,
+                      `Olá, ${primeiroNome}! Aqui é do ${escritorio}. Lembrete da parcela "${p.descricao}" de ${reais(p.valor)}${
+                        p.vencimento ? `, com vencimento em ${dataCurta(p.vencimento)}` : ""
+                      }.${pix ? `\n\nPix copia e cola:\n${pixCopiaECola(pix, p.valor, p.descricao)}` : ""}`,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle size={16} aria-hidden="true" />
+                    Cobrar no WhatsApp
+                  </a>
                 )}
                 {p.pago_em && linkRecibo && (
                   <>
@@ -121,6 +153,9 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
               )}
               {aberto?.id === p.id && aberto.modo === "estorno" && (
                 <FormEstorno pagamento={p} fechar={() => setAberto(null)} />
+              )}
+              {aberto?.id === p.id && aberto.modo === "vencimento" && (
+                <FormVencimento pagamento={p} hoje={hoje} fechar={() => setAberto(null)} />
               )}
             </li>
           );
@@ -251,5 +286,40 @@ function FormEstorno({ pagamento, fechar }: { pagamento: PagamentoComBaixa; fech
         </button>
       </div>
     </form>
+  );
+}
+
+// Parcela sem data (ex.: "na entrega do anteprojeto"): o arquiteto define o vencimento uma vez.
+function FormVencimento({ pagamento, hoje, fechar }: { pagamento: PagamentoComBaixa; hoje: string; fechar: () => void }) {
+  const [data, setData] = useState(hoje);
+  const [erro, setErro] = useState<string | null>(null);
+  const [pendente, iniciar] = useTransition();
+  return (
+    <div className="pagamento-form">
+      {erro && <Aviso tipo="erro">{erro}</Aviso>}
+      <Campo id={`venc-${pagamento.id}`} rotulo="Vencimento desta parcela">
+        <input id={`venc-${pagamento.id}`} type="date" value={data} onChange={(e) => setData(e.target.value)} />
+      </Campo>
+      <p className="campo-ajuda">Depois de definido, não muda. O cliente recebe lembrete por e-mail perto da data.</p>
+      <div className="form-rodape">
+        <button type="button" className="botao botao-fantasma botao-pequeno" onClick={fechar} disabled={pendente}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="botao botao-primario botao-pequeno"
+          disabled={pendente || !data}
+          onClick={() =>
+            iniciar(async () => {
+              const r = await definirVencimento(pagamento.id, data);
+              if ("erro" in r) setErro(r.erro);
+              else fechar();
+            })
+          }
+        >
+          {pendente ? "Salvando..." : "Salvar vencimento"}
+        </button>
+      </div>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Bell, CheckCheck, CircleCheck, ClipboardList, CreditCard, FilePlus, FileText, Inbox, PenLine, Trash2, X } from "lucide-react";
+import { Bell, CheckCheck, CircleCheck, ClipboardList, CreditCard, FilePlus, FileText, Inbox, PenLine, Trash2, Wallet, X } from "lucide-react";
 import {
   buscarNotificacoesDesde,
   dispensarNotificacoes,
@@ -31,6 +31,7 @@ const ICONES: Record<TipoNotificacao, typeof Bell> = {
   contrato: PenLine,
   etapa: CircleCheck,
   aditivo: FilePlus,
+  pagamento: Wallet,
   assinatura: CreditCard,
 };
 

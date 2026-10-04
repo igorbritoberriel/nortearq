@@ -71,6 +71,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Cobrança completa pela plataforma via Asaas** (depois do piloto): subconta Asaas por arquiteto, Pix dinâmico,
+      boleto e cartão parcelado com baixa automática; o dinheiro cai na conta do arquiteto no Asaas e o NorteArq
+      fica com uma pequena taxa por cobrança (split): receita extra. Junto: ligar o Asaas de produção da assinatura
+      do NorteArq (conta no CPF do Igor, chave e webhook para nortearq.com.br).
+- [ ] Débora: acrescentar no modelo de contrato dela a cláusula de multa de 2% e juros de 1% ao mês (os modelos
+      existentes não mudam sozinhos) e cadastrar a chave Pix em Configurações.
 - [ ] **Piloto com a Débora: lista de tarefas** (sem prazo; decisão do Igor em 03/10/2026: acabando as tarefas,
       seguimos para os arquitetos parceiros). Clientes reais: o que está em andamento e o Luiz Cláudio.
       Teste completo pelo Igor, no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do cliente
@@ -161,6 +167,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Proteção do recebimento do arquiteto (04/10/2026, migração 0037): vencimento automático das parcelas novas (e "Definir vencimento" nas sem data), parcela atrasada em vermelho e total "em atraso" no painel, lembretes por e-mail ao cliente (3 dias antes, no dia, 3 dias depois) e aviso de atraso no sininho, chave Pix do escritório com "Pagar com Pix" (QR Code + copia e cola) para o cliente e "Cobrar no WhatsApp" com o Pix, cláusula de multa 2% + juros 1% a.m. no contrato padrão (modelos novos).
 - [x] Cópia de segurança diária grátis (03/10/2026): GitHub Actions todo dia às 03:00 (Brasília) copia para o Cloudflare R2 (balde nortearq-backup) o banco completo (pg_dump) + só os dados com os logins (guarda 30 dias) e os arquivos novos do Storage (incremental). E-mail para o Igor se falhar. Testada: 53 arquivos (14 MB) e as 35 tabelas conferidas linha por linha com o banco. A rotina também mantém o Supabase grátis acordado. Senha do banco gerada só para isso (no .env.local e nos segredos do GitHub).
 - [x] E-mails funcionando (03/10/2026): Resend com o domínio nortearq.com.br (região São Paulo, registros DKIM e de envio colocados no Cloudflare automaticamente); avisos do sistema saem de "NorteArq <avisos@nortearq.com.br>"; e-mails de login do Supabase (esqueci a senha, confirmação) também pelo Resend, limite de 30 por hora. E-mail de teste enviado para agenciaberrielmkt@gmail.com. Plano grátis: 3.000 e-mails/mês, 100/dia.
 - [x] Rotinas automáticas ligadas (03/10/2026): faltava o CRON_SECRET na Vercel, e os lembretes de etapa (3 e 7 dias), o fim do teste grátis e a limpeza de notificações nunca tinham rodado. Chave criada e sistema publicado de novo. Ainda faltam na Vercel só as chaves do Asaas (cobrança, quando for cobrar).

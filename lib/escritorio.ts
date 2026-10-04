@@ -36,7 +36,19 @@ export type Escritorio = {
   pago_ate: string | null;
   assinatura_cancelada_em: string | null;
   asaas_assinatura_id: string | null;
+  // Pix do escritório para o cliente pagar as parcelas (0037)
+  pix_tipo: "cpf" | "cnpj" | "email" | "telefone" | "aleatoria" | null;
+  pix_chave: string | null;
+  pix_nome: string | null;
+  pix_cidade: string | null;
 };
+
+// Dados do Pix prontos para gerar o copia e cola, ou null se o escritório ainda não cadastrou.
+export function pixDoEscritorio(e: Escritorio) {
+  return e.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
+    ? { tipo: e.pix_tipo, chave: e.pix_chave, nome: e.pix_nome, cidade: e.pix_cidade }
+    : null;
+}
 
 export type Servico = {
   id: string;

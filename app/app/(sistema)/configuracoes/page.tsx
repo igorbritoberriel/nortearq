@@ -9,6 +9,7 @@ import {
   LinkDoEscritorio,
 } from "@/components/escritorio/FormulariosEscritorio";
 import { FormParcelamento } from "@/components/escritorio/FormParcelamento";
+import { FormPix } from "@/components/escritorio/FormPix";
 import { Equipe } from "@/components/equipe/Equipe";
 import { pode } from "@/lib/permissoes";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -110,6 +111,21 @@ export default async function ConfiguracoesPage() {
         </p>
         <FormParcelamento entradaPct={escritorio.parcelamento_entrada_pct} maximo={escritorio.parcelamento_max}
           descontoAvista={Number(escritorio.desconto_avista_pct ?? 0)}
+        />
+      </section>
+
+      <section className="cartao secao-config" id="pix">
+        <h2>Recebimento por Pix</h2>
+        <p className="muted">
+          Com a sua chave aqui, cada parcela ganha Pix copia e cola e QR Code para o cliente pagar, no portal, nos lembretes por
+          e-mail e no botão &quot;Cobrar no WhatsApp&quot;.
+        </p>
+        <FormPix
+          tipo={escritorio.pix_tipo}
+          chave={escritorio.pix_chave}
+          nome={escritorio.pix_nome}
+          cidade={escritorio.pix_cidade}
+          sugestaoNome={escritorio.nome}
         />
       </section>
 

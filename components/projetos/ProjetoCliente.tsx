@@ -2,6 +2,9 @@ import { Check, Receipt } from "lucide-react";
 import { baixarArquivoCliente } from "@/app/c/[token]/projeto/acoes";
 import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
 import { CapaProjeto, GaleriaRenders } from "@/components/arquivos/GaleriaRenders";
+import QRCode from "qrcode";
+import { PagarPix } from "@/components/projetos/PagarPix";
+import { pixCopiaECola, type DadosPix } from "@/lib/pix";
 import { ProvedorArquivos } from "@/components/arquivos/ProvedorArquivos";
 import { RespostaAditivo } from "@/components/projetos/RespostaAditivo";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
@@ -37,6 +40,19 @@ export async function ProjetoCliente({
     );
   }
   const projeto = bruto as ProjetoPublico;
+
+  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  // Pix do escritório: cada parcela em aberto ganha QR Code e copia e cola (o dinheiro vai direto para o escritório).
+  const { data: pixBruto } = await supabase.rpc("pix_do_projeto", { p_token: token });
+  const pix = pixBruto as DadosPix | null;
+  const pixDasParcelas = new Map<number, { codigo: string; qrSvg: string }>();
+  if (pix?.chave) {
+    for (const [i, p] of (projeto.pagamentos ?? []).entries()) {
+      if (p.pago_em || !Number(p.valor)) continue;
+      const codigo = pixCopiaECola(pix, Number(p.valor), p.descricao);
+      pixDasParcelas.set(i, { codigo, qrSvg: await QRCode.toString(codigo, { type: "svg", margin: 1, width: 220 }) });
+    }
+  }
 
   // O banco só devolveu os arquivos já enviados a ele (visíveis, até o último envio de cada etapa):
   // aqui só geramos os endereços temporários do original, da miniatura e da prévia.
@@ -232,24 +248,33 @@ export async function ProjetoCliente({
           <h2>Pagamentos</h2>
           <ul className="pagamentos">
             {projeto.pagamentos.map((p, i) => (
-              <li key={i}>
-                <span className="pagamento-descricao">
-                  {p.descricao}
-                  <small className="muted">
-                    {p.pago_em
-                      ? `Pago em ${dataCurta(p.pago_em)}`
-                      : `Pendente${p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : ""}`}
-                  </small>
-                </span>
-                <span className="projeto-pagamento-valor">
-                  <strong>{reais(Number(p.valor))}</strong>
-                  {p.pago_em && p.recibo_codigo && (
-                    <a href={`/r/${p.recibo_codigo}`} target="_blank" rel="noopener noreferrer" className="link-recibo">
-                      <Receipt size={14} aria-hidden="true" />
-                      Recibo
-                    </a>
-                  )}
-                </span>
+              <li key={i} className="pagamento-cliente">
+                <div className="pagamento-cliente-linha">
+                  <span className="pagamento-descricao">
+                    {p.descricao}
+                    {!p.pago_em && p.vencimento && p.vencimento < hoje ? (
+                      <small className="pagamento-atrasada">Em atraso · venceu em {dataCurta(p.vencimento)}</small>
+                    ) : (
+                      <small className="muted">
+                        {p.pago_em
+                          ? `Pago em ${dataCurta(p.pago_em)}`
+                          : `Pendente${p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : ""}`}
+                      </small>
+                    )}
+                  </span>
+                  <span className="projeto-pagamento-valor">
+                    <strong>{reais(Number(p.valor))}</strong>
+                    {p.pago_em && p.recibo_codigo && (
+                      <a href={`/r/${p.recibo_codigo}`} target="_blank" rel="noopener noreferrer" className="link-recibo">
+                        <Receipt size={14} aria-hidden="true" />
+                        Recibo
+                      </a>
+                    )}
+                  </span>
+                </div>
+                {pixDasParcelas.has(i) && (
+                  <PagarPix codigo={pixDasParcelas.get(i)!.codigo} qrSvg={pixDasParcelas.get(i)!.qrSvg} recebedor={pix!.nome} />
+                )}
               </li>
             ))}
           </ul>

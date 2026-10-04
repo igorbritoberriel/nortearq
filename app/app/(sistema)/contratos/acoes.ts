@@ -164,6 +164,25 @@ export async function estornarPagamento(_anterior: EstadoFormulario, formData: F
   return { status: "sucesso", mensagem: "Pagamento estornado. O recibo foi cancelado." };
 }
 
+// Vencimento de parcela sem data (definido uma vez; depois não muda).
+export async function definirVencimento(pagamentoId: string, data: string): Promise<{ ok: true } | { erro: string }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!UUID.test(pagamentoId) || !/^\d{4}-\d{2}-\d{2}$/.test(data)) return { erro: "Informe uma data válida." };
+  const { error } = await ctx.supabase.rpc("definir_vencimento", { p_pagamento: pagamentoId, p_data: data });
+  if (error) {
+    return {
+      erro: error.message.includes("vencimento_ja_definido")
+        ? "Esta parcela já tem vencimento (ou já foi paga)."
+        : error.message.includes("data_invalida")
+          ? "Data inválida."
+          : "Não foi possível salvar. Tente de novo.",
+    };
+  }
+  revalidatePath("/app", "layout");
+  return { ok: true };
+}
+
 // ---------- Modelo de contrato e dados do escritório ----------
 
 export async function salvarModeloContrato(id: string, corpo: string): Promise<{ ok: true } | { erro: string }> {

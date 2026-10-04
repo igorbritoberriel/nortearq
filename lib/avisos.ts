@@ -6,6 +6,7 @@ import { STATUS_CONTATO, formatarReais, formatarWhatsapp, type StatusContato } f
 import { enviarEmail, escaparHtml, modeloEmail } from "@/lib/email";
 import { linkDoCliente } from "@/lib/clientes";
 import { urlDoSite } from "@/lib/escritorio";
+import { pixCopiaECola, type TipoPix } from "@/lib/pix";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Avisos automáticos por e-mail para o arquiteto (spec, seção 9).
@@ -21,7 +22,7 @@ async function emailsDoEscritorio(admin: SupabaseClient, escritorioId: string) {
 }
 
 // Notificação dentro do app (sininho + aviso na tela). Criada antes do e-mail: vale mesmo sem e-mail configurado.
-type Notificacao = { tipo: "contato" | "briefing" | "proposta" | "contrato" | "etapa" | "aditivo"; titulo: string; texto?: string | null; link: string };
+type Notificacao = { tipo: "contato" | "briefing" | "proposta" | "contrato" | "etapa" | "aditivo" | "pagamento"; titulo: string; texto?: string | null; link: string };
 
 async function notificar(admin: SupabaseClient, escritorioId: string, n: Notificacao) {
   const { error } = await admin
@@ -515,4 +516,84 @@ export async function avisarAditivoRespondido(aditivoId: string) {
     }),
     texto: `${assunto}.\n${a.descricao} (${reais(a.valor)})\nAbrir: ${url}`,
   });
+}
+
+// Lembrete de parcela ao cliente (0037): 3 dias antes, no dia e 3 dias depois do vencimento.
+// Vai com o Pix copia e cola (se o escritório cadastrou a chave) e o link do projeto. No atraso, avisa o escritório.
+export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia" | "atraso") {
+  const admin = criarClienteAdmin();
+  if (!admin) return;
+  const { data: p } = await admin
+    .from("pagamentos")
+    .select(
+      "descricao, valor, vencimento, pago_em, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
+    )
+    .eq("id", pagamentoId)
+    .maybeSingle();
+  const c = p?.contrato as unknown as {
+    id: string;
+    cliente_id: string;
+    escritorio_id: string;
+    cliente: { nome: string; email: string | null } | null;
+    escritorio: { nome: string; pix_tipo: string | null; pix_chave: string | null; pix_nome: string | null; pix_cidade: string | null } | null;
+    projeto: { id: string }[] | { id: string } | null;
+  } | null;
+  if (!p || !c || p.pago_em || !p.vencimento) return;
+  const escritorio = c.escritorio?.nome ?? "O escritório";
+  const valor = reais(Number(p.valor));
+  const venc = (p.vencimento as string).split("-").reverse().join("/");
+  const projetoId = Array.isArray(c.projeto) ? c.projeto[0]?.id : c.projeto?.id;
+  const email = c.cliente?.email;
+
+  if (email) {
+    const e = c.escritorio;
+    const codigo =
+      e?.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
+        ? pixCopiaECola({ tipo: e.pix_tipo as TipoPix, chave: e.pix_chave, nome: e.pix_nome, cidade: e.pix_cidade }, Number(p.valor), p.descricao as string)
+        : null;
+    const token = projetoId ? await tokenDoProjeto(admin, projetoId, c.escritorio_id, c.cliente_id) : null;
+    const link = token ? linkDoCliente(urlDoSite(), token, "projeto") : null;
+    const primeiro = escaparHtml((c.cliente?.nome ?? "").split(" ")[0]);
+    const titulo =
+      momento === "antes" ? `Sua parcela vence em ${venc}` : momento === "dia" ? "Sua parcela vence hoje" : "Parcela em aberto";
+    const frase =
+      momento === "antes"
+        ? `a parcela <strong>${escaparHtml(p.descricao as string)}</strong>, de <strong>${valor}</strong>, vence em <strong>${venc}</strong>.`
+        : momento === "dia"
+          ? `a parcela <strong>${escaparHtml(p.descricao as string)}</strong>, de <strong>${valor}</strong>, vence <strong>hoje</strong>.`
+          : `a parcela <strong>${escaparHtml(p.descricao as string)}</strong>, de <strong>${valor}</strong>, venceu em <strong>${venc}</strong> e ainda consta em aberto. Se você já pagou, desconsidere: o escritório confirma em breve.`;
+    await enviarEmail({
+      para: email,
+      assunto: `${titulo}: ${escritorio}`,
+      html: modeloEmail({
+        titulo,
+        linhas: [
+          `Olá, ${primeiro}! Um lembrete do ${escaparHtml(escritorio)}: ${frase}`,
+          ...(codigo
+            ? [
+                "Para pagar, abra o app do seu banco, escolha <strong>Pix copia e cola</strong> e cole o código abaixo:",
+                `<code style="display:block;padding:8px;background:#f1efe9;border-radius:6px;word-break:break-all;font-size:12px">${escaparHtml(codigo)}</code>`,
+              ]
+            : []),
+          ...(link ? ["No projeto você vê todas as parcelas e os recibos."] : []),
+        ],
+        ...(link ? { botao: { texto: codigo ? "Ver o QR Code e as parcelas" : "Ver as parcelas", url: link } } : {}),
+      }),
+      texto: `Olá! Lembrete do ${escritorio}: parcela "${p.descricao}" de ${valor}, vencimento ${venc}.${codigo ? `
+
+Pix copia e cola:
+${codigo}` : ""}${link ? `
+
+Parcelas e recibos: ${link}` : ""}`,
+    });
+  }
+
+  if (momento === "atraso") {
+    await notificar(admin, c.escritorio_id, {
+      tipo: "pagamento",
+      titulo: `Parcela em atraso: ${c.cliente?.nome ?? "cliente"}`,
+      texto: `${p.descricao} · ${valor} · venceu em ${venc}.${email ? " O cliente recebeu lembretes por e-mail." : " O cliente não tem e-mail: lembre pelo WhatsApp."}`,
+      link: `/app/contratos/${c.id}`,
+    });
+  }
 }

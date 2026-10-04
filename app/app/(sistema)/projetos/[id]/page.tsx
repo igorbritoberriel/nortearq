@@ -13,7 +13,7 @@ import { ListaEtapas } from "@/components/projetos/ListaEtapas";
 import { Aditivos, AprovacoesExternas } from "@/components/projetos/Aditivos";
 import { COLUNAS_ADITIVO, type Aditivo, type AprovacaoExterna } from "@/lib/aditivos";
 import { NovaEtapa } from "@/components/projetos/NovaEtapa";
-import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritorio";
 import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
 import { assinarCaminhos, formatarEspaco, formatoDe, rendersAtuais, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
@@ -290,6 +290,7 @@ export default async function ProjetoPage({
         <section className="cartao secao-config">
           <h2>Pagamentos</h2>
           <Pagamentos
+                pix={pixDoEscritorio(sessao.escritorio)}
             pagamentos={financeiro.pagamentos}
             eventos={financeiro.eventos}
             souDono={pode(sessao.membro.papel, "estornar_pagamento")}

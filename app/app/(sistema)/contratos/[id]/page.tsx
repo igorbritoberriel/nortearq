@@ -16,7 +16,7 @@ import {
   type Contrato,
 } from "@/lib/contratos";
 import { pode } from "@/lib/permissoes";
-import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
+import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritorio";
 import { carregarPagamentos } from "@/lib/pagamentos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { cancelarContrato, enviarContrato, salvarTextoContrato } from "../acoes";
@@ -163,6 +163,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
             <section className="cartao secao-config">
               <h2>Pagamentos</h2>
               <Pagamentos
+                pix={pixDoEscritorio(sessao.escritorio)}
                 pagamentos={financeiro.pagamentos}
                 eventos={financeiro.eventos}
                 souDono={pode(sessao.membro.papel, "estornar_pagamento")}

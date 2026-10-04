@@ -5,6 +5,7 @@ import { z } from "zod";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { TIPOS_PIX, normalizarChave, type TipoPix } from "@/lib/pix";
 
 // Parcelamento padrão das propostas: vale para as próximas propostas, e cada uma pode mudar.
 const esquema = z.object({
@@ -38,4 +39,40 @@ export async function salvarParcelamento(_anterior: EstadoFormulario, formData: 
   }
   revalidatePath("/app", "layout");
   return { status: "sucesso", mensagem: "Parcelamento salvo. Vale para as próximas propostas." };
+}
+
+// Chave Pix do escritório (0037). Tipo vazio = tira o Pix das parcelas.
+export async function salvarPix(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const tipo = String(formData.get("pix_tipo") ?? "");
+  const supabase = await criarClienteServidor();
+  const sessao = await obterSessaoArquiteto();
+  if (!supabase || !sessao) return { ...SEM_SUPABASE, valores };
+
+  let dados: { pix_tipo: TipoPix | null; pix_chave: string | null; pix_nome: string | null; pix_cidade: string | null };
+  if (!tipo) {
+    dados = { pix_tipo: null, pix_chave: null, pix_nome: null, pix_cidade: null };
+  } else {
+    const erros: Record<string, string> = {};
+    if (!(tipo in TIPOS_PIX)) erros.pix_tipo = "Escolha o tipo de chave.";
+    const chave = tipo in TIPOS_PIX ? normalizarChave(tipo as TipoPix, String(formData.get("pix_chave") ?? "")) : null;
+    if (!chave) erros.pix_chave = "Confira a chave: ela não bate com o tipo escolhido.";
+    const nome = String(formData.get("pix_nome") ?? "").trim();
+    const cidade = String(formData.get("pix_cidade") ?? "").trim();
+    if (nome.length < 2 || nome.length > 25) erros.pix_nome = "De 2 a 25 letras.";
+    if (cidade.length < 2 || cidade.length > 15) erros.pix_cidade = "De 2 a 15 letras.";
+    if (Object.keys(erros).length) return { status: "erro", mensagem: "Confira os campos destacados.", erros, valores };
+    dados = { pix_tipo: tipo as TipoPix, pix_chave: chave, pix_nome: nome, pix_cidade: cidade };
+  }
+
+  const { error } = await supabase.from("escritorios").update(dados).eq("id", sessao.escritorio.id);
+  if (error) {
+    console.error("[configurações] pix", error.message);
+    return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
+  }
+  revalidatePath("/app", "layout");
+  return {
+    status: "sucesso",
+    mensagem: tipo ? "Pix salvo. As parcelas em aberto já mostram o Pix para o cliente." : "Pix removido das parcelas.",
+  };
 }

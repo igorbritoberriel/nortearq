@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowRight,
   CircleCheck,
   ClipboardList,
@@ -109,7 +110,7 @@ export default async function PainelPage() {
       supabase.from("contratos").select("id, enviado_em").eq("status", "aguardando_assinatura"),
       supabase.from("etapas").select("id, projeto_id, atualizado_em").eq("status", "revisao"),
       supabase.from("etapas").select("id, projeto_id, enviada_em").eq("status", "aguardando_aprovacao"),
-      supabase.from("pagamentos").select("valor").is("pago_em", null),
+      supabase.from("pagamentos").select("valor, vencimento, contrato_id").is("pago_em", null),
       supabase.from("aditivos").select("id, projeto_id, criado_em").eq("status", "enviado"),
       // A7: proposta aprovada sem contrato (cancelado não conta).
       supabase.from("propostas").select("id, respondida_em, contratos(status)").eq("status", "aprovada"),
@@ -307,6 +308,11 @@ export default async function PainelPage() {
 
   const pendentes = aReceber.data ?? [];
   const totalReceber = pendentes.reduce((s, p) => s + Number(p.valor), 0);
+  // Parcelas vencidas e não registradas como pagas (0037).
+  const hojeBr = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  const atrasadas = pendentes.filter((p) => p.vencimento && (p.vencimento as string) < hojeBr);
+  const totalAtrasado = atrasadas.reduce((s, p) => s + Number(p.valor), 0);
+  const contratosAtrasados = [...new Set(atrasadas.map((p) => p.contrato_id as string))];
 
   return (
     <div className="pagina-app pagina-larga">
@@ -376,6 +382,23 @@ export default async function PainelPage() {
       {totalReceber > 0 && (
         <section className="painel-secao" aria-labelledby="a-receber">
           <h2 id="a-receber">Financeiro</h2>
+          {atrasadas.length > 0 && (
+            <Link
+              href={contratosAtrasados.length === 1 ? `/app/contratos/${contratosAtrasados[0]}` : "/app/contratos"}
+              className="cartao painel-cartao painel-atrasado"
+            >
+              <AlertTriangle size={22} aria-hidden="true" className="painel-icone" />
+              <span className="painel-numero">{reais(totalAtrasado)}</span>
+              <span className="painel-texto">
+                <strong>em atraso</strong>
+                <small className="muted">
+                  {atrasadas.length} {atrasadas.length === 1 ? "parcela vencida" : "parcelas vencidas"}: cobre pelo botão &quot;Cobrar no
+                  WhatsApp&quot;
+                </small>
+              </span>
+              <ArrowRight size={18} aria-hidden="true" className="painel-seta" />
+            </Link>
+          )}
           <Link href="/app/contratos" className="cartao painel-cartao painel-receber">
             <Wallet size={22} aria-hidden="true" className="painel-icone" />
             <span className="painel-numero">{reais(totalReceber)}</span>

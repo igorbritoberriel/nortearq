@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { avisarEtapaParada } from "@/lib/avisos";
+import { avisarEtapaParada, avisarParcela } from "@/lib/avisos";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Lembrete diário (Vercel Cron, vercel.json): etapa esperando aprovação há 3 e há 7 dias (RN-03.6).
@@ -46,5 +46,32 @@ export async function GET(request: NextRequest) {
     await avisarEtapaParada(e.id, marco);
     enviados += 1;
   }
-  return NextResponse.json({ ok: true, enviados });
+  // Parcelas (0037): lembrete ao cliente 3 dias antes, no dia e 3 dias depois do vencimento (uma vez cada).
+  const dia = (deslocamento: number) => {
+    const d = new Date(`${new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date())}T12:00:00Z`);
+    d.setUTCDate(d.getUTCDate() + deslocamento);
+    return d.toISOString().slice(0, 10);
+  };
+  const marcos = [
+    { momento: "antes", coluna: "lembrete_antes_em", vencimento: dia(3) },
+    { momento: "dia", coluna: "lembrete_dia_em", vencimento: dia(0) },
+    { momento: "atraso", coluna: "lembrete_atraso_em", vencimento: dia(-3) },
+  ] as const;
+  let parcelas = 0;
+  for (const m of marcos) {
+    // Reserva antes de enviar: só quem marcar a coluna envia (evita lembrete duplicado).
+    const { data: reservadas } = await admin
+      .from("pagamentos")
+      .update({ [m.coluna]: new Date().toISOString() })
+      .eq("vencimento", m.vencimento)
+      .is("pago_em", null)
+      .is(m.coluna, null)
+      .select("id")
+      .limit(500);
+    for (const p of reservadas ?? []) {
+      await avisarParcela(p.id, m.momento);
+      parcelas += 1;
+    }
+  }
+  return NextResponse.json({ ok: true, enviados, parcelas });
 }

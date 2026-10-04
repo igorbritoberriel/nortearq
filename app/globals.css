@@ -1563,3 +1563,15 @@ p { margin: 0 0 1em; }
 .perguntas-frequentes summary { cursor: pointer; font-weight: 600; }
 .perguntas-frequentes details p { margin: 8px 0 0; color: var(--cor-texto-suave); }
 .barra-modelo-dica { flex-basis: 100%; font-size: 0.85rem; }
+
+/* ---------- Pix e vencimentos (0037) ---------- */
+.pagamento-atrasada { color: var(--cor-erro); font-weight: 600; font-size: 0.84rem; }
+.pagamento-cliente { display: grid; gap: 8px; }
+.pagamento-cliente-linha { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.pagar-pix-botao { justify-self: start; }
+.pagar-pix { display: grid; gap: 8px; justify-items: start; padding: 12px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-superficie); }
+.pagar-pix-qr { width: 220px; max-width: 100%; background: #fff; }
+.pagar-pix-qr svg { display: block; width: 100%; height: auto; }
+.pagar-pix-codigo { display: block; width: 100%; max-height: 4.5em; overflow: auto; padding: 8px; border-radius: 6px; background: #f1efe9; font-size: 0.78rem; word-break: break-all; }
+.painel-atrasado { border-color: #f2b8b5; background: #fdf1f0; margin-bottom: 12px; }
+.painel-atrasado .painel-icone, .painel-atrasado .painel-numero { color: var(--cor-erro); }

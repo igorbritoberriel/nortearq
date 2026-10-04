@@ -304,6 +304,22 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
 - O Colaborador não vê valores.
 - A próxima etapa não é bloqueada por falta de pagamento (decisão em aberto).
 
+**Vencimentos, Pix e lembretes**
+- **Vencimento automático** das parcelas de contratos assinados daqui para frente: entrada e pagamento único no
+  dia da assinatura; "Parcela k de n" mês a mês; saldo em parcela única 1 mês depois; parcelas de aditivo mês a mês
+  a partir da aprovação. Parcelas manuais (ex.: "na entrega do anteprojeto") ficam sem data: use **Definir
+  vencimento** (uma vez; depois não muda). Parcelas de contratos antigos também podem ganhar data por esse botão.
+- **Pix do escritório** (Configurações → Recebimento por Pix): tipo e chave, nome de quem recebe e cidade. Com isso,
+  cada parcela em aberto mostra **Pagar com Pix** para o cliente (QR Code e copia e cola com o valor certo). O
+  dinheiro cai direto na conta do escritório: o NorteArq não intermedeia nem fica com nada.
+- **Lembretes automáticos ao cliente por e-mail**: 3 dias antes, no dia e 3 dias depois do vencimento, com o Pix
+  copia e cola e o link do projeto. No atraso, o escritório recebe aviso no sininho.
+- **Atrasada:** a parcela vencida aparece em vermelho para os dois lados, e o painel mostra o total **em atraso**.
+- **Cobrar no WhatsApp:** botão em cada parcela em aberto, com valor, vencimento e o Pix copia e cola na mensagem.
+- Quando o cliente pagar, o escritório confere no banco e usa **Registrar pagamento** (o recibo sai na hora).
+- O contrato padrão (modelos criados daqui para frente) traz a cláusula de **multa de 2% e juros de 1% ao mês** por
+  atraso. Modelos já existentes não mudam: dá para acrescentar a frase no próprio modelo.
+
 ## 10. Projeto: etapas, arquivos, revisões, aditivos ✅
 
 **Etapas**
@@ -514,5 +530,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Não consigo gerar o contrato" (limite de projetos) | 15 projetos em andamento no plano Profissional | Aprovar as etapas de projetos terminados, ou plano Escritório |
 | "Não consigo enviar o briefing" (limite) | 15 briefings no mês no plano Briefing | Esperar o dia 1º ou mudar de plano |
 | "O cliente pediu os dados dele" | Direito do titular (LGPD) | Ficha do cliente → Exportar dados do cliente |
+| "O cliente não vê o botão de Pix" | O escritório não cadastrou a chave Pix, ou a parcela já foi paga | Configurações → Recebimento por Pix |
+| "A parcela não tem data / não manda lembrete" | Parcela manual ou de contrato anterior aos vencimentos automáticos | Na parcela, "Definir vencimento" |
 | "Não consigo excluir o cliente" | Tem contrato assinado ou pagamento registrado | Arquivar |
 | "O cliente não consegue entrar no portal" | Não criou o acesso, ou esqueceu a senha | Mandar o link do projeto (o convite aparece nele); "Esqueci a senha" |
