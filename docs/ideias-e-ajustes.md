@@ -71,7 +71,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
-- [ ] **Cobrança completa pela plataforma via Asaas** (depois do piloto): subconta Asaas por arquiteto, Pix dinâmico,
+- [ ] **Cobrança completa pela plataforma via Asaas** (depois do piloto; decisão do Igor em 04/10/2026: **opcional**.
+      Níveis 1 "só controle" e 2 "Pix direto" em todos os planos, grátis; nível 3 "cobrança integrada" como diferencial
+      do Profissional e do Escritório, com taxa por cobrança só para quem ativar. Transparência como as plataformas
+      profissionais: página "Tarifas" separando "tarifa de processamento, cobrada pelo Asaas" da "taxa de serviço
+      NorteArq"; conta Asaas no nome do arquiteto, com os termos do Asaas aceitos por ele; extrato com valor bruto,
+      tarifas e líquido em cada pagamento): subconta Asaas por arquiteto, Pix dinâmico,
       boleto e cartão parcelado com baixa automática; o dinheiro cai na conta do arquiteto no Asaas e o NorteArq
       fica com uma pequena taxa por cobrança (split): receita extra. Junto: ligar o Asaas de produção da assinatura
       do NorteArq (conta no CPF do Igor, chave e webhook para nortearq.com.br).
@@ -169,6 +174,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] "O pagamento não passa pelo NorteArq" explicado (04/10/2026): pergunta frequente no site, cláusula nos Termos de uso (seção 6; revisar com o advogado) e linha na Ajuda.
 - [x] Proteção do recebimento do arquiteto (04/10/2026, migração 0037): vencimento automático das parcelas novas (e "Definir vencimento" nas sem data), parcela atrasada em vermelho e total "em atraso" no painel, lembretes por e-mail ao cliente (3 dias antes, no dia, 3 dias depois) e aviso de atraso no sininho, chave Pix do escritório com "Pagar com Pix" (QR Code + copia e cola) para o cliente e "Cobrar no WhatsApp" com o Pix, cláusula de multa 2% + juros 1% a.m. no contrato padrão (modelos novos).
 - [x] Cópia de segurança diária grátis (03/10/2026): GitHub Actions todo dia às 03:00 (Brasília) copia para o Cloudflare R2 (balde nortearq-backup) o banco completo (pg_dump) + só os dados com os logins (guarda 30 dias) e os arquivos novos do Storage (incremental). E-mail para o Igor se falhar. Testada: 53 arquivos (14 MB) e as 35 tabelas conferidas linha por linha com o banco. A rotina também mantém o Supabase grátis acordado. Senha do banco gerada só para isso (no .env.local e nos segredos do GitHub).
 - [x] E-mails funcionando (03/10/2026): Resend com o domínio nortearq.com.br (região São Paulo, registros DKIM e de envio colocados no Cloudflare automaticamente); avisos do sistema saem de "NorteArq <avisos@nortearq.com.br>"; e-mails de login do Supabase (esqueci a senha, confirmação) também pelo Resend, limite de 30 por hora. E-mail de teste enviado para agenciaberrielmkt@gmail.com. Plano grátis: 3.000 e-mails/mês, 100/dia.

@@ -54,6 +54,11 @@ const FAQ = [
     resposta: "Sim. Cada cliente só vê os arquivos do próprio projeto que você marcou como visíveis. Versões antigas nunca são apagadas.",
   },
   {
+    pergunta: "O NorteArq fica com o dinheiro dos meus clientes?",
+    resposta:
+      "Não. Você combina as parcelas na proposta e o cliente paga direto para você, por Pix ou como preferir: o pagamento não passa pelo NorteArq. O sistema controla vencimentos, lembra o cliente e emite os recibos.",
+  },
+  {
     pergunta: "Vou poder cancelar quando quiser?",
     resposta: "Sim, sem multa. Os planos terão 14 dias grátis, sem cartão, e no anual você ganha 2 meses.",
   },

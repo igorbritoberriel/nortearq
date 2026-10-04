@@ -292,7 +292,8 @@ em estudo.
 
 ## 9. Pagamentos e recibos ✅
 
-O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e recebido.
+O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e recebido. **O pagamento não passa
+pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica com nenhuma parte.
 
 - As parcelas da proposta (e dos aditivos aprovados) aparecem em Pagamentos, no contrato.
 - **Registrar pagamento:** data (não pode ser no futuro), forma (Pix, transferência, boleto, cartão,

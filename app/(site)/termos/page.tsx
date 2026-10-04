@@ -89,6 +89,13 @@ export default function TermosPage() {
             partes que a aceitam; para exigências específicas (como certificado ICP-Brasil), use o meio adequado.
           </li>
           <li>O NorteArq não faz parte dos contratos entre você e os seus clientes.</li>
+          <li>
+            Os pagamentos dos seus clientes não passam pelo NorteArq: eles pagam diretamente a você (por exemplo, pela chave
+            Pix que você cadastra). O NorteArq não recebe, não guarda e não repassa esses valores, e não responde por
+            cobranças, atrasos ou inadimplência; o sistema apenas organiza parcelas, vencimentos, lembretes e recibos. Se no
+            futuro for oferecida a cobrança integrada por uma instituição de pagamento parceira, ela será opcional, feita em
+            conta no seu nome, com termos e tarifas próprios informados antes da ativação.
+          </li>
         </ul>
 
         <h2>7. Uso aceitável</h2>
