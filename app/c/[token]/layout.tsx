@@ -15,6 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ token: st
     title: { absolute: link ? link.escritorio.nome : "Link do cliente" },
     robots: { index: false, follow: false },
     referrer: "no-referrer", // o código do link não vaza para sites abertos a partir daqui
+    ...(link?.escritorio.logo_url ? { icons: { icon: link.escritorio.logo_url, apple: link.escritorio.logo_url } } : {}),
   };
 }
 

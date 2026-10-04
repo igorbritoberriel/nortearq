@@ -89,6 +89,13 @@ menu fica recolhido no botão **Menu** (o sininho continua à vista) e fecha soz
 
 **Ajuda** (menu): este manual, com índice e busca por palavra. Não achou? "Relatar problema ou sugestão".
 
+**Instalar o NorteArq como aplicativo** (celular e computador): ganha ícone na tela e abre em tela cheia.
+- **Android, Chrome ou Edge no computador:** no menu, **Instalar aplicativo** (aparece quando o navegador permite).
+- **iPhone:** abra no **Safari**, toque em **Compartilhar** e depois em **Adicionar à Tela de Início**. O botão
+  "Instalar aplicativo" no menu mostra esse passo a passo.
+- Só o sistema do arquiteto vira aplicativo. As páginas do cliente final mostram a logo do escritório na aba do
+  navegador (quando o escritório tem logo).
+
 ## 3. Equipe e perfis ✅
 
 | Ação | Dono | Administrador | Colaborador |

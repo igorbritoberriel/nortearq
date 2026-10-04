@@ -13,6 +13,7 @@ import { RelatarProblema } from "@/components/erros/RelatarProblema";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 import { MenuLateral } from "@/components/MenuLateral";
+import { InstalarAplicativo } from "@/components/InstalarAplicativo";
 
 // Layout do sistema do arquiteto.
 // RN-00.3: sem a configuração inicial concluída, o arquiteto volta para o assistente.
@@ -121,6 +122,7 @@ export default async function SistemaLayout({ children }: { children: React.Reac
           />
         </nav>
         {sessao && <RelatarProblema />}
+        {sessao && <InstalarAplicativo />}
         {sessao && (
           <form action={sair} className="app-usuario">
             <span title={sessao.email}>{sessao.membro.nome}</span>

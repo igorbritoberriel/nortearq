@@ -1464,6 +1464,10 @@ p { margin: 0 0 1em; }
 .tela-erro-codigo { font-size: 0.78rem; color: var(--cor-texto-suave); font-family: var(--fonte-tecnica), monospace; }
 .relatar-botao { display: flex; align-items: center; gap: 8px; width: 100%; margin: 8px 0 0; padding: 8px 12px; border: 0; border-radius: 8px; background: none; color: inherit; opacity: 0.8; font: inherit; font-size: 0.88rem; text-align: left; cursor: pointer; }
 .relatar-botao:hover { opacity: 1; background: rgba(255, 255, 255, 0.08); }
+.instalar-botao { display: flex; align-items: center; gap: 8px; width: 100%; margin: 4px 0 0; padding: 8px 12px; border: 0; border-radius: 8px; background: none; color: var(--cor-areia); font: inherit; font-size: 0.88rem; text-align: left; cursor: pointer; }
+.instalar-botao:hover { background: rgba(255, 255, 255, 0.08); }
+.instalar-botao:focus-visible { outline: 2px solid var(--cor-areia); }
+.instalar-passos { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 8px; }
 .relatar-botao:focus-visible { outline: 2px solid var(--cor-areia); }
 .relatar-janela { width: min(480px, calc(100vw - 32px)); padding: 20px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-superficie); color: var(--cor-texto); box-shadow: 0 24px 60px rgba(15, 27, 43, 0.3); }
 .relatar-janela::backdrop { background: rgba(8, 12, 20, 0.45); }
@@ -1533,10 +1537,10 @@ p { margin: 0 0 1em; }
   .menu-movel-botao { order: 3; display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
   .menu-movel-botao:hover { background: rgba(255, 255, 255, 0.08); }
   .menu-movel-chave:focus-visible + .menu-movel-botao { outline: 2px solid var(--cor-areia); outline-offset: 1px; }
-  .app-lateral > .app-escritorio, .app-lateral > nav, .app-lateral > .relatar-botao, .app-lateral > .app-usuario { order: 4; flex-basis: 100%; display: none; }
+  .app-lateral > .app-escritorio, .app-lateral > nav, .app-lateral > .relatar-botao, .app-lateral > .instalar-botao, .app-lateral > .app-usuario { order: 4; flex-basis: 100%; display: none; }
   .menu-movel-chave:checked ~ .app-escritorio { display: grid; margin: 8px 0 0; }
   .menu-movel-chave:checked ~ nav { display: flex; flex-direction: column; overflow: visible; }
-  .menu-movel-chave:checked ~ .relatar-botao { display: flex; }
+  .menu-movel-chave:checked ~ .relatar-botao, .menu-movel-chave:checked ~ .instalar-botao { display: flex; }
   .menu-movel-chave:checked ~ .app-usuario { display: flex; }
 }
 

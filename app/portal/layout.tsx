@@ -13,7 +13,12 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const portal = await carregarPortal();
-  return { title: { absolute: portal ? `Meu projeto · ${portal.escritorio.nome}` : "Portal do cliente" }, robots: { index: false } };
+  return {
+    title: { absolute: portal ? `Meu projeto · ${portal.escritorio.nome}` : "Portal do cliente" },
+    robots: { index: false },
+    // Ícone da aba com a logo do escritório (o cliente vê a marca do escritório).
+    ...(portal?.escritorio.logo_url ? { icons: { icon: portal.escritorio.logo_url, apple: portal.escritorio.logo_url } } : {}),
+  };
 }
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {

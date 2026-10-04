@@ -41,7 +41,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Dados para os Termos e a Privacidade (eu coloco em `lib/legal.ts`): por enquanto o seu nome completo e um
       e-mail de contato (cobrança no CPF); quando a ME sair, razão social (Berriel Labs Tecnologia Ltda.) e CNPJ.
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
-- [ ] Ícone da aba do navegador (favicon): dizer se uso o logo atual do NorteArq.
 
 ## Para conversar / decidir
 - [ ] **Estratégia de lançamento** (decidida pelo Igor em 03/10/2026: não abrir agora). Proposta em 3 fases,
@@ -103,6 +102,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
+      Adicionar à Tela de Início) e ver o ícone; ícone novo na aba do navegador.
 - [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
       testar "Esqueci a senha" (o e-mail deve trazer o link novo).
 - [ ] Menu "Ajuda" (índice, busca, tabelas) e "Dúvidas frequentes" no fim de um link do cliente.
@@ -144,6 +145,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Favicon e aplicativo instalável (03/10/2026): ícone do NorteArq (avatar dourado sobre azul) na aba, no iPhone e no Android; botão "Instalar aplicativo" no menu do arquiteto (no iPhone, passo a passo); páginas do cliente final usam a logo do escritório na aba.
 - [x] Domínio próprio no ar (03/10/2026): **nortearq.com.br** registrado na HostGator, DNS no Cloudflare (conta agenciaberrielmkt@gmail.com, junto com o outro SaaS), domínio na Vercel com cadeado, www redireciona, endereço oficial do sistema e do Supabase trocados para https://nortearq.com.br. Links antigos (nortearq.vercel.app) continuam funcionando. Chave da Vercel no .env.local vence em 30 dias.
 - [x] Corrigido "Nova proposta" e "aplicar modelo" que falhavam para todo cliente desde a migração de duplicidade (duas ligações entre clientes e pedidos de orçamento) e o texto ilegível do aviso flutuante de notificação (03/10/2026, achados pelos prints).
 - [x] Opção do momento do briefing passou a valer (03/10/2026): "antes da proposta" faz a ficha do cliente sugerir o briefing (e esperar a resposta) antes de montar a proposta; "depois do contrato" sugere o briefing quando o contrato é assinado.

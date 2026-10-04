@@ -44,6 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ escritori
     title: { absolute: `Pedido de orçamento · ${escritorio.nome}` },
     description: `Conte o seu projeto para o ${escritorio.nome} e receba um orçamento.`,
     openGraph: { title: `Pedido de orçamento · ${escritorio.nome}`, siteName: escritorio.nome },
+    ...(escritorio.logo_url ? { icons: { icon: escritorio.logo_url, apple: escritorio.logo_url } } : {}),
   };
 }
 
