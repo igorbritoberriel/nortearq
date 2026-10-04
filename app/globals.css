@@ -1585,3 +1585,10 @@ p { margin: 0 0 1em; }
 .cobranca-ativa { display: grid; gap: 8px; justify-items: start; }
 .pagamento-asaas { font-size: 0.84rem; }
 .cobranca-convite { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 10px; padding: 8px 12px; border-radius: 8px; background: #e8eef6; color: var(--cor-norte); font-size: 0.88rem; }
+
+/* Conferência visual (04/10/2026): a regra antiga ".pagamentos li" (flex, space-between) vencia as novas. */
+.pagamentos .pagamento { grid-template-columns: minmax(0, 1fr); justify-content: stretch; align-items: stretch; }
+.pagamentos li.pagamento-cliente { display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; align-items: stretch; }
+.pagamento-cliente-linha .pagamento-descricao { min-width: 0; }
+.parcelamento-lista li { display: block; text-align: left; }
+.parcelamento-lista strong { min-width: 0; margin-right: 4px; }
