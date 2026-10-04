@@ -1576,3 +1576,11 @@ p { margin: 0 0 1em; }
 .pagar-pix-codigo { display: block; width: 100%; max-height: 4.5em; overflow: auto; padding: 8px; border-radius: 6px; background: #f1efe9; font-size: 0.78rem; word-break: break-all; }
 .painel-atrasado { border-color: #f2b8b5; background: #fdf1f0; margin-bottom: 12px; }
 .painel-atrasado .painel-icone, .painel-atrasado .painel-numero { color: var(--cor-erro); }
+
+/* ---------- Cobrança automática (0038) ---------- */
+.cobranca-passos { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 8px; }
+.cobranca-tarifas { padding: 12px 14px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-fundo); margin: 4px 0 12px; }
+.cobranca-tarifas ul { margin: 6px 0; padding-left: 18px; display: grid; gap: 4px; }
+.cobranca-status { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 0 0 6px; color: var(--cor-sucesso); }
+.cobranca-ativa { display: grid; gap: 8px; justify-items: start; }
+.pagamento-asaas { font-size: 0.84rem; }

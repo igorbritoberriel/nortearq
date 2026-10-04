@@ -41,6 +41,11 @@ export type Escritorio = {
   pix_chave: string | null;
   pix_nome: string | null;
   pix_cidade: string | null;
+  // Cobrança integrada pelo Asaas do escritório (0038)
+  cobranca_ativa: boolean;
+  cobranca_conta_nome: string | null;
+  cobranca_ambiente: "producao" | "teste" | null;
+  cobranca_aceite_em: string | null;
 };
 
 // Dados do Pix prontos para gerar o copia e cola, ou null se o escritório ainda não cadastrou.

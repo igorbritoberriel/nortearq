@@ -164,6 +164,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
               <h2>Pagamentos</h2>
               <Pagamentos
                 pix={pixDoEscritorio(sessao.escritorio)}
+                cobrancaAtiva={sessao.escritorio.cobranca_ativa}
                 pagamentos={financeiro.pagamentos}
                 eventos={financeiro.eventos}
                 souDono={pode(sessao.membro.papel, "estornar_pagamento")}

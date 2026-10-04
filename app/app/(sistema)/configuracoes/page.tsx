@@ -10,6 +10,7 @@ import {
 } from "@/components/escritorio/FormulariosEscritorio";
 import { FormParcelamento } from "@/components/escritorio/FormParcelamento";
 import { FormPix } from "@/components/escritorio/FormPix";
+import { FormCobranca } from "@/components/escritorio/FormCobranca";
 import { Equipe } from "@/components/equipe/Equipe";
 import { pode } from "@/lib/permissoes";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -128,6 +129,24 @@ export default async function ConfiguracoesPage() {
           sugestaoNome={escritorio.nome}
         />
       </section>
+
+      {verValores && (
+        <section className="cartao secao-config" id="cobranca">
+          <h2>Cobrança automática (Pix, boleto e cartão)</h2>
+          <p className="muted">
+            Opcional. Conecte a sua conta Asaas e cada parcela vira uma cobrança: o cliente escolhe Pix, boleto ou cartão, e o
+            pagamento é registrado sozinho, com recibo. Sem ativar, tudo continua funcionando com o Pix acima e o registro manual.
+          </p>
+          <FormCobranca
+            ativa={escritorio.cobranca_ativa}
+            conta={escritorio.cobranca_conta_nome}
+            ambiente={escritorio.cobranca_ambiente}
+            aceiteEm={escritorio.cobranca_aceite_em}
+            souDono={dono}
+            linkAsaas={process.env.NEXT_PUBLIC_ASAAS_INDICACAO || "https://www.asaas.com/"}
+          />
+        </section>
+      )}
 
       <section className="cartao secao-config" id="briefing">
         <h2>Briefing</h2>

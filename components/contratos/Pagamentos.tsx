@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
-import { CalendarDays, History, Lock, MessageCircle, Receipt, Undo2 } from "lucide-react";
+import { CalendarDays, CreditCard, ExternalLink, History, Lock, MessageCircle, Receipt, Undo2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
-import { definirVencimento, estornarPagamento, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
+import { definirVencimento, estornarPagamento, gerarCobrancaParcela, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
 import { linkWhatsapp } from "@/lib/contatos";
 import type { EstadoFormulario } from "@/lib/formulario";
 import {
@@ -41,9 +41,10 @@ type Props = {
   cliente: { nome: string; telefone: string | null };
   escritorio: string;
   pix?: DadosPix | null; // chave Pix do escritório: vai no "Cobrar no WhatsApp"
+  cobrancaAtiva?: boolean; // cobrança automática pelo Asaas (0038)
 };
 
-export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, escritorio, pix = null }: Props) {
+export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, escritorio, pix = null, cobrancaAtiva = false }: Props) {
   const [aberto, setAberto] = useState<{ id: string; modo: "baixa" | "estorno" | "vencimento" } | null>(null);
   const pago = pagamentos.filter((p) => p.pago_em).reduce((s, p) => s + p.valor, 0);
   const total = pagamentos.reduce((s, p) => s + p.valor, 0);
@@ -74,6 +75,14 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                       Pendente{p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : " · sem data de vencimento"}
                     </small>
                   )}
+                  {p.pago_em && p.asaas_valor_liquido != null && (
+                    <small className="muted pagamento-asaas">
+                      Pelo Asaas: pago {reais(p.valor)} · líquido na sua conta {reais(Number(p.asaas_valor_liquido))}
+                      {Number(p.taxa_plataforma) > 0
+                        ? ` (inclui taxa NorteArq de ${reais(Number(p.taxa_plataforma))} e tarifa do Asaas)`
+                        : " (tarifa do Asaas)"}
+                    </small>
+                  )}
                 </span>
                 <strong>{reais(p.valor)}</strong>
               </div>
@@ -88,6 +97,13 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                     Registrar pagamento
                   </button>
                 )}
+                {!p.pago_em && p.asaas_link && aberto?.id !== p.id && (
+                  <a className="botao botao-fantasma botao-pequeno" href={p.asaas_link} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink size={16} aria-hidden="true" />
+                    Link de pagamento
+                  </a>
+                )}
+                {!p.pago_em && !p.asaas_link && cobrancaAtiva && aberto?.id !== p.id && <GerarCobranca pagamentoId={p.id} />}
                 {!p.pago_em && !p.vencimento && aberto?.id !== p.id && (
                   <button
                     type="button"
@@ -105,7 +121,13 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                       cliente.telefone,
                       `Olá, ${primeiroNome}! Aqui é do ${escritorio}. Lembrete da parcela "${p.descricao}" de ${reais(p.valor)}${
                         p.vencimento ? `, com vencimento em ${dataCurta(p.vencimento)}` : ""
-                      }.${pix ? `\n\nPix copia e cola:\n${pixCopiaECola(pix, p.valor, p.descricao)}` : ""}`,
+                      }.${
+                        p.asaas_link
+                          ? `\n\nPague por Pix, boleto ou cartão neste link: ${p.asaas_link}`
+                          : pix
+                            ? `\n\nPix copia e cola:\n${pixCopiaECola(pix, p.valor, p.descricao)}`
+                            : ""
+                      }`,
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -321,5 +343,31 @@ function FormVencimento({ pagamento, hoje, fechar }: { pagamento: PagamentoComBa
         </button>
       </div>
     </div>
+  );
+}
+
+// Cobrança automática (0038): gera a cobrança da parcela no Asaas do escritório.
+function GerarCobranca({ pagamentoId }: { pagamentoId: string }) {
+  const [erro, setErro] = useState<string | null>(null);
+  const [pendente, iniciar] = useTransition();
+  return (
+    <>
+      <button
+        type="button"
+        className="botao botao-secundario botao-pequeno"
+        disabled={pendente}
+        onClick={() =>
+          iniciar(async () => {
+            setErro(null);
+            const r = await gerarCobrancaParcela(pagamentoId);
+            if ("erro" in r) setErro(r.erro);
+          })
+        }
+      >
+        <CreditCard size={16} aria-hidden="true" />
+        {pendente ? "Gerando..." : "Gerar cobrança"}
+      </button>
+      {erro && <Aviso tipo="erro">{erro}</Aviso>}
+    </>
   );
 }

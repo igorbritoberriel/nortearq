@@ -1,4 +1,4 @@
-import { Check, Receipt } from "lucide-react";
+import { Check, CreditCard, Receipt } from "lucide-react";
 import { baixarArquivoCliente } from "@/app/c/[token]/projeto/acoes";
 import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
 import { CapaProjeto, GaleriaRenders } from "@/components/arquivos/GaleriaRenders";
@@ -46,9 +46,17 @@ export async function ProjetoCliente({
   const { data: pixBruto } = await supabase.rpc("pix_do_projeto", { p_token: token });
   const pix = pixBruto as DadosPix | null;
   const pixDasParcelas = new Map<number, { codigo: string; qrSvg: string }>();
+  // Cobrança automática (0038): a parcela com link do Asaas usa o link (Pix, boleto ou cartão) no lugar do Pix fixo.
+  const { data: linksBrutos } = await supabase.rpc("links_pagamento_projeto", { p_token: token });
+  const links = (linksBrutos ?? []) as { descricao: string; valor: number; link: string }[];
+  const linkDasParcelas = new Map<number, string>();
+  for (const [i, p] of (projeto.pagamentos ?? []).entries()) {
+    const l = !p.pago_em && links.find((x) => x.descricao === p.descricao && Number(x.valor) === Number(p.valor));
+    if (l) linkDasParcelas.set(i, l.link);
+  }
   if (pix?.chave) {
     for (const [i, p] of (projeto.pagamentos ?? []).entries()) {
-      if (p.pago_em || !Number(p.valor)) continue;
+      if (p.pago_em || !Number(p.valor) || linkDasParcelas.has(i)) continue;
       const codigo = pixCopiaECola(pix, Number(p.valor), p.descricao);
       pixDasParcelas.set(i, { codigo, qrSvg: await QRCode.toString(codigo, { type: "svg", margin: 1, width: 220 }) });
     }
@@ -272,6 +280,12 @@ export async function ProjetoCliente({
                     )}
                   </span>
                 </div>
+                {linkDasParcelas.has(i) && (
+                  <a className="botao botao-marca botao-pequeno pagar-pix-botao" href={linkDasParcelas.get(i)} target="_blank" rel="noopener noreferrer">
+                    <CreditCard size={16} aria-hidden="true" />
+                    Pagar agora (Pix, boleto ou cartão)
+                  </a>
+                )}
                 {pixDasParcelas.has(i) && (
                   <PagarPix codigo={pixDasParcelas.get(i)!.codigo} qrSvg={pixDasParcelas.get(i)!.qrSvg} recebedor={pix!.nome} />
                 )}

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { avisarEtapaParada, avisarParcela } from "@/lib/avisos";
+import { gerarCobranca } from "@/lib/cobranca";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
 // Lembrete diário (Vercel Cron, vercel.json): etapa esperando aprovação há 3 e há 7 dias (RN-03.6).
@@ -57,6 +58,23 @@ export async function GET(request: NextRequest) {
     { momento: "dia", coluna: "lembrete_dia_em", vencimento: dia(0) },
     { momento: "atraso", coluna: "lembrete_atraso_em", vencimento: dia(-3) },
   ] as const;
+  // Cobrança automática (0038): parcelas que vencem nos próximos 10 dias ganham a cobrança no Asaas do escritório
+  // antes dos lembretes (assim o e-mail já leva o link de pagamento).
+  const { data: aGerar } = await admin
+    .from("pagamentos")
+    .select("id, escritorio:escritorios!inner(cobranca_ativa)")
+    .is("pago_em", null)
+    .is("asaas_link", null)
+    .not("vencimento", "is", null)
+    .lte("vencimento", dia(10))
+    .eq("escritorio.cobranca_ativa", true)
+    .limit(100);
+  let cobrancas = 0;
+  for (const p of aGerar ?? []) {
+    const r = await gerarCobranca(admin, p.id);
+    if ("link" in r) cobrancas += 1;
+  }
+
   let parcelas = 0;
   for (const m of marcos) {
     // Reserva antes de enviar: só quem marcar a coluna envia (evita lembrete duplicado).
@@ -73,5 +91,5 @@ export async function GET(request: NextRequest) {
       parcelas += 1;
     }
   }
-  return NextResponse.json({ ok: true, enviados, parcelas });
+  return NextResponse.json({ ok: true, enviados, parcelas, cobrancas });
 }

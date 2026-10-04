@@ -526,7 +526,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
   const { data: p } = await admin
     .from("pagamentos")
     .select(
-      "descricao, valor, vencimento, pago_em, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
+      "descricao, valor, vencimento, pago_em, asaas_link, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
     )
     .eq("id", pagamentoId)
     .maybeSingle();
@@ -547,8 +547,9 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
 
   if (email) {
     const e = c.escritorio;
+    const linkAsaas = (p.asaas_link as string | null) ?? null;
     const codigo =
-      e?.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
+      !linkAsaas && e?.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
         ? pixCopiaECola({ tipo: e.pix_tipo as TipoPix, chave: e.pix_chave, nome: e.pix_nome, cidade: e.pix_cidade }, Number(p.valor), p.descricao as string)
         : null;
     const token = projetoId ? await tokenDoProjeto(admin, projetoId, c.escritorio_id, c.cliente_id) : null;
@@ -569,6 +570,9 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
         titulo,
         linhas: [
           `Olá, ${primeiro}! Um lembrete do ${escaparHtml(escritorio)}: ${frase}`,
+          ...(linkAsaas
+            ? [`Para pagar por <strong>Pix, boleto ou cartão</strong>: <a href="${escaparHtml(linkAsaas)}">${escaparHtml(linkAsaas)}</a>`]
+            : []),
           ...(codigo
             ? [
                 "Para pagar, abra o app do seu banco, escolha <strong>Pix copia e cola</strong> e cole o código abaixo:",
@@ -579,7 +583,9 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
         ],
         ...(link ? { botao: { texto: codigo ? "Ver o QR Code e as parcelas" : "Ver as parcelas", url: link } } : {}),
       }),
-      texto: `Olá! Lembrete do ${escritorio}: parcela "${p.descricao}" de ${valor}, vencimento ${venc}.${codigo ? `
+      texto: `Olá! Lembrete do ${escritorio}: parcela "${p.descricao}" de ${valor}, vencimento ${venc}.${linkAsaas ? `
+
+Pague por Pix, boleto ou cartão: ${linkAsaas}` : ""}${codigo ? `
 
 Pix copia e cola:
 ${codigo}` : ""}${link ? `

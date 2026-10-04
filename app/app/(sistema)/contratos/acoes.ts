@@ -8,6 +8,9 @@ import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { confirmarSenha } from "@/lib/confirmar-senha";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { gerarCobranca } from "@/lib/cobranca";
+import { pode } from "@/lib/permissoes";
 import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 
 // Contratos do escritório (RN-01.12 a RN-01.16). Gerar, enviar e cancelar passam por funções do banco.
@@ -162,6 +165,21 @@ export async function estornarPagamento(_anterior: EstadoFormulario, formData: F
   }
   revalidatePath("/app", "layout");
   return { status: "sucesso", mensagem: "Pagamento estornado. O recibo foi cancelado." };
+}
+
+// Cobrança integrada (0038): gera a cobrança da parcela no Asaas do escritório (Pix, boleto ou cartão).
+export async function gerarCobrancaParcela(pagamentoId: string): Promise<{ link: string } | { erro: string }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!UUID.test(pagamentoId)) return { erro: "Parcela não encontrada." };
+  if (!pode(ctx.sessao.membro.papel, "registrar_pagamento")) return { erro: "Só o dono ou um administrador pode gerar cobranças." };
+  // Confere que a parcela é deste escritório antes de usar a chave do servidor.
+  const { data: dono } = await ctx.supabase.from("pagamentos").select("id").eq("id", pagamentoId).maybeSingle();
+  const admin = criarClienteAdmin();
+  if (!dono || !admin) return { erro: "Parcela não encontrada." };
+  const r = await gerarCobranca(admin, pagamentoId);
+  revalidatePath("/app", "layout");
+  return r;
 }
 
 // Vencimento de parcela sem data (definido uma vez; depois não muda).

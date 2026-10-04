@@ -41,13 +41,18 @@ export type PagamentoComBaixa = {
   vencimento: string | null;
   pago_em: string | null;
   baixa: EventoPagamento | null;
+  // Cobrança integrada (0038)
+  asaas_link?: string | null;
+  asaas_status?: string | null;
+  asaas_valor_liquido?: number | null;
+  taxa_plataforma?: number | null;
 };
 
 // Parcelas do contrato em ordem (Entrada, 1, 2, 3...) com a baixa em vigor e o histórico completo.
 export async function carregarPagamentos(supabase: SupabaseClient, contratoId: string) {
   const { data: linhas } = await supabase
     .from("pagamentos")
-    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem")
+    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem, asaas_link, asaas_status, asaas_valor_liquido, taxa_plataforma")
     .eq("contrato_id", contratoId)
     .order("ordem")
     .order("descricao");
