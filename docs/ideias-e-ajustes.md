@@ -78,7 +78,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          arquivo aprovada → revisão pedida → aditivo → "Esqueci a senha"; parte no computador, parte no celular.
          (Eu passo o roteiro clique a clique.)
       2. Os 2 clientes reais da Débora andando sem erro que trave; atritos pelo "Relatar problema".
-      3. 7 dias sem erro grave no painel interno.
+      3. 48 horas sem erro que trave no painel interno. **Prazo máximo: 2 dias** (dia 1: teste completo;
+         dia 2: clientes reais da Débora + conferência do painel). Decisão do Igor em 03/10/2026.
       Cumprido: fim do piloto e início da fase dos arquitetos parceiros. A cada "retomar", olhar o painel interno.
 - [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
       para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
