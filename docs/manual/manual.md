@@ -74,6 +74,10 @@ No fim aparece o **link do escritório** para copiar ou mandar.
 propostas), briefing e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
 proposta e de contrato e, para o Dono, o plano).
 
+**Link do formulário:** fica no primeiro cartão de Configurações, com **Copiar link** e **Enviar no WhatsApp**.
+Para mudar o fim do link, use **Mudar o endereço do formulário** em Minha marca. Atenção: o endereço antigo
+para de funcionar, então atualize a bio do Instagram e os links que você já mandou.
+
 **Painel inicial:** só o que pede ação. "Precisa de você" (pedidos de orçamento em aberto, cliente esperando
 proposta, proposta aprovada sem contrato, revisão além do limite sem decisão, briefing respondido, ajuste
 pedido, contrato para enviar, etapa em revisão), "Esperando o cliente" e

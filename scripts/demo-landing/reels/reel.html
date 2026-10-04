@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>NorteArq Reels</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet" />
+<style>
+  :root { --noite:#081423; --ouro:#d4ad6f; --ouro2:#e8c98f; --claro:#e7ecf3; --suave:#9fb0c4; --linha:rgba(255,255,255,.12); }
+  * { box-sizing:border-box; margin:0; }
+  html, body { width:1080px; height:1920px; overflow:hidden; background:var(--noite); }
+  body { font-family:Manrope, sans-serif; color:var(--claro); -webkit-font-smoothing:antialiased; }
+  #palco { position:relative; width:1080px; height:1920px; overflow:hidden; background:radial-gradient(ellipse at 50% 0%, #10243c 0%, var(--noite) 60%); }
+  .c { position:absolute; }
+  .grade { inset:0; background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px); background-size:72px 72px; -webkit-mask-image:radial-gradient(ellipse at 50% 40%, #000 25%, transparent 72%); }
+  .brilho { width:1300px; height:1300px; left:-110px; top:-520px; background:radial-gradient(circle, rgba(212,173,111,.26), transparent 62%); }
+  .brilho2 { width:1100px; height:1100px; left:300px; top:1200px; background:radial-gradient(circle, rgba(70,120,190,.22), transparent 62%); }
+  .marca { top:120px; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:14px; font-weight:800; font-size:38px; color:#fff; letter-spacing:-.01em; }
+  .marca img { width:52px; } .marca b { color:var(--ouro); font-weight:800; }
+  em { font-family:"Instrument Serif", serif; font-style:italic; font-weight:400; color:var(--ouro2); letter-spacing:-.01em; }
+  .gancho { left:80px; right:80px; top:0; height:1920px; display:flex; flex-direction:column; justify-content:center; gap:40px; text-align:center; }
+  .gancho .a { font-size:96px; line-height:1.04; font-weight:800; letter-spacing:-.04em; color:#fff; }
+  .gancho .a.citacao { font-family:"Instrument Serif", serif; font-style:italic; font-weight:400; letter-spacing:-.01em; font-size:110px; color:#f2ead9; }
+  .gancho .b { font-size:84px; line-height:1.08; font-weight:800; letter-spacing:-.035em; color:#fff; }
+  .gancho .b em { font-size:1.12em; }
+  .titulo { left:70px; right:70px; top:230px; text-align:center; }
+  .rotulo { display:inline-flex; align-items:center; gap:14px; font-size:26px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:var(--ouro); margin-bottom:18px; }
+  .rotulo::before, .rotulo::after { content:""; width:34px; height:2px; background:var(--ouro); }
+  .titulo h2 { font-size:66px; line-height:1.06; font-weight:800; letter-spacing:-.035em; color:#fff; }
+  .titulo h2 em { font-size:1.1em; }
+  /* Celular */
+  .fone { left:260px; top:520px; width:560px; padding:15px; border-radius:72px; background:#04080f; border:2px solid rgba(255,255,255,.14); box-shadow:0 60px 120px rgba(0,0,0,.65), 0 0 0 1px rgba(212,173,111,.18) inset; }
+  .fone .ilha { position:absolute; top:30px; left:50%; width:150px; height:38px; margin-left:-75px; background:#04080f; border-radius:20px; z-index:3; }
+  .tela { position:relative; width:526px; aspect-ratio:390/844; border-radius:58px; overflow:hidden; background:#f5f3ee; }
+  .tela .c { inset:0; }
+  .tela img.t { width:100%; display:block; }
+  .toque { width:110px; height:110px; margin:-55px 0 0 -55px; border-radius:50%; background:rgba(212,173,111,.35); border:4px solid rgba(232,201,143,.95); }
+  .coracao { width:90px; height:90px; margin:-45px 0 0 -45px; color:#e8c98f; filter:drop-shadow(0 6px 16px rgba(0,0,0,.4)); }
+  .chip { display:flex; align-items:center; gap:14px; padding:20px 28px; border-radius:999px; background:rgba(13,29,49,.94); border:1.5px solid rgba(212,173,111,.45); font-size:32px; font-weight:700; color:#fff; box-shadow:0 20px 50px rgba(0,0,0,.45); white-space:nowrap; }
+  .chip svg { width:34px; height:34px; color:var(--ouro); flex:none; }
+  /* Perfil */
+  .cartao-perfil { left:90px; width:900px; top:540px; border-radius:34px; overflow:hidden; background:#fff; box-shadow:0 60px 120px rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.2); }
+  .cartao-perfil img { width:100%; display:block; }
+  .marcador { left:40px; top:72px; width:372px; height:28px; background:rgba(212,173,111,.38); border-radius:6px; transform-origin:left; }
+  .selo-pdf { right:56px; top:1410px; display:flex; align-items:center; gap:14px; padding:24px 34px; border-radius:22px; background:linear-gradient(180deg, var(--ouro2), var(--ouro)); color:#14202f; font-size:36px; font-weight:800; box-shadow:0 24px 60px rgba(212,173,111,.4); }
+  .selo-pdf svg { width:40px; height:40px; }
+  /* WhatsApp */
+  .zap { left:150px; right:150px; top:250px; }
+  .zap .bolha { position:relative; margin-left:auto; max-width:700px; background:#d9fdd3; color:#111b21; border-radius:28px 28px 6px 28px; padding:24px 28px 18px; font-size:30px; line-height:1.35; box-shadow:0 20px 50px rgba(0,0,0,.35); }
+  .zap .bolha a { color:#027eb5; }
+  .zap .hora { display:flex; justify-content:flex-end; gap:8px; align-items:center; font-size:22px; color:#667781; margin-top:6px; }
+  .zap .hora svg { width:30px; height:20px; color:#53bdeb; }
+  .zap .de { font-size:24px; color:var(--suave); text-align:right; margin-bottom:12px; font-weight:600; }
+  /* Revisões */
+  .contador { left:120px; right:120px; top:1300px; padding:34px 40px; border-radius:30px; background:rgba(9,21,37,.96); border:1.5px solid rgba(212,173,111,.4); box-shadow:0 30px 80px rgba(0,0,0,.6); }
+  .contador .linha { display:flex; justify-content:space-between; align-items:baseline; font-size:32px; color:var(--suave); font-weight:600; }
+  .contador .linha b { font-size:72px; color:#fff; font-weight:800; letter-spacing:-.04em; }
+  .contador .linha b small { font-size:.5em; color:var(--suave); font-weight:700; letter-spacing:0; }
+  .contador .barra { height:16px; border-radius:99px; background:rgba(255,255,255,.12); margin-top:22px; overflow:hidden; }
+  .contador .barra span { display:block; height:100%; width:66.6%; border-radius:99px; background:linear-gradient(90deg, var(--ouro), var(--ouro2)); transform-origin:left; }
+  .anel { border:5px solid var(--ouro2); border-radius:22px; box-shadow:0 0 0 8px rgba(212,173,111,.25); }
+  .opcoes { left:90px; right:90px; top:700px; display:grid; gap:30px; }
+  .opcao { position:relative; padding:44px 46px; border-radius:34px; border:1.5px solid var(--linha); background:linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); }
+  .opcao .icone { width:84px; height:84px; border-radius:24px; display:grid; place-items:center; background:rgba(212,173,111,.16); color:var(--ouro2); margin-bottom:24px; }
+  .opcao .icone svg { width:46px; height:46px; }
+  .opcao h3 { font-size:58px; font-weight:800; letter-spacing:-.03em; color:#fff; margin-bottom:10px; }
+  .opcao p { font-size:34px; line-height:1.35; color:var(--suave); }
+  .opcao.ouro { background:linear-gradient(160deg, #dcb87e, #b98e52); border:0; }
+  .opcao.ouro h3, .opcao.ouro p { color:#14202f; } .opcao.ouro .icone { background:rgba(20,32,47,.14); color:#14202f; }
+  .rodape-texto { left:80px; right:80px; top:1500px; text-align:center; font-size:38px; font-weight:700; color:#fff; }
+  .rodape-texto em { font-size:1.15em; }
+  /* Final */
+  .final { left:80px; right:80px; top:0; height:1920px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .final .emb { width:230px; height:230px; margin-bottom:34px; }
+  .final .nome { font-size:104px; font-weight:800; letter-spacing:-.04em; color:#fff; line-height:1; margin-bottom:44px; }
+  .final .nome b { color:var(--ouro); font-weight:800; }
+  .final .frase { font-size:58px; line-height:1.14; font-weight:800; letter-spacing:-.03em; color:#fff; max-width:880px; margin-bottom:64px; }
+  .final .frase em { font-size:1.12em; }
+  .final .botao { padding:34px 56px; border-radius:26px; background:linear-gradient(180deg, var(--ouro2), var(--ouro)); color:#14202f; font-size:42px; font-weight:800; box-shadow:0 24px 70px rgba(212,173,111,.45); }
+  .final .site { margin-top:30px; font-size:36px; color:var(--suave); font-weight:600; }
+  .final .site b { color:#fff; }
+</style>
+</head>
+<body>
+<div id="palco"></div>
+<script>
+const P = new URLSearchParams(location.search);
+const REEL = P.get("r") || "1";
+const D = 15;
+const palco = document.getElementById("palco");
+const EASE = "cubic-bezier(.2,.75,.2,1)";
+
+const ICONE = {
+  coracao: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 2.3 4.5 6 4.5c2.2 0 3.5 1.2 4.4 2.5h3.2c.9-1.3 2.2-2.5 4.4-2.5 3.7 0 5.6 3.9 4 7.2C19.5 16.4 12 21 12 21z" transform="translate(0 -.5)"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8 12.5 2.6 2.6L16 9.6"/></svg>',
+  pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 18h4"/></svg>',
+  presente: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/></svg>',
+  aditivo: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 12v6M9 15h6"/></svg>',
+  vistos: '<svg viewBox="0 0 30 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m2 11 5 5L18 4M12 15l1 1L24 4"/></svg>',
+};
+
+function el(cls, html = "", estilo = "", pai = palco) {
+  const e = document.createElement("div");
+  e.className = "c " + cls;
+  e.innerHTML = html;
+  if (estilo) e.style.cssText += estilo;
+  pai.appendChild(e);
+  return e;
+}
+// Linha do tempo de um elemento: pares [segundo, {propriedades}], com as mesmas propriedades em todos.
+function tl(e, pontos, easing = EASE) {
+  const quadros = pontos.map(([t, p]) => ({ offset: Math.min(Math.max(t / D, 0), 1), easing, ...p }));
+  if (quadros[0].offset > 0) quadros.unshift({ ...quadros[0], offset: 0 });
+  if (quadros.at(-1).offset < 1) quadros.push({ ...quadros.at(-1), offset: 1 });
+  e.animate(quadros, { duration: D * 1000, fill: "both" });
+}
+// Entra em "ent", sai em "sai" (ou fica até o fim).
+function ver(e, ent, sai = 99, de = "translateY(70px)", para = "translateY(-50px)", dur = 0.75) {
+  const pts = [[ent, { opacity: 0, transform: de }], [ent + dur, { opacity: 1, transform: "none" }]];
+  if (sai < D) pts.push([sai, { opacity: 1, transform: "none" }], [sai + 0.5, { opacity: 0, transform: para }]);
+  tl(e, pts);
+}
+function toque(x, y, t, pai) {
+  const e = el("toque", "", `left:${x}px;top:${y}px;`, pai);
+  tl(e, [[t - 0.01, { opacity: 0, transform: "scale(.4)" }], [t + 0.08, { opacity: 1, transform: "scale(.7)" }], [t + 0.5, { opacity: 0, transform: "scale(1.5)" }]], "ease-out");
+}
+function coracao(x, y, t) {
+  const e = el("coracao", ICONE.coracao, `left:${x}px;top:${y}px;`);
+  tl(e, [[t - 0.01, { opacity: 0, transform: "translateY(0) scale(.3)" }], [t + 0.18, { opacity: 1, transform: "translateY(-40px) scale(1.15)" }], [t + 0.9, { opacity: 0, transform: "translateY(-220px) scale(.9)" }]], "ease-out");
+}
+
+// Fundo e marca
+el("grade");
+tl(el("brilho"), [[0, { transform: "translate(0,0)" }], [D, { transform: "translate(120px,80px)" }]], "linear");
+tl(el("brilho2"), [[0, { transform: "translate(0,0)" }], [D, { transform: "translate(-160px,-60px)" }]], "linear");
+const marca = el("marca", '<img src="img/emblema-600.png" alt=""><span>Norte<b>Arq</b></span>');
+tl(marca, [[0, { opacity: 0 }], [0.4, { opacity: 1 }], [12.4, { opacity: 1 }], [12.8, { opacity: 0 }]]);
+
+function gancho(a, b, citacao = false) {
+  const g = el("gancho", `<div class="a ${citacao ? "citacao" : ""}">${a}</div><div class="b">${b}</div>`);
+  const [ea, eb] = g.children;
+  ea.style.opacity = 0;
+  tl(ea, [[0.15, { opacity: 0, transform: "translateY(60px)" }], [0.9, { opacity: 1, transform: "none" }]]);
+  tl(eb, [[1.2, { opacity: 0, transform: "translateY(60px) scale(.96)" }], [1.95, { opacity: 1, transform: "none" }]]);
+  tl(g, [[2.5, { opacity: 1, transform: "none" }], [3.0, { opacity: 0, transform: "translateY(-90px)" }]]);
+}
+function titulo(rotulo, h2, ent, sai) {
+  const t = el("titulo", `<div class="rotulo">${rotulo}</div><h2>${h2}</h2>`);
+  ver(t, ent, sai, "translateY(40px)", "translateY(-40px)");
+}
+// Celular com telas que se revezam: [imagem, entra]
+function celular(telas, ent, sai, saiPara = "translateY(-60px) scale(.94)") {
+  const f = el("fone", '<div class="ilha"></div><div class="tela"></div>');
+  const tela = f.querySelector(".tela");
+  telas.forEach(([src, t], i) => {
+    const camada = el("", `<img class="t" src="${src}" alt="">`, "", tela);
+    if (i > 0) tl(camada, [[t, { opacity: 0 }], [t + 0.22, { opacity: 1 }]], "ease-in-out");
+  });
+  tl(f, [[ent, { opacity: 0, transform: "translateY(420px) scale(.92)" }], [ent + 0.9, { opacity: 1, transform: "none" }], [sai, { opacity: 1, transform: "none" }], [sai + 0.55, { opacity: 0, transform: saiPara }]]);
+  return tela;
+}
+// Escala da tela: 526 px de largura para 390 px do celular de verdade.
+const S = 526 / 390;
+function perfil(ent, sai = 12.5) {
+  const c = el("cartao-perfil", '<img src="img/perfil-recorte.png" alt="">');
+  tl(c, [[ent, { opacity: 0, transform: "translateY(160px) scale(.95)" }], [ent + 0.9, { opacity: 1, transform: "none" }], [sai, { opacity: 1, transform: "none" }], [sai + 0.5, { opacity: 0, transform: "translateY(-60px)" }]]);
+  const m = el("marcador", "", "", c);
+  tl(m, [[ent + 1.2, { transform: "scaleX(0)", opacity: 1 }], [ent + 1.9, { transform: "scaleX(1)", opacity: 1 }]]);
+  const s = el("selo-pdf", ICONE.pdf + "<span>PDF pronto para a reunião</span>");
+  tl(s, [[ent + 1.7, { opacity: 0, transform: "scale(.6) rotate(-4deg)" }], [ent + 2.2, { opacity: 1, transform: "scale(1) rotate(-2deg)" }], [sai, { opacity: 1, transform: "scale(1) rotate(-2deg)" }], [sai + 0.5, { opacity: 0, transform: "scale(.9) rotate(-2deg)" }]], "cubic-bezier(.3,1.6,.5,1)");
+}
+function chip(texto, lado, top, ent, sai) {
+  const pos = lado === "e" ? "left:40px;" : "right:40px;";
+  const c = el("chip", ICONE.check + `<span>${texto}</span>`, pos + `top:${top}px;`);
+  ver(c, ent, sai, `translateX(${lado === "e" ? -80 : 80}px)`, "translateY(-30px)", 0.6);
+}
+function final() {
+  const f = el("final", `<img class="emb" src="img/emblema-600.png" alt=""><div class="nome">Norte<b>Arq</b></div><div class="frase">Seu cliente explica o que quer <em>sozinho.</em> Você só projeta.</div><div class="botao">Entre na lista de espera</div><div class="site">em <b>nortearq.com.br</b> · @usenortearq</div>`);
+  const [emb, nome, frase, botao, site] = f.children;
+  tl(emb, [[12.7, { opacity: 0, transform: "rotate(-90deg) scale(.6)" }], [13.6, { opacity: 1, transform: "rotate(0) scale(1)" }]]);
+  tl(nome, [[12.9, { opacity: 0, transform: "translateY(40px)" }], [13.6, { opacity: 1, transform: "none" }]]);
+  tl(frase, [[13.1, { opacity: 0, transform: "translateY(40px)" }], [13.8, { opacity: 1, transform: "none" }]]);
+  tl(botao, [[13.4, { opacity: 0, transform: "scale(.85)" }], [14.0, { opacity: 1, transform: "scale(1)" }]], "cubic-bezier(.3,1.5,.5,1)");
+  tl(site, [[13.6, { opacity: 0 }], [14.1, { opacity: 1 }]]);
+}
+
+// Posições dos botões nas telas (em px do celular de 390): quiz "Gosto" e "Não gosto", briefing "Começar".
+const GOSTO = [278, 606], NAO = [112, 606], COMECAR = [304, 577];
+const FONE_X = 260 + 15 + 2, FONE_Y = 520 + 15 + 2;
+const noFone = ([x, y]) => [FONE_X + x * S, FONE_Y + y * S];
+
+if (REEL === "1") {
+  gancho("Seu cliente não sabe explicar o que quer?", "Então ele <em>mostra.</em>");
+  titulo("Briefing visual", "Quiz de estilo, <em>pelo celular.</em>", 2.8, 8.7);
+  const tela = celular([["img/quiz-1.png", 0], ["img/quiz-2.png", 4.65], ["img/quiz-3.png", 6.15], ["img/quiz-4.png", 7.65]], 2.7, 8.9, "translateY(-80px) scale(.9)");
+  [[GOSTO, 4.2], [GOSTO, 5.7], [NAO, 7.2]].forEach(([p, t]) => toque(p[0] * S, p[1] * S, t, tela));
+  [4.25, 5.75].forEach((t) => coracao(...noFone(GOSTO), t));
+  chip("Sem termo técnico", "e", 860, 3.6, 8.7);
+  chip("Leva uns 15 minutos", "d", 1010, 4.4, 8.7);
+  titulo("No seu painel", "O Perfil do Cliente <em>chega pronto.</em>", 9.0, 12.4);
+  perfil(9.2);
+  final();
+}
+
+if (REEL === "2") {
+  gancho("“Só mais uma alteraçãozinha…”", "Revisão sem limite é <em>trabalho de graça.</em>", true);
+  titulo("Controle do contratado", "Revisões contadas, <em>à vista dos dois lados.</em>", 2.8, 8.3);
+  celular([["img/projeto-tela.png", 0]], 2.7, 8.4, "translateX(-140px) scale(.9)");
+  const anel = el("anel", "", `left:${FONE_X + 196 * S}px;top:${FONE_Y + 210 * S}px;width:${180 * S}px;height:${100 * S}px;`);
+  tl(anel, [[3.9, { opacity: 0, transform: "scale(1.25)" }], [4.4, { opacity: 1, transform: "scale(1)" }], [8.2, { opacity: 1, transform: "scale(1)" }], [8.5, { opacity: 0, transform: "scale(1)" }]]);
+  const cont = el("contador", '<div class="linha"><span>Revisões usadas</span><b>2 <small>de 3</small></b></div><div class="barra"><span></span></div><div class="linha" style="margin-top:18px;font-size:28px"><span>Combinadas no contrato. O cliente vê o mesmo número.</span></div>');
+  ver(cont, 4.8, 8.3, "translateY(80px)", "translateY(60px)");
+  tl(cont.querySelector(".barra span"), [[5.4, { transform: "scaleX(0)" }], [6.6, { transform: "scaleX(1)" }]], "cubic-bezier(.3,.8,.3,1)");
+  titulo("Passou do limite?", "Você decide, <em>com um toque.</em>", 8.7, 12.4);
+  const op = el("opcoes", `<div class="opcao"><div class="icone">${ICONE.presente}</div><h3>Cortesia</h3><p>Dá de presente ao cliente, e fica registrado que foi cortesia.</p></div><div class="opcao ouro"><div class="icone">${ICONE.aditivo}</div><h3>Aditivo</h3><p>Gera a cobrança extra. O cliente aprova pelo link.</p></div>`);
+  tl(op, [[12.3, { opacity: 1 }], [12.7, { opacity: 0 }]]);
+  ver(op.children[0], 9.3, 99, "translateX(-120px)");
+  ver(op.children[1], 9.8, 99, "translateX(120px)");
+  const rod = el("rodape-texto", "Tudo com data e hora, <em>sem discussão.</em>");
+  ver(rod, 10.6, 12.3, "translateY(30px)", "translateY(-20px)");
+  final();
+}
+
+if (REEL === "3") {
+  gancho("2 horas de reunião para entender o cliente?", "Troque por <em>um link.</em>");
+  const zap = el("zap", `<div class="de">Você, no WhatsApp</div><div class="bolha">Olá, Rafael! Preparei algumas perguntas para entender o seu projeto. Responda no seu tempo: <a>nortearq.com.br/c/…</a><div class="hora">10:42 ${ICONE.vistos}</div></div>`);
+  ver(zap, 2.8, 8.0, "translateY(-40px) scale(.95)", "translateY(-60px)");
+  const tela = celular([["img/briefing-1.png", 0], ["img/quiz-1.png", 4.65], ["img/briefing-3.png", 6.35]], 3.1, 8.1);
+  toque(COMECAR[0] * S, COMECAR[1] * S, 4.25, tela);
+  toque(GOSTO[0] * S, GOSTO[1] * S, 5.8, tela);
+  coracao(...noFone(GOSTO), 5.85);
+  chip("Salva sozinho", "e", 840, 4.0, 8.0);
+  chip("Quiz com imagens", "d", 990, 5.0, 8.0);
+  chip("Pode parar e continuar", "e", 1140, 6.4, 8.0);
+  titulo("E você recebe", "O Perfil do Cliente, <em>pronto para a reunião.</em>", 8.4, 12.4);
+  perfil(8.6);
+  final();
+}
+
+// Pausa tudo e expõe o controle de tempo para a gravação quadro a quadro.
+window.seek = (t) => { document.getAnimations().forEach((a) => { a.pause(); a.currentTime = t * 1000; }); return new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))); };
+window.pronto = Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]);
+if (P.has("t")) window.pronto.then(() => window.seek(Number(P.get("t"))));
+</script>
+</body>
+</html>

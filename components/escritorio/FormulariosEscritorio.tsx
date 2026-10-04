@@ -47,6 +47,14 @@ export function FormMarca({
   const [cor, setCor] = useState(v.cor_primaria ?? escritorio.cor_primaria ?? "#1f3a5f");
   const [previa, setPrevia] = useState<string | null>(null);
   const logoAtual = previa ?? escritorio.logo_url;
+  const campoEndereco = (ajuda: string) => (
+    <Campo id="slug" rotulo="Endereço do seu formulário" ajuda={ajuda} erro={erro.slug}>
+      <div className="campo-prefixo">
+        <span>{site.replace(/^https?:\/\//, "")}/e/</span>
+        <input id="slug" name="slug" required defaultValue={v.slug ?? escritorio.slug} autoCapitalize="off" />
+      </div>
+    </Campo>
+  );
 
   return (
     <form action={enviar} noValidate>
@@ -55,17 +63,16 @@ export function FormMarca({
       <Campo id="nome" rotulo="Nome do escritório" erro={erro.nome}>
         <input id="nome" name="nome" required defaultValue={v.nome ?? escritorio.nome} />
       </Campo>
-      <Campo
-        id="slug"
-        rotulo="Endereço do seu formulário"
-        ajuda="É o link que você vai colocar no Instagram e mandar no WhatsApp."
-        erro={erro.slug}
-      >
-        <div className="campo-prefixo">
-          <span>{site.replace(/^https?:\/\//, "")}/e/</span>
-          <input id="slug" name="slug" required defaultValue={v.slug ?? escritorio.slug} autoCapitalize="off" />
-        </div>
-      </Campo>
+      {/* No assistente o endereço aparece aberto; em Configurações o link já está no cartão
+          "Link do seu formulário", então aqui fica recolhido (os campos recolhidos também são enviados). */}
+      {proximo ? (
+        campoEndereco("É o link que você vai colocar no Instagram e mandar no WhatsApp.")
+      ) : (
+        <details className="mudar-endereco" open={!!erro.slug}>
+          <summary>Mudar o endereço do formulário</summary>
+          {campoEndereco("Atenção: o endereço antigo para de funcionar. Depois de mudar, atualize a bio do Instagram e os links que você já mandou.")}
+        </details>
+      )}
       <Campo id="whatsapp" rotulo="WhatsApp do escritório" opcional erro={erro.whatsapp}>
         <InputMascara
             mascara="telefone"

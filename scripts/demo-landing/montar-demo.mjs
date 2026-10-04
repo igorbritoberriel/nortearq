@@ -1,8 +1,4 @@
-// Vídeo e prints da landing (public/landing/), sempre com um escritório de DEMONSTRAÇÃO, nunca com dados reais.
-// Ordem: node montar-demo.mjs → node gravar.mjs (cel | video) → node quiz.mjs → apagar-demo.mjs.
-// Rodar numa pasta com "npm i playwright"; o vídeo é montado com ffmpeg (corte dos trechos + transição suave).
-// apagar-demo.mjs pode esbarrar na trava do histórico de pagamentos: desligar o gatilho só dentro da transação.
-// Monta o escritório "Estúdio Aurora Arquitetura" usando as funções do próprio sistema. Grava os dados em dados-demo.json.
+// Monta um escritório de TESTE completo usando as funções do próprio sistema. Grava os dados em dados.json.
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 const projeto = "C:/Users/Usuário/Desktop/Marketing Digital/app - arquitetura/nortearq/";
@@ -33,7 +29,7 @@ const cli = ok(await arq.from("clientes").insert({ escritorio_id: esc, nome: "Ma
 const cli2 = ok(await arq.from("clientes").insert({ escritorio_id: esc, nome: "Rafael Lima", telefone: "21977776666", email: "rafael@exemplo.com", servicos: [servicos[0].id] }).select("id").single(), "cliente 2");
 
 const itens = [{ servico: "Interiores", escopo: "Projeto de interiores da sala, cozinha e dois quartos.", entregaveis: ["Planta de layout", "Projeto 3D", "Detalhamento de marcenaria"] }];
-const base = { escritorio_id: esc, cliente_id: cli.id, titulo: "Interiores do apartamento", escopo: "Proposta para o apartamento da Av. Atlântica.", itens, valor_total: 18000, modo_pagamento: "manual", parcelas: [{ descricao: "Entrada, na assinatura do contrato", valor: 5400 }, { descricao: "Na entrega do anteprojeto", valor: 6300 }, { descricao: "Na entrega do projeto executivo", valor: 6300 }], prazo: "60 dias úteis após a validação do briefing", revisoes_incluidas: 2, visitas_incluidas: 3 };
+const base = { escritorio_id: esc, cliente_id: cli.id, titulo: "Interiores do apartamento", escopo: "Proposta para o apartamento da Av. Atlântica.", itens, valor_total: 18000, modo_pagamento: "manual", parcelas: [{ descricao: "Entrada, na assinatura do contrato", valor: 5400 }, { descricao: "Na entrega do anteprojeto", valor: 6300 }, { descricao: "Na entrega do projeto executivo", valor: 6300 }], prazo: "60 dias úteis após a validação do briefing", revisoes_incluidas: 3, visitas_incluidas: 3 };
 const aprovada = ok(await admin.from("propostas").insert({ ...base, status: "aprovada", enviada_em: new Date(Date.now() - 5 * 864e5).toISOString(), respondida_em: new Date(Date.now() - 2 * 864e5).toISOString(), validade_ate: new Date(Date.now() + 10 * 864e5).toISOString().slice(0, 10) }).select("id").single(), "proposta aprovada");
 const rascunho = ok(await arq.from("propostas").insert({ escritorio_id: esc, cliente_id: cli2.id, titulo: "Reforma da casa", itens: [{ servico: "Arquitetura", escopo: "", entregaveis: [] }], modo_pagamento: "parcelado", entrada_pct: 30, parcelas_max: 6 }).select("id").single(), "rascunho");
 
@@ -79,7 +75,7 @@ const pg = ok(await arq.from("pagamentos").select("id").eq("contrato_id", contra
 const rp = await arq.rpc("registrar_pagamento", { p_pagamento: pg.id, p_data: new Date().toISOString().slice(0, 10), p_forma: "pix", p_observacao: null });
 if (rp.error) console.log("aviso pagamento:", rp.error.message);
 const et = ok(await admin.from("etapas").select("id").eq("projeto_id", projetoRow.id).order("ordem").limit(2), "etapas");
-for (const [decisao, comentario] of [["revisao_pedida", "Podemos trocar o sofá de lugar e abrir mais a passagem para a varanda?"], ["aprovada", null]]) {
+for (const [decisao, comentario] of [["revisao_pedida", "Podemos trocar o sofá de lugar e abrir mais a passagem para a varanda?"], ["revisao_pedida", "Ficou ótimo! Só a bancada da cozinha um pouco maior, por favor."], ["aprovada", null]]) {
   ok(await admin.from("etapas").update({ status: "aguardando_aprovacao", enviada_em: new Date().toISOString() }).eq("id", et[0].id), "etapa aguardando");
   ok(await anon.rpc("responder_etapa", { p_token: tokenProjeto, p_etapa: et[0].id, p_decisao: decisao, p_comentario: comentario, p_ip: "127.0.0.1" }), "responder etapa");
 }
