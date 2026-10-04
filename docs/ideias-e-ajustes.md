@@ -131,26 +131,18 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
-- [ ] Celular: o link do formulário do escritório (painel e Configurações) aparece inteiro, quebrando em linhas, e um
-      toque seleciona ele todo (corrigido em 04/10/2026; antes cortava).
+Conferência automática de 04/10/2026 (conta de teste, computador e celular, 23 telas): painel, menu do celular,
+ficha com "próximo passo", proposta em rascunho, contrato, projeto, configurações, formulário do escritório e as
+páginas do cliente (proposta, contrato, projeto, briefing, dúvidas frequentes) sem erros; 3 desalinhamentos
+corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] E-mails: ~~teste chegou na caixa de entrada~~ (confirmado em 03/10/2026). Falta: Resend mostrar
       "Verified", testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
 - [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
       Adicionar à Tela de Início) e ver o ícone; ícone novo na aba do navegador.
 - [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
       testar "Esqueci a senha" (o e-mail deve trazer o link novo).
-- [ ] Menu "Ajuda" (índice, busca, tabelas) e "Dúvidas frequentes" no fim de um link do cliente.
 - [ ] Ficha do cliente → "Exportar dados do cliente": baixar e abrir o arquivo de um cliente de teste.
       Proposta enviada: "Salvar como modelo" embaixo da proposta.
-- [ ] Lote 4 da revisão de UX: **menu no celular** (botão Menu, abre e fecha ao trocar de tela, sininho à vista);
-      busca nas listas; "Reenviar o mesmo link" do briefing; confirmação ao enviar etapa; aviso de valor na
-      observação do deslocamento.
-- [ ] Lote 3 da revisão de UX: faixa "próximo passo" na ficha de clientes em fases diferentes; "Primeiros passos"
-      no painel (num escritório novo); menu destacado; no link do cliente, "Falar com o escritório" e "Ver e
-      responder" (também no celular).
-- [ ] Proposta em rascunho: "Rascunho salvo às..." no rodapé, aviso ao sair com algo não salvo, erro no rodapé
-      (ex.: apagar o valor total e clicar em "Revisar e enviar"), a janela da prévia no computador e no celular e
-      "Salvar como modelo" no rodapé.
 - [ ] Contrato em rascunho com dado do escritório faltando: caixa amarela com a lista e botão de enviar travado.
       Configurações: seção "Modelos e textos prontos".
 - [ ] Logado no sistema: botão "Relatar problema ou sugestão" no menu (enviar um de teste) e o
@@ -178,6 +170,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Conferência visual automática (04/10/2026): navegador automático com escritório de teste (apagado depois) em 23 telas, no computador e no celular, sem erros de tela; corrigidos os pagamentos desalinhados (arquiteto e cliente) e as opções de parcelamento da proposta.
 - [x] Convite para ativar a cobrança automática dentro do sistema (04/10/2026): faixa nos pagamentos do contrato, item nos Primeiros passos (Pix ou cobrança) e mensagem amigável quando a conta Asaas ainda está em análise. Não precisa mandar e-mail aos arquitetos.
 - [x] Cobrança automática pelo Asaas do arquiteto, nível 3 (04/10/2026, migração 0038): conexão da conta Asaas do escritório (chave criptografada, sem saque), cobrança por parcela (Pix, boleto ou cartão, o cliente escolhe) com split de R$ 0,99 para a carteira do NorteArq, baixa automática com recibo e aviso ao arquiteto, extrato com líquido e tarifas, link no projeto/portal/lembrete, geração automática das parcelas que vencem em 10 dias, Termos e site atualizados. Testada de ponta a ponta com a conta de teste do Asaas (escritório de teste apagado depois).
 - [x] Asaas de produção ligado para a assinatura do NorteArq (04/10/2026): conta no CPF do Igor (agenciaberrielmkt@gmail.com; dados comerciais aprovados, documentos e conta bancária pendentes de aprovação), chave de produção sem permissão de saque, webhook criado por API (https://nortearq.com.br/api/asaas/webhook, eventos de pagamento confirmado, recebido, vencido e estornado) e testado (sem senha 401, com senha 200). Vercel com ASAAS_API_KEY, ASAAS_AMBIENTE=producao e ASAAS_WEBHOOK_TOKEN. No computador, a ASAAS_API_KEY continua a de teste (sandbox).
