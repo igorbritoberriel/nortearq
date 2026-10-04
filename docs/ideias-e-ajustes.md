@@ -27,10 +27,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          MEI não serve: venda de software não é atividade permitida (o PLP 25/2026, que liberaria, ainda não é lei).
          Contador online costuma abrir de graça e cobrar R$ 100 a R$ 250/mês; e-CNPJ ~R$ 150 a R$ 250/ano.
       7. Pedido de marca no INPI (cerca de R$ 150 por classe com desconto; conferir a tabela).
-- [ ] **Urgente antes do piloto: cópia de segurança grátis no Cloudflare R2** (decisão de 03/10/2026: menor
-      custo possível até começar a cobrar). Você: criar a conta no cloudflare.com, ativar o R2 (pede cartão, mas
-      é grátis até 10 GB) e criar a chave de acesso. Eu: rotina diária no GitHub copiando banco e arquivos, guarda
-      30 dias, teste de restauração (cerca de 1 hora). A rotina também evita o Supabase grátis "dormir".
 - [ ] Ao cobrar o primeiro escritório de fora (antes da Fase 3): Supabase Pro (US$ 25/mês) e Vercel Pro
       (US$ 20/mês), juntos perto de R$ 260/mês. Até lá, tudo no plano grátis.
 - [ ] Cancelar o convite que a Débora mandou para igorbritoberriel@gmail.com: seu e-mail já tem
@@ -75,6 +71,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
+      para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
+      (pasta arquivos/ não expira): apagar também do R2 quando excluir ou anonimizar um cliente.
 - [ ] **Controle fiscal automatizado da cobrança no CPF** (pedido do Igor, 03/10/2026; fazer junto com ele quando o
       primeiro escritório começar a pagar):
       1. **Relatório financeiro no painel interno** (só o Igor vê), alimentado pelo aviso de pagamento do Asaas que
@@ -144,6 +143,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Cópia de segurança diária grátis (03/10/2026): GitHub Actions todo dia às 03:00 (Brasília) copia para o Cloudflare R2 (balde nortearq-backup) o banco completo (pg_dump) + só os dados com os logins (guarda 30 dias) e os arquivos novos do Storage (incremental). E-mail para o Igor se falhar. Testada: 53 arquivos (14 MB) e as 35 tabelas conferidas linha por linha com o banco. A rotina também mantém o Supabase grátis acordado. Senha do banco gerada só para isso (no .env.local e nos segredos do GitHub).
 - [x] E-mails funcionando (03/10/2026): Resend com o domínio nortearq.com.br (região São Paulo, registros DKIM e de envio colocados no Cloudflare automaticamente); avisos do sistema saem de "NorteArq <avisos@nortearq.com.br>"; e-mails de login do Supabase (esqueci a senha, confirmação) também pelo Resend, limite de 30 por hora. E-mail de teste enviado para agenciaberrielmkt@gmail.com. Plano grátis: 3.000 e-mails/mês, 100/dia.
 - [x] Rotinas automáticas ligadas (03/10/2026): faltava o CRON_SECRET na Vercel, e os lembretes de etapa (3 e 7 dias), o fim do teste grátis e a limpeza de notificações nunca tinham rodado. Chave criada e sistema publicado de novo. Ainda faltam na Vercel só as chaves do Asaas (cobrança, quando for cobrar).
 - [x] Favicon e aplicativo instalável (03/10/2026): ícone do NorteArq (avatar dourado sobre azul) na aba, no iPhone e no Android; botão "Instalar aplicativo" no menu do arquiteto (no iPhone, passo a passo); páginas do cliente final usam a logo do escritório na aba.

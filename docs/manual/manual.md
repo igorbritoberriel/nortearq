@@ -427,6 +427,18 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 - Quem administra é definido na Vercel pela variável `NORTEARQ_ADMINS` (e-mails separados por vírgula).
 <!-- /suporte -->
 
+<!-- suporte -->
+**Cópia de segurança** (só suporte)
+- Todo dia às 03:00 de Brasília, o GitHub Actions (`.github/workflows/backup.yml`, script `scripts/backup.mjs`)
+  copia para o Cloudflare R2, balde `nortearq-backup` (conta agenciaberrielmkt@gmail.com):
+  `banco/AAAA-MM-DD/completo.dump` (pg_dump completo), `banco/AAAA-MM-DD/dados.sql.gz` (dados de public + logins)
+  e `arquivos/<balde>/<caminho>` (arquivos novos do Storage).
+- Cópias do banco ficam 30 dias. Se falhar, chega e-mail para igorbritoberriel@gmail.com.
+- Rodar na hora: GitHub → nortearq → Actions → "Cópia de segurança" → Run workflow.
+- Restaurar: projeto Supabase novo → aplicar as migrações de `supabase/migrations` → `psql < dados.sql` (ou
+  `pg_restore` do completo.dump) → copiar `arquivos/` de volta para o Storage.
+<!-- /suporte -->
+
 ## 14. Área do cliente final e perguntas frequentes ✅
 
 **Como o cliente acessa**
