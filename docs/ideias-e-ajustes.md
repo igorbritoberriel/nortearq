@@ -96,7 +96,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       - [ ] 8. Aditivo criado e respondido pelo cliente; pagamento registrado e recibo
       - [ ] 9. "Esqueci a senha" (e-mail chega e funciona)
       Débora:
-      - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; primeiro modelo de proposta
+      - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; ~~primeiro modelo de proposta~~
+            (feito em 04/10/2026); chave Pix em Configurações; cláusula de multa no modelo de contrato dela
       - [ ] 11. Os 2 clientes reais andando sem erro que trave (atritos pelo "Relatar problema")
       Eu:
       - [ ] 12. Painel interno sem erro grave pendente e tudo que aparecer corrigido
@@ -174,6 +175,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Aba aberta durante uma publicação nova (04/10/2026): em vez da tela "Algo deu errado", o sistema recarrega sozinho uma vez, já na versão nova, e não registra como erro. Eram os 3 erros automáticos de 03/10 (marcados como resolvidos). Primeira cópia de segurança automática da madrugada: sucesso.
 - [x] "O pagamento não passa pelo NorteArq" explicado (04/10/2026): pergunta frequente no site, cláusula nos Termos de uso (seção 6; revisar com o advogado) e linha na Ajuda.
 - [x] Proteção do recebimento do arquiteto (04/10/2026, migração 0037): vencimento automático das parcelas novas (e "Definir vencimento" nas sem data), parcela atrasada em vermelho e total "em atraso" no painel, lembretes por e-mail ao cliente (3 dias antes, no dia, 3 dias depois) e aviso de atraso no sininho, chave Pix do escritório com "Pagar com Pix" (QR Code + copia e cola) para o cliente e "Cobrar no WhatsApp" com o Pix, cláusula de multa 2% + juros 1% a.m. no contrato padrão (modelos novos).
 - [x] Cópia de segurança diária grátis (03/10/2026): GitHub Actions todo dia às 03:00 (Brasília) copia para o Cloudflare R2 (balde nortearq-backup) o banco completo (pg_dump) + só os dados com os logins (guarda 30 dias) e os arquivos novos do Storage (incremental). E-mail para o Igor se falhar. Testada: 53 arquivos (14 MB) e as 35 tabelas conferidas linha por linha com o banco. A rotina também mantém o Supabase grátis acordado. Senha do banco gerada só para isso (no .env.local e nos segredos do GitHub).

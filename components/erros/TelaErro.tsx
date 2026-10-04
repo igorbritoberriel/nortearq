@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import Link from "next/link";
 import { RotateCw, TriangleAlert } from "lucide-react";
-import { enviarErroDaTela } from "./CapturaErros";
+import { enviarErroDaTela, recarregarSeVersaoNova } from "./CapturaErros";
 
 // Tela de erro em português no lugar da tela padrão do Next. O erro já foi avisado automaticamente:
 // erros do servidor chegam com "digest" (o servidor registrou); os da própria tela são enviados daqui.
@@ -19,6 +19,7 @@ export function TelaErro({
   extra?: ReactNode;
 }) {
   useEffect(() => {
+    if (recarregarSeVersaoNova(error.message ?? "")) return;
     if (!error.digest) enviarErroDaTela({ mensagem: error.message || "Erro na tela", pilha: error.stack });
   }, [error]);
 
