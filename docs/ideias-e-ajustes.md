@@ -16,7 +16,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          Vercel). Falta, se quiser: berriellabs.com.br (e .com), livres em 03/10/2026.
       3. Criar contas@berriellabs.com.br (Cloudflare Email Routing para receber, grátis; Zoho Mail grátis para enviar),
          gerenciador de senhas (Bitwarden) e verificação em duas etapas em tudo.
-      4. ~~Ligar o domínio~~ feito. Falta configurar o Resend com o nortearq.com.br (e-mails do sistema).
+      4. ~~Ligar o domínio~~ e ~~e-mails do sistema (Resend)~~ feitos em 03/10/2026.
       5. Começar a cobrar no **CPF** (decisão de 03/10/2026): conta do Asaas como pessoa física, carnê-leão todo mês
          (rendimentos até cerca de R$ 5 mil/mês são isentos desde 2026), planilha simples do que entrou. Termos e
          Privacidade com o seu nome e um e-mail de contato (sem expor o CPF). **Antes da primeira cobrança:**
@@ -27,9 +27,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          MEI não serve: venda de software não é atividade permitida (o PLP 25/2026, que liberaria, ainda não é lei).
          Contador online costuma abrir de graça e cobrar R$ 100 a R$ 250/mês; e-CNPJ ~R$ 150 a R$ 250/ano.
       7. Pedido de marca no INPI (cerca de R$ 150 por classe com desconto; conferir a tabela).
-- [ ] **Urgente antes do piloto:** conferir na Vercel se `RESEND_API_KEY` e `EMAIL_REMETENTE` estão
-      configurados e verificar um domínio próprio no Resend. Sem isso nenhum e-mail chega ao cliente
-      final (etapa enviada, lembretes, contrato, limite de revisões). No meu computador a chave não existe.
 - [ ] **Urgente antes do piloto: cópia de segurança grátis no Cloudflare R2** (decisão de 03/10/2026: menor
       custo possível até começar a cobrar). Você: criar a conta no cloudflare.com, ativar o R2 (pede cartão, mas
       é grátis até 10 GB) e criar a chave de acesso. Eu: rotina diária no GitHub copiando banco e arquivos, guarda
@@ -102,6 +99,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] E-mail de teste chegou na caixa de entrada (não no spam) de agenciaberrielmkt@gmail.com; Resend mostra o
+      domínio como "Verified"; testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
 - [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
       Adicionar à Tela de Início) e ver o ícone; ícone novo na aba do navegador.
 - [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
@@ -145,7 +144,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
-- [x] Rotinas automáticas ligadas (03/10/2026): faltava o CRON_SECRET na Vercel, e os lembretes de etapa (3 e 7 dias), o fim do teste grátis e a limpeza de notificações nunca tinham rodado. Chave criada e sistema publicado de novo. Ainda faltam na Vercel: RESEND_API_KEY e EMAIL_REMETENTE (e-mail, em andamento) e as chaves do Asaas (cobrança, quando for cobrar).
+- [x] E-mails funcionando (03/10/2026): Resend com o domínio nortearq.com.br (região São Paulo, registros DKIM e de envio colocados no Cloudflare automaticamente); avisos do sistema saem de "NorteArq <avisos@nortearq.com.br>"; e-mails de login do Supabase (esqueci a senha, confirmação) também pelo Resend, limite de 30 por hora. E-mail de teste enviado para agenciaberrielmkt@gmail.com. Plano grátis: 3.000 e-mails/mês, 100/dia.
+- [x] Rotinas automáticas ligadas (03/10/2026): faltava o CRON_SECRET na Vercel, e os lembretes de etapa (3 e 7 dias), o fim do teste grátis e a limpeza de notificações nunca tinham rodado. Chave criada e sistema publicado de novo. Ainda faltam na Vercel só as chaves do Asaas (cobrança, quando for cobrar).
 - [x] Favicon e aplicativo instalável (03/10/2026): ícone do NorteArq (avatar dourado sobre azul) na aba, no iPhone e no Android; botão "Instalar aplicativo" no menu do arquiteto (no iPhone, passo a passo); páginas do cliente final usam a logo do escritório na aba.
 - [x] Domínio próprio no ar (03/10/2026): **nortearq.com.br** registrado na HostGator, DNS no Cloudflare (conta agenciaberrielmkt@gmail.com, junto com o outro SaaS), domínio na Vercel com cadeado, www redireciona, endereço oficial do sistema e do Supabase trocados para https://nortearq.com.br. Links antigos (nortearq.vercel.app) continuam funcionando. Chave da Vercel no .env.local vence em 30 dias.
 - [x] Corrigido "Nova proposta" e "aplicar modelo" que falhavam para todo cliente desde a migração de duplicidade (duas ligações entre clientes e pedidos de orçamento) e o texto ilegível do aviso flutuante de notificação (03/10/2026, achados pelos prints).
