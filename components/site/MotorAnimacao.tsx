@@ -7,13 +7,11 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // Motor de animação do site de vendas (padrões da skill video-to-website, adaptados ao Next.js):
-// rolagem suave (Lenis), entradas variadas por seção (data-animacao), cena que se desenha com a rolagem,
-// revelação em círculo, fundo escuro nos números, contadores e letreiro gigante.
+// rolagem suave (Lenis), entradas variadas por seção (data-animacao), contadores e a barra de revisões.
+// Os celulares flutuando e as telas que se revezam são só CSS (globals.css, "Landing").
 // Com "reduzir movimento" ligado no sistema, nada disso roda e a página aparece completa e estática.
 
 gsap.registerPlugin(ScrollTrigger);
-
-const VELOCIDADE_CENA = 2; // 1.8–2.2: a cena termina por volta de 50% da rolagem da experiência
 
 const ENTRADAS: Record<string, gsap.TweenVars> = {
   "fade-up": { y: 50, opacity: 0, stagger: 0.12, duration: 0.9, ease: "power3.out" },
@@ -55,14 +53,12 @@ export function MotorAnimacao() {
         const itens = secao.querySelectorAll(".a-item");
         const entrada = ENTRADAS[secao.dataset.animacao ?? ""];
         if (!itens.length || !entrada) return;
-        const persiste = secao.dataset.persiste === "true";
         gsap.from(itens, {
           ...entrada,
           scrollTrigger: {
             trigger: secao,
             start: "top 82%",
-            end: "bottom 18%",
-            toggleActions: persiste ? "play none none none" : "play reverse play reverse",
+            toggleActions: "play none none none", // entra uma vez e fica
           },
         });
       });
@@ -77,12 +73,19 @@ export function MotorAnimacao() {
           duration: 2,
           ease: "power1.out",
           onUpdate: () => (el.textContent = Math.round(alvo.v).toString()),
-          scrollTrigger: { trigger: el, start: "top 80%", toggleActions: "play none none reverse" },
+          scrollTrigger: { trigger: el, start: "top 80%", toggleActions: "play none none none" },
         });
       });
 
-      configurarExperiencia();
-      configurarHero();
+      // Barra de revisões usadas (cartão "Controle do contratado") enche quando aparece.
+      gsap.utils.toArray<HTMLElement>(".ln-barra span").forEach((barra) => {
+        gsap.from(barra, {
+          scaleX: 0,
+          duration: 1.6,
+          ease: "power2.out",
+          scrollTrigger: { trigger: barra, start: "top 85%", toggleActions: "play none none none" },
+        });
+      });
     });
 
     // Fontes e imagens mudam alturas: recalcula as posições depois da primeira pintura.
@@ -98,97 +101,4 @@ export function MotorAnimacao() {
   }, [caminho]);
 
   return null;
-}
-
-function configurarHero() {
-  const hero = document.querySelector<HTMLElement>(".hero");
-  if (!hero) return;
-  gsap.to(".hero .seta-norte", {
-    rotation: 160,
-    ease: "none",
-    scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: true },
-  });
-  gsap.to(".hero-conteudo", {
-    opacity: 0,
-    y: -60,
-    ease: "none",
-    scrollTrigger: { trigger: hero, start: "40% top", end: "bottom top", scrub: true },
-  });
-}
-
-function configurarExperiencia() {
-  const experiencia = document.querySelector<HTMLElement>(".experiencia");
-  if (!experiencia) return;
-  const palco = experiencia.querySelector<HTMLElement>(".palco");
-  const cena = experiencia.querySelector<HTMLElement>(".cena");
-  const escuro = experiencia.querySelector<HTMLElement>(".palco-escuro");
-  if (!palco || !cena) return;
-
-  // Revelação em círculo: a cena se abre enquanto o hero sai.
-  gsap.fromTo(
-    palco,
-    { clipPath: "circle(8% at 50% 50%)" },
-    {
-      clipPath: "circle(75% at 50% 50%)",
-      ease: "none",
-      scrollTrigger: { trigger: experiencia, start: "top bottom", end: "top top", scrub: true },
-    },
-  );
-
-  // A planta se desenha: paredes → portas e janelas → móveis → cotas → cores → rótulos.
-  const desenho = gsap.timeline({ paused: true });
-  desenho
-    .fromTo(".pb-paredes .pb-parede", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, stagger: 0.04, duration: 0.3, ease: "none" })
-    .fromTo(".pb-portas .pb-parede", { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.1, ease: "none" })
-    .from(".pb-janela", { opacity: 0, duration: 0.06 }, "<")
-    .from(".pb-movel", { opacity: 0, scale: 0.6, transformOrigin: "50% 50%", stagger: 0.02, duration: 0.12 })
-    .from(".pb-cotas", { opacity: 0, duration: 0.06 })
-    .from(".pb-ambiente", { opacity: 0, stagger: 0.03, duration: 0.1 })
-    .from(".pb-rotulo", { opacity: 0, y: 8, stagger: 0.02, duration: 0.06 });
-
-  // Começa ainda durante a revelação em círculo, para o círculo nunca abrir sobre um fundo vazio.
-  ScrollTrigger.create({
-    trigger: experiencia,
-    start: "top 85%",
-    end: "bottom bottom",
-    scrub: true,
-    onUpdate: (self) => desenho.progress(Math.min(self.progress * VELOCIDADE_CENA, 1)),
-  });
-
-  // Letreiro gigante atravessando a tela.
-  gsap.to(".letreiro-texto", {
-    xPercent: -30,
-    ease: "none",
-    scrollTrigger: { trigger: experiencia, start: "top bottom", end: "bottom top", scrub: true },
-  });
-
-  // A cena se afasta para o lado oposto ao texto da seção ativa.
-  const largo = window.matchMedia("(min-width: 900px)");
-  gsap.utils.toArray<HTMLElement>(".experiencia [data-lado]").forEach((secao) => {
-    const lado = secao.dataset.lado;
-    const destino = () => {
-      if (!largo.matches) return { x: 0, scale: 1, opacity: lado === "centro" ? 0.25 : 0.35 };
-      if (lado === "esquerda") return { x: "22vw", scale: 1, opacity: 1 };
-      if (lado === "direita") return { x: "-22vw", scale: 1, opacity: 1 };
-      return { x: 0, scale: 0.9, opacity: 0.35 };
-    };
-    const ir = () => gsap.to(cena, { ...destino(), duration: 1.1, ease: "power3.inOut", overwrite: "auto" });
-    ScrollTrigger.create({ trigger: secao, start: "top 60%", end: "bottom 40%", onEnter: ir, onEnterBack: ir });
-  });
-
-  // Fundo escuro (0,9) só durante os números.
-  const numeros = experiencia.querySelector<HTMLElement>(".secao-numeros");
-  if (escuro && numeros) {
-    ScrollTrigger.create({
-      trigger: numeros,
-      start: "top bottom",
-      end: "bottom top",
-      scrub: true,
-      onUpdate: (self) => {
-        const p = self.progress;
-        const opacidade = p < 0.25 ? p / 0.25 : p > 0.75 ? (1 - p) / 0.25 : 1;
-        escuro.style.opacity = String(0.9 * opacidade);
-      },
-    });
-  }
 }

@@ -1,0 +1,13 @@
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+const projeto = "C:/Users/Usuário/Desktop/Marketing Digital/app - arquitetura/nortearq/";
+const { createClient } = createRequire(projeto + "package.json")("@supabase/supabase-js");
+const env = Object.fromEntries(readFileSync(projeto + ".env.local", "utf8").split(/\r?\n/).filter((l) => l.includes("=") && !l.startsWith("#")).map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim().replace(/^"|"$/g, "")]));
+const d = JSON.parse(readFileSync("dados-demo.json", "utf8"));
+const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SECRET_KEY, { auth: { persistSession: false } });
+const r1 = await admin.from("escritorios").delete().eq("id", d.esc);
+console.log("escritório:", r1.error ? "ERRO " + r1.error.message : "apagado");
+const r2 = await admin.auth.admin.deleteUser(d.userId);
+console.log("usuário:", r2.error ? "ERRO " + r2.error.message : "apagado");
+const { count } = await admin.from("clientes").select("id", { count: "exact", head: true }).in("id", [d.cliente, d.cliente2]);
+console.log("clientes de teste restantes:", count);

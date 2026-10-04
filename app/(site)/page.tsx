@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { ArrowDown, ArrowRight } from "lucide-react";
-import { MODULOS } from "@/lib/modulos";
+import { ArrowRight, X } from "lucide-react";
 import { PRE_LANCAMENTO, TEXTO_CHAMADA, linkChamada } from "@/lib/site";
 import { Planos } from "@/components/site/Planos";
 import { ListaEspera } from "@/components/site/ListaEspera";
-import { PlantaBaixa, SetaNorte } from "@/components/site/PlantaBaixa";
+import { VideoSistema } from "@/components/site/VideoSistema";
 
 // Landing page. Textos: docs/especificacao-v1.md (seções 1 e 8).
-// Estrutura e animações: skills video-to-website + frontend-design (pasta skills/).
-// data-animacao define a entrada de cada seção (nunca a mesma em seções seguidas); .a-item são os
-// elementos que entram em cascata; data-lado diz para onde a cena se afasta.
+// Visual "escuro premium" (aprovado em imagem: referencias do projeto/landing-mockups/opcao-b-*).
+// data-animacao define a entrada de cada seção; .a-item são os elementos que entram em cascata (MotorAnimacao).
+// Os prints e o vídeo em public/landing/ vêm de um escritório de demonstração (nunca de dados reais).
 
 const DORES = [
   "O briefing vira horas de reunião e áudios soltos no WhatsApp.",
@@ -18,9 +17,16 @@ const DORES = [
   "Revisão e visita sem limite: você trabalha de graça.",
 ];
 
+const PASSOS = [
+  { titulo: "Pedido filtrado", texto: "O formulário do seu escritório classifica cada pedido pela sua faixa de preço e prazo." },
+  { titulo: "Briefing sozinho", texto: "Perguntas por ambiente e quiz visual de estilo. O Perfil do Cliente chega pronto, em PDF." },
+  { titulo: "Proposta e contrato", texto: "Montados dos seus modelos, sem redigitar. O cliente aprova e assina pelo link." },
+  { titulo: "Etapas aprovadas", texto: "Arquivos, revisões e aditivos visíveis aos dois lados, com data, hora e registro." },
+];
+
 const NUMEROS = [
   { valor: 14, sufixo: "dias", rotulo: "de teste grátis, sem cartão" },
-  { valor: 4, sufixo: "módulos", rotulo: "na primeira versão" },
+  { valor: 0, sufixo: "contratos", rotulo: "redigitados à mão" },
   { valor: 5, sufixo: "etapas", rotulo: "de projeto prontas para usar" },
   { valor: 100, sufixo: "%", rotulo: "das aprovações com data e hora" },
 ];
@@ -69,153 +75,187 @@ const FAQ = [
   },
 ];
 
+// Telas de celular que se revezam na vitrine (cada aparelho começa numa diferente).
+const TELAS = [
+  { src: "/landing/cel-briefing.webp", alt: "Briefing do cliente no celular" },
+  { src: "/landing/cel-proposta.webp", alt: "Proposta aberta pelo cliente no celular" },
+  { src: "/landing/cel-projeto.webp", alt: "Acompanhamento do projeto pelo cliente" },
+];
+
+function Celular({ classe, inicio }: { classe: string; inicio: number }) {
+  return (
+    <div className={`ln-fone ${classe}`} aria-hidden="true">
+      <div className="ln-fone-tela">
+        {TELAS.map((t, i) => (
+          <img key={t.src} src={t.src} alt="" width={390} height={844} style={{ "--i": (i - inicio + 3) % 3 } as React.CSSProperties} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   return (
     <>
-      {/* 1. Hero: tela cheia, tipografia enorme, palavras entrando em cascata */}
-      <section className="hero">
-        <div className="container hero-conteudo">
-          <p className="rotulo carga" style={{ "--d": 0 } as React.CSSProperties}>
-            Nº 001 — Para arquitetos e designers de interiores
-          </p>
-          <h1>
-            <span className="hero-linha-1 carga" style={{ "--d": 1 } as React.CSSProperties}>
-              Seu cliente explica o que quer sozinho.
-            </span>
-            <span className="hero-linha-2">
-              {["Você", "só", "projeta."].map((palavra, i) => (
-                <span key={palavra} className="palavra carga" style={{ "--d": i + 2 } as React.CSSProperties}>
-                  {palavra === "projeta." ? <em>{palavra}</em> : palavra}
-                </span>
-              ))}
-            </span>
-          </h1>
-          <div className="hero-rodape carga" style={{ "--d": 5 } as React.CSSProperties}>
-            <p className="hero-lead">
-              Briefing visual, proposta, contrato e aprovações num só lugar. Tudo chega ao cliente por link no
-              WhatsApp, com a marca do seu escritório.
+      {/* 1. Hero: título central, vídeo do sistema e celulares flutuando */}
+      <section className="ln-hero">
+        <div className="ln-planta" aria-hidden="true" />
+        <div className="ln-brilho" aria-hidden="true" />
+        <div className="container ln-hero-conteudo">
+          {PRE_LANCAMENTO && (
+            <p className="ln-selo carga" style={{ "--d": 0 } as React.CSSProperties}>
+              <b>Novo</b> Acesso antecipado · 14 dias grátis · sem cartão
             </p>
-            <div className="acoes">
-              <Link href={linkChamada()} className="botao botao-primario botao-grande">
-                {TEXTO_CHAMADA} <ArrowRight size={18} aria-hidden="true" />
-              </Link>
-              {PRE_LANCAMENTO && <span className="hero-nota">Acesso antecipado · 14 dias grátis · sem cartão</span>}
+          )}
+          <h1 className="carga" style={{ "--d": 1 } as React.CSSProperties}>
+            Seu cliente explica o que quer <em>sozinho.</em> Você só projeta.
+          </h1>
+          <p className="ln-sub carga" style={{ "--d": 2 } as React.CSSProperties}>
+            Briefing visual, proposta e contrato automáticos, aprovações registradas e pagamentos organizados. Tudo por
+            link no WhatsApp, com a marca do seu escritório.
+          </p>
+          <div className="ln-acoes carga" style={{ "--d": 3 } as React.CSSProperties}>
+            <Link href={linkChamada()} className="botao botao-primario botao-grande">
+              {TEXTO_CHAMADA} <ArrowRight size={18} aria-hidden="true" />
+            </Link>
+            <Link href="/#como-funciona" className="botao botao-vidro botao-grande">
+              Ver como funciona
+            </Link>
+          </div>
+          <div className="ln-vitrine carga" style={{ "--d": 4 } as React.CSSProperties}>
+            <div className="ln-janela">
+              <div className="ln-janela-barra" aria-hidden="true"><i /><i /><i /></div>
+              <VideoSistema />
             </div>
+            <Celular classe="ln-fone-1" inicio={0} />
+            <Celular classe="ln-fone-2" inicio={1} />
           </div>
         </div>
-        <SetaNorte className="seta-norte" />
-        <a href="#como-funciona" className="hero-rolar">
-          Role e veja o projeto nascer <ArrowDown size={16} aria-hidden="true" />
-        </a>
       </section>
 
-      {/* 2. Experiência: cena fixa (planta que se desenha; depois, o vídeo) + seções nas laterais */}
-      <section id="como-funciona" className="experiencia" aria-label="Como o NorteArq funciona">
-        <div className="palco">
-          <div className="letreiro" aria-hidden="true">
-            <span className="letreiro-texto">Briefing · Proposta · Contrato · Aprovação · Briefing · Proposta ·</span>
-          </div>
-          <div className="cena">
-            <PlantaBaixa />
-          </div>
-          <div className="palco-escuro" aria-hidden="true" />
-        </div>
-
-        <article className="passo-rolagem lado-esquerda" style={{ top: "11%" }} data-lado="esquerda" data-animacao="slide-left">
-          <span className="rotulo a-item">001 / O problema</span>
-          <h2 className="a-item">O cliente não sabe explicar o que quer.</h2>
-          <ul className="lista-tracos a-item">
+      {/* 2. Frase e dores */}
+      <section className="ln-frase" data-animacao="fade-up">
+        <div className="container">
+          <p className="ln-frase-texto a-item">
+            Feito para arquitetos e designers de interiores que querem <em>tirar o cliente das costas</em> e voltar a
+            projetar.
+          </p>
+          <ul className="ln-dores">
             {DORES.map((dor) => (
-              <li key={dor}>{dor}</li>
+              <li key={dor} className="a-item">
+                <X size={16} aria-hidden="true" /> {dor}
+              </li>
             ))}
           </ul>
-        </article>
-
-        <article className="passo-rolagem lado-direita" style={{ top: "26%" }} data-lado="direita" data-animacao="slide-right">
-          <span className="rotulo a-item">002 / Briefing visual</span>
-          <h2 className="a-item">Ele responde sozinho, pelo celular.</h2>
-          <p className="a-item">
-            Perguntas por ambiente e um quiz de estilo com imagens: ele marca “gosto” ou “não gosto” e o sistema
-            descobre o estilo principal. Você recebe o <strong>Perfil do Cliente em PDF</strong>, pronto para a reunião.
-          </p>
-          <p className="nota a-item">Arquitetura · Interiores por ambiente · Reforma</p>
-        </article>
-
-        <article className="passo-rolagem lado-esquerda" style={{ top: "41%" }} data-lado="esquerda" data-animacao="clip-reveal">
-          <span className="rotulo a-item">003 / Proposta e contrato</span>
-          <h2 className="a-item">Do briefing ao contrato, sem redigitar.</h2>
-          <p className="a-item">
-            O contato já chega filtrado pela sua faixa de preço. Os dados viram proposta, e a proposta aprovada vira
-            contrato com assinatura digital. Cada resposta fica registrada com data, hora e IP.
-          </p>
-        </article>
-
-        <article className="passo-rolagem lado-centro secao-numeros" style={{ top: "57%" }} data-lado="centro" data-animacao="stagger-up">
-          <span className="rotulo a-item">004 / Em números</span>
-          <div className="numeros">
-            {NUMEROS.map((n) => (
-              <div key={n.rotulo} className="numero-bloco a-item">
-                <span className="numero-valor">
-                  <span className="numero" data-valor={n.valor}>{n.valor}</span>
-                  <small>{n.sufixo}</small>
-                </span>
-                <span className="numero-rotulo">{n.rotulo}</span>
-              </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="passo-rolagem lado-direita" style={{ top: "73%" }} data-lado="direita" data-animacao="scale-up">
-          <span className="rotulo a-item">005 / Controle do contratado</span>
-          <h2 className="a-item">O combinado fica à vista. Para os dois lados.</h2>
-          <p className="destaque-contador a-item">
-            2 <span>de</span> 3 <small>revisões usadas</small>
-          </p>
-          <p className="a-item">
-            Revisões, visitas e aditivos contados no portal do cliente. Passou do limite? Você dá de cortesia ou gera
-            um aditivo. Etapa aprovada não volta atrás.
-          </p>
-        </article>
-
-        <article className="passo-rolagem lado-esquerda" style={{ top: "89%" }} data-lado="esquerda" data-animacao="rotate-in">
-          <span className="rotulo a-item">006 / WhatsApp e a sua marca</span>
-          <h2 className="a-item">Seu cliente vê o seu escritório. Não a gente.</h2>
-          <p className="a-item">
-            Briefing, proposta e contrato chegam por link no WhatsApp, com a mensagem pronta. Nada para instalar. Nome,
-            logo e cores são os seus; o NorteArq fica nos bastidores.
-          </p>
-          <Link href={linkChamada()} className="botao botao-primario a-item">
-            {TEXTO_CHAMADA} <ArrowRight size={18} aria-hidden="true" />
-          </Link>
-        </article>
+        </div>
       </section>
 
-      {/* 3. Módulos: zona escura, lista editorial */}
-      <section id="modulos" className="zona" data-animacao="slide-right">
+      {/* 3. Como funciona */}
+      <section id="como-funciona" className="ln-secao" data-animacao="stagger-up">
         <div className="container">
-          <div className="zona-cabeca">
-            <span className="rotulo a-item">007 / Módulos</span>
-            <h2 className="a-item">Cada módulo resolve uma dor.</h2>
+          <div className="ln-cabeca">
+            <span className="ln-rotulo a-item">Como funciona</span>
+            <h2 className="a-item">
+              Do primeiro contato à entrega, <em>sem perder o fio.</em>
+            </h2>
           </div>
-          <ol className="modulos-lista">
-            {MODULOS.filter((m) => m.fase < 3).map((modulo) => (
-              <li key={modulo.id} className="a-item">
-                <span className="modulos-id">{modulo.id}</span>
-                <span className="modulos-nome">{modulo.nome}</span>
-                <span className="modulos-resumo">{modulo.resumo}</span>
-                <span className="modulos-fase">{modulo.fase === 1 ? "Primeira versão" : "Em breve"}</span>
+          <ol className="ln-trilha">
+            {PASSOS.map((p, i) => (
+              <li key={p.titulo} className="a-item">
+                <b>{String(i + 1).padStart(2, "0")}</b>
+                <h3>{p.titulo}</h3>
+                <p>{p.texto}</p>
               </li>
             ))}
           </ol>
+          <div className="ln-numeros">
+            {NUMEROS.map((n) => (
+              <div key={n.rotulo} className="a-item">
+                <span className="ln-numero-valor">
+                  <span className="numero" data-valor={n.valor}>{n.valor}</span>
+                  <small>{n.sufixo}</small>
+                </span>
+                <span className="ln-numero-rotulo">{n.rotulo}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 4. Planos */}
-      <section id="planos" className="zona zona-clara" data-animacao="scale-up">
+      {/* 4. Recursos em mosaico */}
+      <section id="recursos" className="ln-secao ln-secao-colada" data-animacao="scale-up">
         <div className="container">
-          <div className="zona-cabeca">
-            <span className="rotulo a-item">008 / Planos</span>
-            <h2 className="a-item">Um plano para cada tamanho de escritório.</h2>
+          <div className="ln-cabeca">
+            <span className="ln-rotulo a-item">Recursos</span>
+            <h2 className="a-item">
+              Cada parte resolve <em>uma dor</em> do escritório.
+            </h2>
+          </div>
+          <div className="ln-bento">
+            <article className="ln-caixa ln-g4 ln-com-tela a-item">
+              <span className="ln-rotulo">Briefing visual</span>
+              <h3>O cliente não sabe explicar? Ele mostra.</h3>
+              <p>
+                Quiz de estilo com imagens, perguntas por ambiente e fotos de referência. Salva sozinho: dá para parar e
+                continuar depois. Você recebe o Perfil do Cliente em PDF, pronto para a reunião.
+              </p>
+              <div className="ln-pilulas">
+                <span>Arquitetura</span><span>Interiores por ambiente</span><span>Reforma</span><span>Perfil em PDF</span>
+              </div>
+              <img className="ln-tela-mini" src="/landing/cel-briefing.webp" alt="" width={390} height={844} loading="lazy" />
+            </article>
+            <article className="ln-caixa ln-g2 ln-ouro a-item">
+              <span className="ln-rotulo">Controle do contratado</span>
+              <h3>Revisões contadas, para os dois lados.</h3>
+              <p className="ln-grande">
+                <span className="numero" data-valor={2}>2</span>/3
+              </p>
+              <div className="ln-barra" aria-hidden="true"><span /></div>
+              <p>revisões usadas. Passou do limite? Você dá de cortesia ou gera um aditivo.</p>
+            </article>
+            <article className="ln-caixa ln-g3 a-item">
+              <span className="ln-rotulo">Pagamentos</span>
+              <h3>Receba em dia, sem constrangimento.</h3>
+              <p>
+                Vencimentos, lembretes ao cliente e Pix em cada parcela. Opcional: boleto e cartão com baixa automática,
+                direto na sua conta.
+              </p>
+              <div className="ln-pagto" aria-hidden="true">
+                <div>Entrada, na assinatura <em>Pago · Pix</em></div>
+                <div>Anteprojeto <em className="ln-aviso">Vence em 3 dias</em></div>
+              </div>
+            </article>
+            <article className="ln-caixa ln-g3 a-item">
+              <span className="ln-rotulo">Proposta e contrato</span>
+              <h3>Do briefing ao contrato, sem redigitar.</h3>
+              <p>
+                Modelos por serviço, parcelamento à escolha do cliente e aceite eletrônico. Cada resposta fica
+                registrada com data, hora e IP.
+              </p>
+              <div className="ln-pilulas">
+                <span>Versões</span><span>Desconto à vista</span><span>Aceite com data e IP</span>
+              </div>
+            </article>
+            <article className="ln-caixa ln-g6 a-item">
+              <span className="ln-rotulo">WhatsApp e a sua marca</span>
+              <h3>Seu cliente vê o seu escritório. Não a gente.</h3>
+              <p>
+                Briefing, proposta e contrato chegam por link no WhatsApp, com a mensagem pronta. Nada para instalar.
+                Nome, logo e cores são os seus, até nos e-mails; o NorteArq fica nos bastidores.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Planos e dúvidas: zona clara */}
+      <section id="planos" className="ln-clara" data-animacao="fade-up">
+        <div className="container">
+          <div className="ln-cabeca">
+            <span className="ln-rotulo a-item">Planos</span>
+            <h2 className="a-item">
+              Um plano para cada <em>tamanho de escritório.</em>
+            </h2>
             <p className="a-item">14 dias grátis em qualquer plano, sem cartão. No anual, 2 meses grátis.</p>
           </div>
           <div className="a-item">
@@ -226,15 +266,33 @@ export default function LandingPage() {
               Comparar planos e adicionais <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </p>
+
+          <div id="perguntas" className="ln-faq">
+            <div className="ln-cabeca">
+              <span className="ln-rotulo a-item">Dúvidas</span>
+              <h2 className="a-item">Perguntas frequentes.</h2>
+            </div>
+            <div className="ln-faq-lista a-item">
+              {FAQ.map((item) => (
+                <details key={item.pergunta}>
+                  <summary>{item.pergunta}</summary>
+                  <p>{item.resposta}</p>
+                </details>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* 5. Lista de espera: zona de destaque, sempre visível depois de aparecer */}
-      <section id="lista-espera" className="zona zona-escura" data-animacao="clip-reveal" data-persiste="true">
+      {/* 6. Lista de espera: sempre visível depois de aparecer */}
+      <section id="lista-espera" className="ln-chamada" data-animacao="fade-up">
+        <div className="ln-planta" aria-hidden="true" />
         <div className="container dividido">
           <div>
-            <span className="rotulo a-item">009 / Lista de espera</span>
-            <h2 className="a-item">Seja um dos primeiros escritórios no NorteArq.</h2>
+            <span className="ln-rotulo a-item">Lista de espera</span>
+            <h2 className="a-item">
+              Seja um dos primeiros escritórios no <em>NorteArq.</em>
+            </h2>
             <p className="a-item">
               Estamos construindo a primeira versão ao lado de arquitetos de verdade. Entre na lista e acompanhe de
               perto.
@@ -245,38 +303,9 @@ export default function LandingPage() {
               <li>Sem compromisso e sem cartão.</li>
             </ul>
           </div>
-          <div className="lista-cartao">
+          <div className="lista-cartao a-item">
             <ListaEspera />
           </div>
-        </div>
-      </section>
-
-      {/* 6. Perguntas frequentes */}
-      <section id="perguntas" className="zona faq" data-animacao="fade-up">
-        <div className="container estreito">
-          <span className="rotulo a-item">010 / Dúvidas</span>
-          <h2 className="a-item">Perguntas frequentes.</h2>
-          <div className="a-item">
-            {FAQ.map((item) => (
-              <details key={item.pergunta}>
-                <summary>{item.pergunta}</summary>
-                <p>{item.resposta}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Chamada final */}
-      <section className="zona zona-areia chamada-final" data-animacao="rotate-in" data-persiste="true">
-        <div className="container">
-          <p className="rotulo a-item">O norte do seu projeto</p>
-          <h2 className="a-item">
-            Menos burocracia. <em>Mais prancheta.</em>
-          </h2>
-          <Link href={linkChamada()} className="botao botao-primario botao-grande a-item">
-            {TEXTO_CHAMADA} <ArrowRight size={18} aria-hidden="true" />
-          </Link>
         </div>
       </section>
     </>
