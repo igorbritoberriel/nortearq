@@ -584,8 +584,9 @@ p { margin: 0 0 1em; }
 .opcao small { display: block; color: var(--cor-texto-suave); font-size: 0.88rem; }
 
 /* Link do escritório */
-.link-escritorio { display: grid; gap: 12px; }
-.link-escritorio code { display: block; padding: 12px 14px; background: var(--cor-fundo); border: 1px solid var(--cor-borda); border-radius: 8px; font-size: 0.95rem; overflow-wrap: anywhere; }
+.link-escritorio { display: grid; gap: 12px; min-width: 0; max-width: 100%; }
+.link-escritorio code { display: block; min-width: 0; max-width: 100%; padding: 12px 14px; background: var(--cor-fundo); border: 1px solid var(--cor-borda); border-radius: 8px; font-size: 0.95rem; white-space: normal; overflow-wrap: anywhere; word-break: break-all; user-select: all; -webkit-user-select: all; }
+.secao-config, .painel-link { min-width: 0; }
 .link-escritorio-acoes { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* Assistente de configuração inicial */

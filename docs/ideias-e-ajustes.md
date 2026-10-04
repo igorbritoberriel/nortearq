@@ -122,6 +122,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] Celular: o link do formulário do escritório (painel e Configurações) aparece inteiro, quebrando em linhas, e um
+      toque seleciona ele todo (corrigido em 04/10/2026; antes cortava).
 - [ ] E-mails: ~~teste chegou na caixa de entrada~~ (confirmado em 03/10/2026). Falta: Resend mostrar
       "Verified", testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
 - [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
