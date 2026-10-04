@@ -99,8 +99,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
-- [ ] E-mail de teste chegou na caixa de entrada (não no spam) de agenciaberrielmkt@gmail.com; Resend mostra o
-      domínio como "Verified"; testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
+- [ ] E-mails: ~~teste chegou na caixa de entrada~~ (confirmado em 03/10/2026). Falta: Resend mostrar
+      "Verified", testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
 - [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
       Adicionar à Tela de Início) e ver o ícone; ícone novo na aba do navegador.
 - [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
