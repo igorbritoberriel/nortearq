@@ -71,6 +71,15 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Piloto enxuto com a Débora** (iniciado em 03/10/2026; decisão do Igor: fazer com o que temos, 2 clientes
+      reais: o que está em andamento e o Luiz Cláudio, que começou hoje). Critério de pronto revisto:
+      1. **Teste completo pelo Igor** no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do
+         cliente com outro e-mail: pedido → proposta aprovada → contrato assinado → briefing com quiz → etapa com
+         arquivo aprovada → revisão pedida → aditivo → "Esqueci a senha"; parte no computador, parte no celular.
+         (Eu passo o roteiro clique a clique.)
+      2. Os 2 clientes reais da Débora andando sem erro que trave; atritos pelo "Relatar problema".
+      3. 7 dias sem erro grave no painel interno.
+      Cumprido: fim do piloto e início da fase dos arquitetos parceiros. A cada "retomar", olhar o painel interno.
 - [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
       para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
       (pasta arquivos/ não expira): apagar também do R2 quando excluir ou anonimizar um cliente.
