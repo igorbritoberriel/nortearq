@@ -40,11 +40,13 @@ if (!e.SEM_BANCO) {
   console.log(`banco completo: ${mb(statSync(completo).size)}`);
 
   // Só os dados que importam para refazer o sistema num projeto novo (a estrutura vem das migrações do repositório).
-  const dados = execFileSync(
-    "pg_dump",
-    [e.SUPABASE_DB_URL, "--data-only", "--no-owner", "--no-privileges", "--schema=public", "--table=auth.users", "--table=auth.identities"],
-    { maxBuffer: 1024 * 1024 * 1024 },
-  );
+  // Duas chamadas: com --table o pg_dump ignora --schema, então public e os logins saem separados e são juntados.
+  const base = [e.SUPABASE_DB_URL, "--data-only", "--no-owner", "--no-privileges"];
+  const opcoes = { maxBuffer: 1024 * 1024 * 1024 };
+  const dados = Buffer.concat([
+    execFileSync("pg_dump", [...base, "--table=auth.users", "--table=auth.identities"], opcoes),
+    execFileSync("pg_dump", [...base, "--schema=public"], opcoes),
+  ]);
   const compactado = gzipSync(dados);
   await enviar(`banco/${hoje}/dados.sql.gz`, compactado, "application/gzip");
   console.log(`dados (public + logins): ${mb(compactado.length)}`);
