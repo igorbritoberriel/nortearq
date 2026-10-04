@@ -445,6 +445,15 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 <!-- /suporte -->
 
 <!-- suporte -->
+**Asaas (assinatura do NorteArq)** (só suporte)
+- Conta de produção no CPF do Igor (agenciaberrielmkt@gmail.com). Chave na Vercel (`ASAAS_API_KEY`,
+  `ASAAS_AMBIENTE=producao`); no computador, `ASAAS_API_KEY` é a de teste e `ASAAS_API_KEY_PRODUCAO` a real.
+- Webhook: https://nortearq.com.br/api/asaas/webhook, senha em `ASAAS_WEBHOOK_TOKEN` (Vercel) e
+  `ASAAS_WEBHOOK_TOKEN_PRODUCAO` (computador). Eventos: pagamento confirmado, recebido, vencido e estornado.
+- A chave não tem permissão de saque: saques só pelo painel ou app do Asaas.
+<!-- /suporte -->
+
+<!-- suporte -->
 **Cópia de segurança** (só suporte)
 - Todo dia às 03:00 de Brasília, o GitHub Actions (`.github/workflows/backup.yml`, script `scripts/backup.mjs`)
   copia para o Cloudflare R2, balde `nortearq-backup` (conta agenciaberrielmkt@gmail.com):

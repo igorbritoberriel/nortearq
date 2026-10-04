@@ -71,6 +71,14 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] Asaas: concluir a aprovação dos documentos e da conta bancária no painel do Asaas (necessário para sacar).
+      Antes da 1ª cobrança real: testar uma assinatura de ponta a ponta (dá para usar um escritório de teste e
+      estornar).
+- [ ] **Nível 3, achado de 04/10/2026:** conta principal no CPF **não cria subcontas** no Asaas (exige CNPJ). Dois
+      caminhos: (a) sem CNPJ: o arquiteto abre a própria conta Asaas e conecta ao NorteArq com a chave dele (sem
+      permissão de saque), e cada cobrança leva o split para a carteira do NorteArq; (b) com CNPJ (ME Berriel Labs):
+      subcontas criadas pelo NorteArq, cadastro mais simples para o arquiteto. Começar por (a) e migrar para (b)
+      quando abrir a ME.
 - [ ] **Cobrança completa pela plataforma via Asaas** (depois do piloto; decisão do Igor em 04/10/2026: **opcional**.
       Níveis 1 "só controle" e 2 "Pix direto" em todos os planos, grátis; nível 3 "cobrança integrada" como diferencial
       do Profissional e do Escritório, com taxa por cobrança só para quem ativar. Transparência como as plataformas
@@ -175,6 +183,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] Asaas de produção ligado para a assinatura do NorteArq (04/10/2026): conta no CPF do Igor (agenciaberrielmkt@gmail.com; dados comerciais aprovados, documentos e conta bancária pendentes de aprovação), chave de produção sem permissão de saque, webhook criado por API (https://nortearq.com.br/api/asaas/webhook, eventos de pagamento confirmado, recebido, vencido e estornado) e testado (sem senha 401, com senha 200). Vercel com ASAAS_API_KEY, ASAAS_AMBIENTE=producao e ASAAS_WEBHOOK_TOKEN. No computador, a ASAAS_API_KEY continua a de teste (sandbox).
 - [x] Aba aberta durante uma publicação nova (04/10/2026): em vez da tela "Algo deu errado", o sistema recarrega sozinho uma vez, já na versão nova, e não registra como erro. Eram os 3 erros automáticos de 03/10 (marcados como resolvidos). Primeira cópia de segurança automática da madrugada: sucesso.
 - [x] "O pagamento não passa pelo NorteArq" explicado (04/10/2026): pergunta frequente no site, cláusula nos Termos de uso (seção 6; revisar com o advogado) e linha na Ajuda.
 - [x] Proteção do recebimento do arquiteto (04/10/2026, migração 0037): vencimento automático das parcelas novas (e "Definir vencimento" nas sem data), parcela atrasada em vermelho e total "em atraso" no painel, lembretes por e-mail ao cliente (3 dias antes, no dia, 3 dias depois) e aviso de atraso no sininho, chave Pix do escritório com "Pagar com Pix" (QR Code + copia e cola) para o cliente e "Cobrar no WhatsApp" com o Pix, cláusula de multa 2% + juros 1% a.m. no contrato padrão (modelos novos).
