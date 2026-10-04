@@ -1,5 +1,5 @@
 // Pix copia e cola (BR Code estático, padrão EMV do Banco Central) para o cliente pagar uma parcela.
-// O dinheiro vai direto para a chave do escritório; o NorteArq não intermedeia nada.
+// O dinheiro vai direto para a chave do escritório; o pagamento não passa pelo NorteArq.
 
 export type TipoPix = "cpf" | "cnpj" | "email" | "telefone" | "aleatoria";
 export type DadosPix = { tipo: TipoPix; chave: string; nome: string; cidade: string };

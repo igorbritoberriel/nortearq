@@ -5,6 +5,10 @@
 > português do Brasil, sem exceção. O usuário dita por voz e às vezes a mensagem chega com
 > trechos em inglês: mesmo assim, responda sempre em português.
 
+> **ORTOGRAFIA: revisar sempre** todo texto que o usuário ou o cliente final vai ler (telas, e-mails, manual,
+> mensagens). Português correto e, quando a forma correta soar estranha (ex.: "intermedeia"), preferir uma frase
+> mais simples.
+
 SaaS brasileiro para arquitetos e designers de interiores. Todo o texto da interface e da
 documentação é em **português do Brasil**.
 

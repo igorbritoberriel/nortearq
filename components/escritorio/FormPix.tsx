@@ -53,7 +53,7 @@ export function FormPix({
         </Campo>
       </div>
       <p className="campo-ajuda">
-        O dinheiro cai direto na sua conta: o NorteArq não intermedeia nada. Quando o cliente pagar, confira no seu banco e use
+        O dinheiro cai direto na sua conta: o pagamento não passa pelo NorteArq. Quando o cliente pagar, confira no seu banco e use
         &quot;Registrar pagamento&quot; na parcela.
       </p>
       <div className="form-rodape">

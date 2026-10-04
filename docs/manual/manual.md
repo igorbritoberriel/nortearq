@@ -311,7 +311,7 @@ O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e 
   vencimento** (uma vez; depois não muda). Parcelas de contratos antigos também podem ganhar data por esse botão.
 - **Pix do escritório** (Configurações → Recebimento por Pix): tipo e chave, nome de quem recebe e cidade. Com isso,
   cada parcela em aberto mostra **Pagar com Pix** para o cliente (QR Code e copia e cola com o valor certo). O
-  dinheiro cai direto na conta do escritório: o NorteArq não intermedeia nem fica com nada.
+  dinheiro cai direto na conta do escritório: o pagamento não passa pelo NorteArq, que não fica com nenhuma parte.
 - **Lembretes automáticos ao cliente por e-mail**: 3 dias antes, no dia e 3 dias depois do vencimento, com o Pix
   copia e cola e o link do projeto. No atraso, o escritório recebe aviso no sininho.
 - **Atrasada:** a parcela vencida aparece em vermelho para os dois lados, e o painel mostra o total **em atraso**.
