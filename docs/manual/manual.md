@@ -357,8 +357,9 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 **Arquivos**
 - Antes do botão de enviar arquivos, a opção "Os próximos arquivos ficam visíveis ao cliente" (vale para os
   arquivos enviados depois de marcar).
-- Cada arquivo tem um tipo: Prancha técnica, Render 3D, Documento ou Outro (sugerido pela extensão; imagem com
-  "planta", "layout", "corte", "humanizada" e parecidos no nome entra como Prancha técnica).
+- Cada arquivo de etapa tem um tipo: Prancha técnica, Documento ou Outro (sugerido pela extensão; imagem com
+  "planta", "layout", "corte", "humanizada" e parecidos no nome entra como Prancha técnica). Render não é tipo de
+  arquivo de etapa: tem espaço próprio (abaixo).
 - Imagens e PDFs ganham miniatura. Clicar abre o visualizador: zoom (roda do mouse, pinça, duplo toque),
   páginas do PDF, troca de revisão, **Baixar** (com o nome certo, ex.: "Planta - Rev02.pdf") e **Nova aba**.
 - DWG, SKP e outros formatos técnicos só baixam.
@@ -367,14 +368,12 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 - **O cliente só vê o que já foi enviado:** arquivo visível de uma etapa enviada para aprovação.
   Arquivo novo numa etapa em andamento ou em revisão aparece com "vai no próximo envio".
 - Arquivo só pode ser apagado enquanto a etapa não foi enviada ao cliente.
-- **Renders do projeto:** só os renders que você escolher, até 12 por projeto. Primeiro envie as imagens
-  (JPG, PNG ou WEBP, tipo Render 3D) dentro da etapa. Depois, no mural, toque em **Escolher renders** e marque
-  as que quer mostrar (ou use **Destacar** no próprio arquivo da etapa). O mural fica abaixo do link do cliente, numa linha com setas para os lados; clicar
-  abre a imagem. A estrela escolhe a **capa** (só render visível ao cliente) e o X tira do destaque (o arquivo
-  continua na etapa). Versão nova do mesmo arquivo continua em destaque.
-- **Capa:** o render escolhido na estrela ou, sem escolha, o primeiro destaque. Aparece como faixa no topo do
-  projeto e na lista de projetos. Sem render em destaque, o projeto fica sem capa.
-- **Para o cliente:** a capa e o mural ficam no topo da página dele, com os renders em destaque já enviados.
+- **Renders do projeto:** espaço próprio, abaixo do link do cliente, fora das etapas e sem aprovação. Toque em
+  **Adicionar renders** e escolha as imagens (JPG, PNG ou WEBP; até 12 por projeto). O cliente já vê e pode
+  abrir ou baixar. Ficam numa linha com setas para os lados; clicar abre a imagem. A lixeira exclui.
+- **Capa:** o render escolhido na estrela ou, sem escolha, o primeiro adicionado. Aparece como faixa no topo do
+  projeto e na lista de projetos. Sem render, o projeto fica sem capa.
+- **Para o cliente:** a capa e os renders ficam no topo da página dele.
 
 **Lembretes e revisões**
 - Etapa esperando aprovação: o cliente recebe e-mail com 3 e com 7 dias. No de 7 dias, o escritório também é
@@ -546,7 +545,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "O link não abre" / "link inválido" | O link venceu ou foi substituído por um mais novo | Na ficha do cliente, gerar o link de novo (o anterior deixa de valer) |
 | "Não recebi o e-mail" | E-mail errado no cadastro, caixa de spam, ou e-mail do sistema não configurado | Conferir o e-mail na ficha; mandar o link pelo botão do WhatsApp |
 | "Não aparece o arquivo que vocês mandaram" | A etapa ainda não foi enviada, ou o arquivo está como "interno" | Enviar a etapa para aprovação; conferir o olho (visível ao cliente) no arquivo |
-| "Não aparece o render lá em cima" (ou o arquiteto não acha onde pôr) | O render não foi escolhido para o mural, está com outro tipo (ex.: Prancha técnica), é HEIC ou a etapa ainda não foi enviada | No mural, **Escolher renders** e marcar; se não aparecer na lista, mudar o tipo do arquivo para Render 3D (ou exportar em JPG); enviar a etapa |
+| "Não aparece o render lá em cima" (ou o arquiteto não acha onde pôr) | O render foi enviado dentro de uma etapa (vira arquivo da etapa) ou está em HEIC | Em **Renders do projeto**, tocar em **Adicionar renders** e escolher a imagem em JPG, PNG ou WEBP |
 | "Não consigo convidar alguém para a equipe" | O e-mail já tem conta em outro escritório, as 5 vagas estão ocupadas, ou o plano não tem equipe | Pedir outro e-mail; cancelar convites parados; plano Escritório |
 | "O convite diz que não pode ser aceito" | A pessoa já tem escritório no NorteArq | Cancelar o convite e convidar com outro e-mail |
 | "Não consigo cadastrar o cliente" | CPF/CNPJ já usado por outro cliente do escritório | Abrir o cadastro existente (aparece no aviso) |

@@ -34,10 +34,20 @@ export type ProjetoPublico = {
   nome: string;
   revisoes_incluidas: number;
   revisoes_usadas: number;
-  // Capa do projeto (migração 0039): o render em destaque escolhido pelo arquiteto ou o primeiro destaque já enviado.
+  // Capa do projeto (migração 0040): o render escolhido pelo arquiteto ou o primeiro adicionado.
   capa?: { id: string; nome: string; caminho: string; miniatura: string | null; previa: string | null } | null;
-  // Renders em destaque (migração 0039), na ordem escolhida: etapa + nome do arquivo.
-  destaque?: { etapa_id: string; nome: string }[];
+  // Renders do projeto (migração 0040): fora das etapas, até 12, na ordem em que foram adicionados.
+  renders?: {
+    id: string;
+    nome: string;
+    versao: number;
+    caminho: string;
+    tipo: string | null;
+    tamanho: number | null;
+    criado_em: string;
+    miniatura: string | null;
+    previa: string | null;
+  }[];
   etapas: EtapaPublica[];
   // Visão do cliente dos pagamentos do contrato (migração 0015).
   pagamentos?: {

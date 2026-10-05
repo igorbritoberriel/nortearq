@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useOptimistic, useRef, useState, useTransition } from "react";
-import { Check, ChevronLeft, ChevronRight, Images, Star, X } from "lucide-react";
-import { LIMITE_DESTAQUE, chaveArquivo, type ArquivoVisivel } from "@/lib/arquivos";
+import { ChevronLeft, ChevronRight, ImagePlus, Images, Star, Trash2 } from "lucide-react";
+import { espacoDoPlano, excluirArquivo, registrarRender } from "@/app/app/(sistema)/projetos/acoes";
+import { LIMITE_RENDERS, ehImagemDeRender, formatarEspaco, type ArquivoVisivel } from "@/lib/arquivos";
+import { enviarDerivados, gerarDerivados } from "@/lib/miniaturas";
+import { TAMANHO_MAXIMO_ARQUIVO, nomeSeguro } from "@/lib/projetos";
+import { criarClienteNavegador } from "@/lib/supabase/client";
 import { useArquivos } from "./ProvedorArquivos";
 
 type Resultado = { ok: true } | { erro: string };
 
-// Capa do projeto: o render em destaque escolhido (ou o primeiro destaque). Sem capa, não mostra nada.
+// Capa do projeto: o render escolhido na estrela (ou o primeiro adicionado). Sem render, não mostra nada.
 export function CapaProjeto({ capa, lista }: { capa: ArquivoVisivel | null; lista: ArquivoVisivel[] }) {
   const { abrir } = useArquivos();
   const imagem = capa?.previa ?? capa?.url ?? capa?.miniatura;
@@ -20,43 +24,37 @@ export function CapaProjeto({ capa, lista }: { capa: ArquivoVisivel | null; list
   );
 }
 
-const miniaturaDe = (r: ArquivoVisivel) => r.miniatura ?? r.previa ?? r.url ?? null;
 const semExtensao = (nome: string) => nome.replace(/\.[^.]+$/, "");
 
-// Mural "Renders do projeto": só os renders em destaque (até 12), numa linha com setas; clicar abre a imagem.
-// No sistema do arquiteto (com alternarDestaque): "Escolher renders" abre a lista das imagens Render 3D do
-// projeto para marcar e desmarcar; a estrela escolhe a capa e o X tira do destaque.
+// Renders do projeto (migração 0040): espaço próprio, fora das etapas e sem aprovação. Até 12 imagens numa linha
+// com setas; clicar abre no visualizador (com Baixar). No sistema do arquiteto (com projetoId): Adicionar renders,
+// estrela = capa, lixeira = excluir.
 export function GaleriaRenders({
   renders,
   capaId,
   escolhidaId,
   definirCapa,
-  candidatos = [],
-  alternarDestaque,
+  projetoId,
 }: {
   renders: ArquivoVisivel[];
   capaId: string | null;
   escolhidaId?: string | null;
   definirCapa?: (arquivoId: string | null) => Promise<Resultado>;
-  candidatos?: ArquivoVisivel[]; // todas as imagens Render 3D do projeto (versão mais recente de cada)
-  alternarDestaque?: (arquivoId: string, destacar: boolean) => Promise<Resultado>;
+  projetoId?: string;
 }) {
   const { abrir } = useArquivos();
-  const arquiteto = !!alternarDestaque;
+  const arquiteto = !!projetoId;
   const [pendente, iniciar] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
-  const [escolhendo, setEscolhendo] = useState(false);
+  const [progresso, setProgresso] = useState<string | null>(null);
   const [escolhida, escolher] = useOptimistic(escolhidaId ?? null, (_: string | null, novo: string | null) => novo);
-  // Destaques na hora (voltam sozinhos se o servidor recusar): chaves etapa + nome, na ordem.
-  const [chaves, mudarChaves] = useOptimistic(renders.map(chaveArquivo), (atual: string[], m: { chave: string; destacar: boolean }) =>
-    m.destacar ? [...atual.filter((c) => c !== m.chave), m.chave] : atual.filter((c) => c !== m.chave),
-  );
+  const [excluidos, excluir] = useOptimistic<string[], string>([], (lista, id) => [...lista, id]);
   const trilho = useRef<HTMLUListElement>(null);
+  const seletor = useRef<HTMLInputElement>(null);
   const [setas, setSetas] = useState({ voltar: false, avancar: false });
 
-  const porChave = new Map([...candidatos, ...renders].map((r) => [chaveArquivo(r), r]));
-  const lista = chaves.map((c) => porChave.get(c)).filter((r): r is ArquivoVisivel => !!r);
-  const cheio = lista.length >= LIMITE_DESTAQUE;
+  const lista = renders.filter((r) => !excluidos.includes(r.id));
+  const restante = LIMITE_RENDERS - lista.length;
 
   const medir = useCallback(() => {
     const el = trilho.current;
@@ -75,20 +73,66 @@ export function GaleriaRenders({
     el.scrollBy({ left: direcao * el.clientWidth * 0.9, behavior: "smooth" });
   }
 
-  function alternar(r: ArquivoVisivel, destacar: boolean) {
-    if (!alternarDestaque) return;
+  // Para cada imagem: confere o espaço do plano, gera miniatura e prévia no navegador, sobe e registra.
+  async function adicionar(arquivos: FileList | null) {
+    const supabase = criarClienteNavegador();
+    if (!projetoId || !arquivos?.length || !supabase) return;
     setErro(null);
-    iniciar(async () => {
-      mudarChaves({ chave: chaveArquivo(r), destacar });
-      const res = await alternarDestaque(r.id, destacar);
-      if ("erro" in res) setErro(res.erro);
-    });
+    let todos = Array.from(arquivos);
+    const recusados = todos.filter((a) => !ehImagemDeRender(a.name, a.type));
+    todos = todos.filter((a) => ehImagemDeRender(a.name, a.type));
+    const avisos: string[] = [];
+    if (recusados.length) avisos.push(`${recusados.map((a) => a.name).join(", ")}: render precisa ser imagem JPG, PNG ou WEBP.`);
+    if (todos.length > restante) {
+      avisos.push(`O limite é de ${LIMITE_RENDERS} renders: ${todos.length - restante} ${todos.length - restante === 1 ? "imagem ficou" : "imagens ficaram"} de fora.`);
+      todos = todos.slice(0, Math.max(restante, 0));
+    }
+    const espaco = await espacoDoPlano();
+    let usado = espaco?.usado ?? 0;
+    for (const [i, arquivo] of todos.entries()) {
+      if (arquivo.size > TAMANHO_MAXIMO_ARQUIVO) {
+        avisos.push(`${arquivo.name}: acima de 50 MB.`);
+        continue;
+      }
+      if (espaco && usado + arquivo.size > espaco.limite) {
+        avisos.push(`O espaço do seu plano acabou (${formatarEspaco(usado)} de ${formatarEspaco(espaco.limite)}).`);
+        break;
+      }
+      const passo = `${i + 1} de ${todos.length}: ${arquivo.name}`;
+      setProgresso(`Preparando ${passo}`);
+      const derivados = await gerarDerivados(arquivo, arquivo.name);
+      setProgresso(`Enviando ${passo}`);
+      const caminho = `${projetoId}/renders/${crypto.randomUUID()}-${nomeSeguro(arquivo.name)}`;
+      const { error } = await supabase.storage.from("projetos").upload(caminho, arquivo, { contentType: arquivo.type || "image/jpeg" });
+      if (error) {
+        avisos.push(`${arquivo.name}: não foi possível enviar (${error.message}).`);
+        continue;
+      }
+      const extras = derivados ? await enviarDerivados(supabase.storage, caminho, derivados) : null;
+      const r = await registrarRender(projetoId, {
+        nome: arquivo.name,
+        caminho,
+        tamanho: arquivo.size,
+        tipo: arquivo.type,
+        miniatura: extras?.miniatura ?? null,
+        previa: extras?.previa ?? null,
+        derivadosBytes: extras?.bytes ?? 0,
+      });
+      if ("erro" in r) {
+        avisos.push(`${arquivo.name}: ${r.erro}`);
+        if (r.erro.includes("12 renders") || r.erro.includes("espaço")) break;
+      } else {
+        usado += arquivo.size + (extras?.bytes ?? 0);
+      }
+    }
+    setProgresso(null);
+    if (avisos.length) setErro(avisos.join(" "));
+    if (seletor.current) seletor.current.value = "";
   }
 
-  // Cliente sem destaque: a seção não aparece.
   if (!arquiteto && lista.length === 0) return null;
 
-  const capaAtual = definirCapa ? (escolhida && lista.some((r) => r.id === escolhida) ? escolhida : capaId) : capaId;
+  const capaAtual = escolhida && lista.some((r) => r.id === escolhida) ? escolhida : (capaId ?? lista[0]?.id ?? null);
 
   return (
     <section className="cartao galeria-renders" aria-labelledby="renders-titulo">
@@ -98,78 +142,43 @@ export function GaleriaRenders({
           <small className="muted">
             {" "}
             · {lista.length}
-            {arquiteto ? ` de ${LIMITE_DESTAQUE}` : ""}
+            {arquiteto ? ` de ${LIMITE_RENDERS}` : ""}
           </small>
         </h2>
-        {arquiteto && candidatos.length > 0 && (
-          <button
-            type="button"
-            className={`botao ${escolhendo ? "botao-primario" : "botao-secundario"} botao-pequeno`}
-            aria-expanded={escolhendo}
-            onClick={() => setEscolhendo((v) => !v)}
-          >
-            {escolhendo ? <Check size={16} aria-hidden="true" /> : <Images size={16} aria-hidden="true" />}
-            {escolhendo ? "Pronto" : "Escolher renders"}
-          </button>
+        {arquiteto && (
+          <label className={`botao botao-secundario botao-pequeno ${restante <= 0 || progresso ? "desabilitado" : ""}`}>
+            <ImagePlus size={16} aria-hidden="true" />
+            {progresso ? "Enviando..." : "Adicionar renders"}
+            <input
+              ref={seletor}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              hidden
+              disabled={restante <= 0 || !!progresso}
+              onChange={(e) => adicionar(e.target.files)}
+            />
+          </label>
         )}
       </div>
 
-      {arquiteto && candidatos.length === 0 && (
+      {arquiteto && lista.length === 0 && !progresso && (
         <p className="campo-ajuda">
-          Envie os renders em imagem (JPG, PNG ou WEBP) dentro da etapa, com o tipo <strong>Render 3D</strong>. Depois, toque em{" "}
-          <strong>Escolher renders</strong> aqui para decidir quais aparecem para você e no topo da página do cliente (até{" "}
-          {LIMITE_DESTAQUE}).
+          Adicione até {LIMITE_RENDERS} imagens (JPG, PNG ou WEBP). O cliente já vê e pode baixar, sem precisar aprovar. O primeiro render
+          vira a capa do projeto.
         </p>
       )}
-      {arquiteto && candidatos.length > 0 && lista.length === 0 && !escolhendo && (
+      {arquiteto && lista.length > 0 && (
         <p className="campo-ajuda">
-          Nenhum render escolhido ainda. Toque em <strong>Escolher renders</strong> para marcar até {LIMITE_DESTAQUE}; o primeiro vira a capa do
-          projeto.
+          O cliente vê e pode baixar. A estrela escolhe a capa do projeto; a lixeira exclui.
+          {restante <= 0 ? ` Limite de ${LIMITE_RENDERS} atingido: exclua um para adicionar outro.` : ""}
         </p>
       )}
+      {progresso && <p className="campo-ajuda" role="status">{progresso}</p>}
       {erro && (
         <p className="campo-erro" role="alert">
           {erro}
         </p>
-      )}
-
-      {/* Seletor: todas as imagens Render 3D do projeto; tocar marca ou desmarca. */}
-      {arquiteto && escolhendo && (
-        <div className="renders-escolher">
-          <p className="campo-ajuda">
-            Toque para marcar ou desmarcar. {cheio ? `Já são ${LIMITE_DESTAQUE}: desmarque um para escolher outro.` : `Até ${LIMITE_DESTAQUE} renders.`}
-          </p>
-          <ul>
-            {candidatos.map((r) => {
-              const marcado = chaves.includes(chaveArquivo(r));
-              const imagem = miniaturaDe(r);
-              return (
-                <li key={r.id}>
-                  <button
-                    type="button"
-                    className={`render-opcao ${marcado ? "marcado" : ""}`}
-                    aria-pressed={marcado}
-                    disabled={pendente || (!marcado && cheio)}
-                    onClick={() => alternar(r, !marcado)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    {imagem && <img src={imagem} alt="" loading="lazy" draggable={false} />}
-                    <span className="render-opcao-marca" aria-hidden="true">
-                      {marcado && <Check size={16} />}
-                    </span>
-                    <span className="render-opcao-nome">
-                      {semExtensao(r.nome)}
-                      <small>
-                        {r.etapa}
-                        {r.visivel === false ? " · interno" : ""}
-                      </small>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
       )}
 
       {lista.length > 0 && (
@@ -177,7 +186,7 @@ export function GaleriaRenders({
           <ul className="renders" ref={trilho} onScroll={medir}>
             {lista.map((r) => {
               const ehCapa = r.id === capaAtual;
-              const imagem = miniaturaDe(r);
+              const imagem = r.miniatura ?? r.previa ?? r.url;
               return (
                 <li key={r.id} className="render">
                   <button type="button" className="render-abrir" onClick={() => abrir(r.id, lista)} aria-label={`Ampliar ${r.nome}`}>
@@ -185,10 +194,8 @@ export function GaleriaRenders({
                     {imagem && <img src={imagem} alt="" loading="lazy" draggable={false} />}
                     <span className="render-legenda">
                       <strong>{semExtensao(r.nome)}</strong>
-                      <small>{r.etapa}</small>
                     </span>
                     {ehCapa && <span className="render-capa">Capa</span>}
-                    {r.visivel === false && <span className="render-interno">Interno</span>}
                   </button>
                   {arquiteto && (
                     <span className="render-botoes">
@@ -196,16 +203,10 @@ export function GaleriaRenders({
                         <button
                           type="button"
                           className={`render-estrela ${escolhida === r.id ? "ativa" : ""}`}
-                          disabled={pendente || (r.visivel === false && escolhida !== r.id)}
+                          disabled={pendente}
                           aria-pressed={escolhida === r.id}
                           aria-label={escolhida === r.id ? `Tirar ${r.nome} da capa` : `Usar ${r.nome} como capa`}
-                          title={
-                            escolhida === r.id
-                              ? "Capa escolhida (toque para tirar)"
-                              : r.visivel === false
-                                ? "Interno: deixe visível ao cliente para usar como capa"
-                                : "Usar como capa"
-                          }
+                          title={escolhida === r.id ? "Capa escolhida (toque para tirar)" : "Usar como capa"}
                           onClick={() => {
                             const novo = escolhida === r.id ? null : r.id;
                             setErro(null);
@@ -223,11 +224,19 @@ export function GaleriaRenders({
                         type="button"
                         className="render-estrela"
                         disabled={pendente}
-                        aria-label={`Tirar ${r.nome} do destaque`}
-                        title="Tirar do mural (o arquivo continua na etapa)"
-                        onClick={() => alternar(r, false)}
+                        aria-label={`Excluir ${r.nome}`}
+                        title="Excluir render"
+                        onClick={() => {
+                          if (!confirm(`Excluir o render "${semExtensao(r.nome)}"? O cliente deixa de ver.`)) return;
+                          setErro(null);
+                          iniciar(async () => {
+                            excluir(r.id);
+                            const res = await excluirArquivo(projetoId!, r.id);
+                            if ("erro" in res) setErro(res.erro);
+                          });
+                        }}
                       >
-                        <X size={18} aria-hidden="true" />
+                        <Trash2 size={17} aria-hidden="true" />
                       </button>
                     </span>
                   )}

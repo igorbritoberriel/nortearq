@@ -1,7 +1,7 @@
 "use client";
 
 import { useOptimistic, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FilePlus, FileUp, Gift, Pencil, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Check, Eye, EyeOff, FilePlus, FileUp, Gift, Pencil, Trash2, X } from "lucide-react";
 import { Confirmar } from "@/components/Confirmar";
 import { Aviso } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -9,7 +9,6 @@ import { CartaoArquivo } from "@/components/arquivos/CartaoArquivo";
 import {
   alternarVisibilidade,
   concederCortesia,
-  destacarRender,
   enviarEtapa,
   espacoDoPlano,
   excluirArquivo,
@@ -18,16 +17,7 @@ import {
   registrarArquivo,
   renomearEtapa,
 } from "@/app/app/(sistema)/projetos/acoes";
-import {
-  CATEGORIAS,
-  LIMITE_DESTAQUE,
-  chaveArquivo,
-  formatarEspaco,
-  podeSerDestaque,
-  sugerirCategoria,
-  type ArquivoVisivel,
-  type Categoria,
-} from "@/lib/arquivos";
+import { CATEGORIAS, CATEGORIAS_ETAPA, formatarEspaco, sugerirCategoria, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
 import { enviarDerivados, gerarDerivados } from "@/lib/miniaturas";
 import { STATUS_ETAPA, TAMANHO_MAXIMO_ARQUIVO, nomeSeguro, rotuloVersao, versoesAtuais, type StatusEtapa } from "@/lib/projetos";
 import { criarClienteNavegador } from "@/lib/supabase/client";
@@ -59,8 +49,6 @@ export function EtapaArquiteto({
   historico,
   cliente,
   podeCobrar = true,
-  destaques = [],
-  limiteDestaque = false,
 }: {
   projetoId: string;
   etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
@@ -68,8 +56,6 @@ export function EtapaArquiteto({
   historico: DecisaoArquiteto[];
   cliente: { nome: string; telefone: string | null; escritorio: string };
   podeCobrar?: boolean; // dono ou administrador (lib/permissoes.ts)
-  destaques?: string[]; // chaves (etapa + nome) dos renders no mural "Renders do projeto"
-  limiteDestaque?: boolean; // já são 12 em destaque
 }) {
   const [pendente, iniciar] = useTransition();
   const ordem = useOrdemEtapas();
@@ -197,35 +183,12 @@ export function EtapaArquiteto({
               executar(() => mudarCategoria(projetoId, a.id, categoria), { tipo: "categoria", id: a.id, categoria });
             }}
           >
-            {(Object.keys(CATEGORIAS) as Categoria[]).map((c) => (
+            {CATEGORIAS_ETAPA.map((c) => (
               <option key={c} value={c}>
                 {CATEGORIAS[c]}
               </option>
             ))}
           </select>
-          {podeSerDestaque(a) &&
-            (() => {
-              const destacado = destaques.includes(chaveArquivo(a));
-              return (
-                <button
-                  type="button"
-                  className={`botao-destacar ${destacado ? "ativo" : ""}`}
-                  disabled={pendente || (!destacado && limiteDestaque)}
-                  aria-pressed={destacado}
-                  title={
-                    destacado
-                      ? "Aparece em Renders do projeto e na página do cliente (toque para tirar)"
-                      : limiteDestaque
-                        ? `Limite de ${LIMITE_DESTAQUE} renders em destaque: tire um para destacar este`
-                        : "Mostrar em Renders do projeto e no topo da página do cliente"
-                  }
-                  onClick={() => executar(() => destacarRender(projetoId, a.id, !destacado))}
-                >
-                  <Sparkles size={14} aria-hidden="true" />
-                  {destacado ? "Em destaque" : "Destacar"}
-                </button>
-              );
-            })()}
           <button
             type="button"
             className="botao-icone"

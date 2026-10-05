@@ -74,9 +74,9 @@ function erroArquivo(mensagem: string) {
   if (mensagem.includes("etapa_fechada")) return "Esta etapa já foi aprovada. Mudanças viram aditivo.";
   if (mensagem.includes("espaco_esgotado")) return "O espaço do seu plano acabou. Apague arquivos que não usa ou mude de plano.";
   if (mensagem.includes("assinatura_pendente")) return "Sua assinatura está pendente: o sistema está só para consulta.";
-  if (mensagem.includes("capa_invalida")) return "Só um render em destaque e visível ao cliente pode ser a capa.";
-  if (mensagem.includes("limite_destaque")) return "Já são 12 renders em destaque. Tire um para destacar outro.";
-  if (mensagem.includes("destaque_invalido")) return "Só imagens do tipo Render 3D podem ficar em destaque.";
+  if (mensagem.includes("capa_invalida")) return "Só um render do projeto pode ser a capa.";
+  if (mensagem.includes("limite_renders")) return "O projeto já tem 12 renders. Exclua um para adicionar outro.";
+  if (mensagem.includes("render_nao_imagem")) return "Render precisa ser imagem JPG, PNG ou WEBP.";
   return "Não foi possível salvar. Tente de novo.";
 }
 
@@ -122,13 +122,31 @@ export async function definirCapa(projetoId: string, arquivoId: string | null): 
   return { ok: true };
 }
 
-// Mural "Renders do projeto": o arquiteto escolhe quais renders aparecem (até 12).
-export async function destacarRender(projetoId: string, arquivoId: string, destacar: boolean): Promise<Resultado> {
+// Renders do projeto (migração 0040): o navegador sobe a imagem (e a miniatura) e aqui registra. Até 12,
+// sem etapa e sem aprovação: o cliente já vê e baixa. Excluir usa excluirArquivo.
+export async function registrarRender(
+  projetoId: string,
+  arquivo: { nome: string; caminho: string; tamanho: number; tipo: string; miniatura: string | null; previa: string | null; derivadosBytes: number },
+): Promise<Resultado> {
   const ctx = await contexto();
-  if (!ctx || !UUID.test(projetoId) || !UUID.test(arquivoId)) return { erro: "Arquivo não encontrado." };
-  const { error } = await ctx.supabase.rpc("destacar_render", { p_projeto: projetoId, p_arquivo: arquivoId, p_destacar: destacar });
+  if (!ctx || !UUID.test(projetoId)) return { erro: "Projeto não encontrado." };
+  if (arquivo.tamanho > TAMANHO_MAXIMO_ARQUIVO) return { erro: "Arquivo acima de 50 MB." };
+  const { error } = await ctx.supabase.rpc("registrar_render", {
+    p_projeto: projetoId,
+    p_nome: arquivo.nome,
+    p_caminho: arquivo.caminho,
+    p_tamanho: arquivo.tamanho,
+    p_tipo: arquivo.tipo,
+    p_miniatura: arquivo.miniatura,
+    p_previa: arquivo.previa,
+    p_derivados_bytes: arquivo.derivadosBytes,
+  });
   if (error) {
-    console.error("[projeto] destaque", error.message);
+    console.error("[projeto] render", error.message);
+    // Não ficou registrado: tira do Storage o que o navegador subiu.
+    await ctx.supabase.storage
+      .from("projetos")
+      .remove([arquivo.caminho, arquivo.miniatura, arquivo.previa].filter((c): c is string => !!c));
     return { erro: erroArquivo(error.message) };
   }
   atualizar(projetoId);

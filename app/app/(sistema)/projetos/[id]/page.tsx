@@ -16,20 +16,10 @@ import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritorio";
 import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
-import {
-  LIMITE_DESTAQUE,
-  assinarCaminhos,
-  chaveArquivo,
-  formatarEspaco,
-  formatoDe,
-  podeSerDestaque,
-  rendersEmDestaque,
-  type ArquivoVisivel,
-  type Categoria,
-} from "@/lib/arquivos";
+import { ETAPA_RENDERS, assinarCaminhos, formatarEspaco, formatoDe, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
 import type { StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { baixarArquivo, definirCapa, destacarRender, linkDoProjeto } from "../acoes";
+import { baixarArquivo, definirCapa, linkDoProjeto } from "../acoes";
 
 export const metadata: Metadata = { title: "Projeto" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -54,7 +44,7 @@ export default async function ProjetoPage({
 
   const { data: projeto } = await supabase
     .from("projetos")
-    .select("id, nome, contrato_id, capa_arquivo_id, renders_destaque, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
+    .select("id, nome, contrato_id, capa_arquivo_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
     .eq("id", id)
     .maybeSingle();
   if (!projeto) notFound();
@@ -115,19 +105,27 @@ export default async function ProjetoPage({
       };
     });
 
-  // Mural: só os renders destacados pelo arquiteto (versão mais recente de cada um, na ordem do destaque).
-  const porId = new Map(todos.map((a) => [a.id, a]));
-  const chavesDestaque = ((projeto.renders_destaque ?? []) as string[])
-    .map((d) => porId.get(d))
-    .filter((a): a is ArquivoVisivel => !!a)
-    .map(chaveArquivo);
-  const destaques = rendersEmDestaque(todos, chavesDestaque);
-  // Para o seletor "Escolher renders": toda imagem Render 3D do projeto (versão mais recente de cada).
-  const candidatos = rendersEmDestaque(todos, [...new Set(todos.filter(podeSerDestaque).map(chaveArquivo))]);
-  // Capa: o destaque escolhido na estrela (se visível) ou o primeiro destaque visível. Sem destaque, sem capa.
-  const escolhido = projeto.capa_arquivo_id ? porId.get(projeto.capa_arquivo_id) : undefined;
-  const escolhidaAtual = escolhido ? destaques.find((d) => chaveArquivo(d) === chaveArquivo(escolhido)) : undefined;
-  const capa = (escolhidaAtual?.visivel ? escolhidaAtual : undefined) ?? destaques.find((d) => d.visivel) ?? null;
+  // Renders do projeto (migração 0040): sem etapa, sempre visíveis ao cliente, na ordem em que foram adicionados.
+  const renders: ArquivoVisivel[] = arquivos
+    .filter((a) => !a.etapa_id && a.categoria === "render")
+    .map((a) => ({
+      id: a.id,
+      nome: a.nome,
+      versao: a.versao,
+      tipo: a.tipo,
+      tamanho: a.tamanho_bytes,
+      criado_em: a.criado_em,
+      categoria: "render" as Categoria,
+      etapa_id: ETAPA_RENDERS,
+      etapa: "Renders do projeto",
+      url: urls[a.caminho_storage] ?? null,
+      miniatura: a.miniatura_caminho ? (urls[a.miniatura_caminho] ?? null) : null,
+      previa: a.previa_caminho ? (urls[a.previa_caminho] ?? null) : null,
+      visivel: true,
+      enviado: true,
+    }));
+  // Capa: o render escolhido na estrela ou o primeiro adicionado. Sem render, sem capa.
+  const capa = renders.find((r) => r.id === projeto.capa_arquivo_id) ?? renders[0] ?? null;
 
   // Arquivos antigos sem miniatura (imagem e PDF): o navegador gera uma vez, em segundo plano.
   const dezMinutos = Date.now() - 10 * 60 * 1000;
@@ -181,7 +179,7 @@ export default async function ProjetoPage({
   const passou = revisoesUsadas > projeto.revisoes_incluidas;
 
   return (
-    <ProvedorArquivos todos={todos} baixar={baixarArquivo.bind(null, id)}>
+    <ProvedorArquivos todos={[...todos, ...renders]} baixar={baixarArquivo.bind(null, id)}>
     <div className="pagina-app pagina-larga">
       <MiniaturasPendentes projetoId={id} pendentes={pendentes} />
       <Link href="/app/projetos" className="voltar">
@@ -189,7 +187,7 @@ export default async function ProjetoPage({
         Projetos
       </Link>
       <div className={`titulo-com-acao projeto-cabecalho ${capa ? "com-capa" : ""}`}>
-        <CapaProjeto capa={capa} lista={destaques} />
+        <CapaProjeto capa={capa} lista={renders} />
         <div>
           <h1>{projeto.nome}</h1>
           <p className="muted ficha-contato">
@@ -266,15 +264,13 @@ export default async function ProjetoPage({
         />
       </section>
 
-      {/* Abaixo do link do cliente, numa linha só: os renders escolhidos (o arquivo continua na etapa) e a capa.
-          "Escolher renders" marca e desmarca; o botão Destacar no arquivo da etapa faz o mesmo. */}
+      {/* Abaixo do link do cliente: renders do projeto (fora das etapas, sem aprovação), numa linha com setas. */}
       <GaleriaRenders
-        renders={destaques}
+        renders={renders}
         capaId={capa?.id ?? null}
-        escolhidaId={escolhidaAtual?.id ?? null}
+        escolhidaId={renders.some((r) => r.id === projeto.capa_arquivo_id) ? projeto.capa_arquivo_id : null}
         definirCapa={definirCapa.bind(null, id)}
-        candidatos={candidatos}
-        alternarDestaque={destacarRender.bind(null, id)}
+        projetoId={id}
       />
 
       <ListaEtapas
@@ -288,8 +284,6 @@ export default async function ProjetoPage({
               etapa={e}
               arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
-              destaques={destaques.map(chaveArquivo)}
-              limiteDestaque={destaques.length >= LIMITE_DESTAQUE}
               podeCobrar={pode(sessao.membro.papel, "gerir_aditivos")}
               cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
             />
