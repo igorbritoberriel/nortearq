@@ -264,6 +264,16 @@ export default async function ProjetoPage({
         />
       </section>
 
+      {/* Abaixo do link do cliente, numa linha só: os renders escolhidos (o arquivo continua na etapa) e a capa. */}
+      <GaleriaRenders
+        renders={destaques}
+        capaId={capa?.id ?? null}
+        escolhidaId={escolhidaAtual?.id ?? null}
+        definirCapa={definirCapa.bind(null, id)}
+        tirarDestaque={tirarDoDestaque.bind(null, id)}
+        dica={todos.some(podeSerDestaque)}
+      />
+
       <ListaEtapas
         projetoId={id}
         itens={etapas.map((e) => ({
@@ -284,16 +294,6 @@ export default async function ProjetoPage({
         }))}
       />
       <NovaEtapa projetoId={id} />
-
-      {/* Depois das etapas: cada render nasce e é aprovado na sua etapa; aqui ficam os escolhidos e a capa. */}
-      <GaleriaRenders
-        renders={destaques}
-        capaId={capa?.id ?? null}
-        escolhidaId={escolhidaAtual?.id ?? null}
-        definirCapa={definirCapa.bind(null, id)}
-        tirarDestaque={tirarDoDestaque.bind(null, id)}
-        dica={todos.some(podeSerDestaque)}
-      />
 
       {verValores && (
       <Aditivos

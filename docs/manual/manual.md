@@ -368,7 +368,7 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
   Arquivo novo numa etapa em andamento ou em revisão aparece com "vai no próximo envio".
 - Arquivo só pode ser apagado enquanto a etapa não foi enviada ao cliente.
 - **Renders do projeto:** só os renders que você escolher. No arquivo (tipo Render 3D, em imagem), toque em
-  **Destacar**: até 12 por projeto. O mural fica abaixo das etapas, numa linha com setas para os lados; clicar
+  **Destacar**: até 12 por projeto. O mural fica abaixo do link do cliente, numa linha com setas para os lados; clicar
   abre a imagem. A estrela escolhe a **capa** (só render visível ao cliente) e o X tira do destaque (o arquivo
   continua na etapa). Versão nova do mesmo arquivo continua em destaque.
 - **Capa:** o render escolhido na estrela ou, sem escolha, o primeiro destaque. Aparece como faixa no topo do
