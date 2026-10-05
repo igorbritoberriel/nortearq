@@ -3,7 +3,7 @@
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { confirmarSenha } from "@/lib/confirmar-senha";
-import { cifrar, criarWebhook, decifrar, hashToken, removerWebhook, validarConta } from "@/lib/cobranca";
+import { cifrar, criarWebhook, decifrar, hashToken, removerWebhook, siteEmProducao, validarConta } from "@/lib/cobranca";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import type { EstadoFormulario } from "@/lib/formulario";
 import { pode } from "@/lib/permissoes";
@@ -36,6 +36,16 @@ export async function ativarCobranca(_anterior: EstadoFormulario, formData: Form
       status: "erro",
       mensagem: m === "chave_invalida" ? "Essa não parece uma chave de API do Asaas." : `O Asaas não aceitou a chave: ${m}`,
       erros: { chave: "Não aceita pelo Asaas." },
+      valores,
+    };
+  }
+
+  if (siteEmProducao() && conta.ambiente === "teste") {
+    return {
+      status: "erro",
+      mensagem:
+        "Essa chave é do ambiente de testes do Asaas (sandbox.asaas.com), onde nenhum pagamento é real. Entre na sua conta em www.asaas.com, vá em Integrações > Chaves de API, gere uma chave (ela começa com $aact_prod) e cole aqui.",
+      erros: { chave: "Chave do ambiente de testes." },
       valores,
     };
   }

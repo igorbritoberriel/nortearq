@@ -17,6 +17,7 @@ export function FormCobranca({
   aceiteEm,
   souDono,
   linkAsaas,
+  siteEmProducao = false,
 }: {
   ativa: boolean;
   conta: string | null;
@@ -24,6 +25,7 @@ export function FormCobranca({
   aceiteEm: string | null;
   souDono: boolean;
   linkAsaas: string;
+  siteEmProducao?: boolean; // site de verdade: conta de teste não gera cobrança
 }) {
   const [estado, enviar, enviando] = useActionState(ativarCobranca, inicial);
   const erro = estado.erros ?? {};
@@ -35,6 +37,26 @@ export function FormCobranca({
           <ShieldCheck size={18} aria-hidden="true" /> Ativa na conta <strong>{conta}</strong>
           {ambiente === "teste" && <span className="selo-status"> conta de teste</span>}
         </p>
+        {ambiente === "teste" && siteEmProducao && (
+          <div className="cobranca-aviso-teste" role="note">
+            <p>
+              <strong>Esta conta é do ambiente de testes do Asaas</strong> (sandbox.asaas.com): nenhum pagamento é real, e por isso
+              o sistema não gera cobrança para os seus clientes. Até trocar, eles continuam vendo o Pix cadastrado acima.
+            </p>
+            <p>Para cobrar de verdade:</p>
+            <ol>
+              <li>
+                Entre na sua conta em <strong>www.asaas.com</strong> (a conta real, já aprovada pelo Asaas).
+              </li>
+              <li>
+                Vá em <strong>Integrações &gt; Chaves de API</strong> e gere uma chave. A chave real começa com <code>$aact_prod</code>.
+              </li>
+              <li>
+                Aqui, toque em <strong>Desativar cobrança automática</strong> e depois conecte de novo com a chave nova.
+              </li>
+            </ol>
+          </div>
+        )}
         <p className="muted">
           Cada parcela vira uma cobrança na sua conta Asaas: o cliente paga por Pix, boleto ou cartão e o NorteArq registra o
           pagamento sozinho, com recibo. Taxa de serviço aceita em {aceiteEm ? new Date(aceiteEm).toLocaleDateString("pt-BR") : "—"}.

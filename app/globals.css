@@ -675,6 +675,10 @@ p { margin: 0 0 1em; }
 .selo-fora_do_perfil { background: #f9e5e3; color: var(--cor-erro); }
 .selo-a_avaliar, .selo-novo-status { background: #fbf0dc; color: #8a5a00; }
 .selo-convertido { background: #e8eef6; color: var(--cor-norte); }
+.cobranca-aviso-teste { margin: 10px 0 14px; padding: 12px 14px; border-radius: 8px; background: #fbf0dc; color: #6b4600; font-size: 0.92rem; }
+.cobranca-aviso-teste p { margin: 0 0 6px; }
+.cobranca-aviso-teste ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.cobranca-aviso-teste code { font-size: 0.85em; background: rgba(0, 0, 0, 0.06); padding: 1px 5px; border-radius: 4px; }
 .contato-alerta { display: flex; align-items: center; gap: 8px; margin: 0; padding: 8px 12px; border-radius: 8px; background: #fbf0dc; color: #8a5a00; font-size: 0.9rem; }
 .contrato-pendencias { display: grid; gap: 4px; margin: 0 0 16px; }
 .contrato-pendencias p { margin: 0; }

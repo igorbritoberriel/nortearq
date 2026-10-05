@@ -542,6 +542,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 
 | O cliente diz | Causa provável | O que fazer |
 |---|---|---|
+| Cobrança automática mostra "conta de teste" | A chave colada é do ambiente de testes do Asaas (sandbox.asaas.com, começa com $aact_hmlg); o site não gera cobrança com ela | Na conta real (www.asaas.com), Integrações > Chaves de API, gerar a chave ($aact_prod); em Configurações, desativar e conectar de novo |
 | "Não consigo salvar o Pix" em Configurações | Só o dono do escritório muda a chave Pix (administrador e colaborador não) | Entrar com o login do dono; nome até 25 letras e cidade até 15 |
 | "O link não abre" / "link inválido" | O link venceu ou foi substituído por um mais novo | Na ficha do cliente, gerar o link de novo (o anterior deixa de valer) |
 | "Não recebi o e-mail" | E-mail errado no cadastro, caixa de spam, ou e-mail do sistema não configurado | Conferir o e-mail na ficha; mandar o link pelo botão do WhatsApp |

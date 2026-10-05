@@ -12,6 +12,8 @@ const URL_PRODUCAO = "https://api.asaas.com/v3";
 const URL_TESTE = "https://api-sandbox.asaas.com/v3";
 
 export type Ambiente = "producao" | "teste";
+// O site de verdade (Vercel) não aceita conta do ambiente de testes do Asaas: o cliente veria uma página de mentira.
+export const siteEmProducao = () => process.env.ASAAS_AMBIENTE === "producao";
 export const ambienteDaChave = (chave: string): Ambiente | null =>
   chave.startsWith("$aact_prod") ? "producao" : chave.startsWith("$aact_hmlg") ? "teste" : null;
 
@@ -132,6 +134,9 @@ export async function gerarCobranca(
 
   try {
     const chave = decifrar(cred.chave_cifrada as string);
+    if (siteEmProducao() && ambienteDaChave(chave) === "teste") {
+      return { erro: "A conta Asaas conectada é do ambiente de testes: conecte a chave da sua conta real em Configurações." };
+    }
     const clienteAsaas = await garantirCliente(chave, cliente);
     const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
     const vencimento = p.vencimento && (p.vencimento as string) >= hoje ? (p.vencimento as string) : hoje;

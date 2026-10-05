@@ -145,6 +145,7 @@ export default async function ConfiguracoesPage() {
             aceiteEm={escritorio.cobranca_aceite_em}
             souDono={dono}
             linkAsaas={process.env.NEXT_PUBLIC_ASAAS_INDICACAO || "https://www.asaas.com/"}
+            siteEmProducao={process.env.ASAAS_AMBIENTE === "producao"}
           />
         </section>
       )}
