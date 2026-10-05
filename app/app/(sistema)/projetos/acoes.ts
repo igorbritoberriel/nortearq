@@ -136,10 +136,6 @@ export async function destacarRender(projetoId: string, arquivoId: string, desta
   return { ok: true };
 }
 
-export async function tirarDoDestaque(projetoId: string, arquivoId: string): Promise<Resultado> {
-  return destacarRender(projetoId, arquivoId, false);
-}
-
 // Baixar o original com o nome certo ("Planta baixa - Rev02.pdf"), não o nome técnico do Storage.
 export async function baixarArquivo(projetoId: string, arquivoId: string): Promise<{ url: string } | { erro: string }> {
   const ctx = await contexto();

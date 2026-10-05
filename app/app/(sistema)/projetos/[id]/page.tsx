@@ -29,7 +29,7 @@ import {
 } from "@/lib/arquivos";
 import type { StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
-import { baixarArquivo, definirCapa, linkDoProjeto, tirarDoDestaque } from "../acoes";
+import { baixarArquivo, definirCapa, destacarRender, linkDoProjeto } from "../acoes";
 
 export const metadata: Metadata = { title: "Projeto" };
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -122,6 +122,8 @@ export default async function ProjetoPage({
     .filter((a): a is ArquivoVisivel => !!a)
     .map(chaveArquivo);
   const destaques = rendersEmDestaque(todos, chavesDestaque);
+  // Para o seletor "Escolher renders": toda imagem Render 3D do projeto (versão mais recente de cada).
+  const candidatos = rendersEmDestaque(todos, [...new Set(todos.filter(podeSerDestaque).map(chaveArquivo))]);
   // Capa: o destaque escolhido na estrela (se visível) ou o primeiro destaque visível. Sem destaque, sem capa.
   const escolhido = projeto.capa_arquivo_id ? porId.get(projeto.capa_arquivo_id) : undefined;
   const escolhidaAtual = escolhido ? destaques.find((d) => chaveArquivo(d) === chaveArquivo(escolhido)) : undefined;
@@ -264,14 +266,15 @@ export default async function ProjetoPage({
         />
       </section>
 
-      {/* Abaixo do link do cliente, numa linha só: os renders escolhidos (o arquivo continua na etapa) e a capa. */}
+      {/* Abaixo do link do cliente, numa linha só: os renders escolhidos (o arquivo continua na etapa) e a capa.
+          "Escolher renders" marca e desmarca; o botão Destacar no arquivo da etapa faz o mesmo. */}
       <GaleriaRenders
         renders={destaques}
         capaId={capa?.id ?? null}
         escolhidaId={escolhidaAtual?.id ?? null}
         definirCapa={definirCapa.bind(null, id)}
-        tirarDestaque={tirarDoDestaque.bind(null, id)}
-        dica={todos.some(podeSerDestaque)}
+        candidatos={candidatos}
+        alternarDestaque={destacarRender.bind(null, id)}
       />
 
       <ListaEtapas
