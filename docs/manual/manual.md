@@ -542,6 +542,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 
 | O cliente diz | Causa provável | O que fazer |
 |---|---|---|
+| "Não consigo salvar o Pix" em Configurações | Só o dono do escritório muda a chave Pix (administrador e colaborador não) | Entrar com o login do dono; nome até 25 letras e cidade até 15 |
 | "O link não abre" / "link inválido" | O link venceu ou foi substituído por um mais novo | Na ficha do cliente, gerar o link de novo (o anterior deixa de valer) |
 | "Não recebi o e-mail" | E-mail errado no cadastro, caixa de spam, ou e-mail do sistema não configurado | Conferir o e-mail na ficha; mandar o link pelo botão do WhatsApp |
 | "Não aparece o arquivo que vocês mandaram" | A etapa ainda não foi enviada, ou o arquivo está como "interno" | Enviar a etapa para aprovação; conferir o olho (visível ao cliente) no arquivo |

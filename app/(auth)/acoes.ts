@@ -121,8 +121,9 @@ export async function entrar(_anterior: EstadoFormulario, formData: FormData): P
   if (error) return { status: "erro", mensagem: traduzir(error.code, error.message), valores };
 
   // Arquiteto vai para o sistema; cliente final vai para o portal.
-  const { data: membro } = await supabase.from("membros").select("id").eq("id", data.user.id).maybeSingle();
-  const padrao = membro ? "/app" : "/portal";
+  // Se a consulta falhar por um instante, vai para o sistema (que confere de novo), nunca para o portal por engano.
+  const { data: membro, error: erroMembro } = await supabase.from("membros").select("id").eq("id", data.user.id).maybeSingle();
+  const padrao = membro || erroMembro ? "/app" : "/portal";
   redirect(destinoSeguro(valores.proximo, padrao));
 }
 

@@ -127,6 +127,7 @@ export default async function ConfiguracoesPage() {
           nome={escritorio.pix_nome}
           cidade={escritorio.pix_cidade}
           sugestaoNome={escritorio.nome}
+          souDono={dono}
         />
       </section>
 

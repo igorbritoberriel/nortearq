@@ -83,12 +83,14 @@ export const obterSessaoArquiteto = cache(async (): Promise<SessaoArquiteto | nu
   } = await supabase.auth.getUser();
   if (!user) redirect("/entrar");
 
-  const { data: membro } = await supabase
+  const { data: membro, error } = await supabase
     .from("membros")
     .select("id, nome, papel, escritorio:escritorios(*)")
     .eq("id", user.id)
     .maybeSingle();
 
+  // Falha momentânea do banco: tela de erro com "tentar de novo", e não o portal do cliente por engano.
+  if (error) throw new Error(`[sessão] membro indisponível: ${error.message}`);
   // Usuário sem escritório é cliente final: o lugar dele é o portal.
   if (!membro?.escritorio) redirect("/portal");
 

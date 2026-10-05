@@ -65,9 +65,18 @@ export async function salvarPix(_anterior: EstadoFormulario, formData: FormData)
     dados = { pix_tipo: tipo as TipoPix, pix_chave: chave, pix_nome: nome, pix_cidade: cidade };
   }
 
-  const { error } = await supabase.from("escritorios").update(dados).eq("id", sessao.escritorio.id);
+  // Só o dono grava (migração 0041): a chave decide para onde vai o dinheiro das parcelas.
+  const { error } = await supabase.rpc("salvar_pix", {
+    p_tipo: dados.pix_tipo,
+    p_chave: dados.pix_chave,
+    p_nome: dados.pix_nome,
+    p_cidade: dados.pix_cidade,
+  });
   if (error) {
     console.error("[configurações] pix", error.message);
+    if (error.message.includes("so_dono")) return { status: "erro", mensagem: "Só o dono do escritório pode mudar a chave Pix.", valores };
+    if (error.message.includes("assinatura_pendente"))
+      return { status: "erro", mensagem: "Sua assinatura está pendente: o sistema está só para consulta.", valores };
     return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
   }
   revalidatePath("/app", "layout");

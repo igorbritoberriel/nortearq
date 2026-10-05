@@ -15,18 +15,22 @@ export function FormPix({
   nome,
   cidade,
   sugestaoNome,
+  souDono = true,
 }: {
   tipo: TipoPix | null;
   chave: string | null;
   nome: string | null;
   cidade: string | null;
   sugestaoNome: string;
+  souDono?: boolean; // só o dono muda a chave (migração 0041)
 }) {
   const [estado, enviar, enviando] = useActionState(salvarPix, inicial);
   const v = estado.valores;
   const erro = estado.erros ?? {};
   return (
     <form action={enviar} className="form-config" noValidate>
+      {!souDono && <p className="campo-ajuda">Só o dono do escritório pode mudar a chave Pix.</p>}
+      <fieldset disabled={!souDono} className="campos-sem-borda">
       {estado.status === "erro" && estado.mensagem && <Aviso tipo="erro">{estado.mensagem}</Aviso>}
       {estado.status === "sucesso" && estado.mensagem && <Aviso tipo="sucesso">{estado.mensagem}</Aviso>}
       <div className="form-linha">
@@ -61,6 +65,7 @@ export function FormPix({
           {enviando ? "Salvando..." : "Salvar Pix"}
         </button>
       </div>
+      </fieldset>
     </form>
   );
 }
