@@ -92,6 +92,7 @@ export default async function PropostaClientePage({ params }: { params: Promise<
           <RespostaProposta
             token={token}
             escritorio={escritorio.nome}
+            meios={proposta.meios_pagamento ?? ["pix"]}
             parcelamento={
               proposta.modo_pagamento === "parcelado" && proposta.valor_total
                 ? {

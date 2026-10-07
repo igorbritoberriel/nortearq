@@ -3,6 +3,8 @@ import { ProjetoCliente } from "@/components/projetos/ProjetoCliente";
 import { exigirLink } from "@/lib/link-cliente";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
+export const maxDuration = 120;
+
 // Projeto do cliente pelo link do WhatsApp (módulo 03): etapas, arquivos visíveis e aprovação.
 export default async function ProjetoClientePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;

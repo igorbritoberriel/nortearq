@@ -45,6 +45,7 @@ const esquema = z.object({
   parcelas_max: z.number().int().min(1).max(24).nullable(),
   desconto_avista_pct: z.number("Informe o desconto.").min(0, "Mínimo de 0%.").max(30, "Máximo de 30%.").nullable(),
   forma_pagamento: textoOpcional(1000),
+  meios_pagamento: z.array(z.enum(["pix", "boleto", "cartao"])).min(1, "Escolha pelo menos uma forma de pagamento.").max(3).default(["pix"]),
   prazo: textoOpcional(300),
   revisoes_incluidas: z.number().int().min(0).max(50),
   visitas_incluidas: z.number().int().min(0).max(200),
@@ -106,7 +107,8 @@ export async function criarProposta(clienteId: string) {
       escritorio_id: ctx.sessao.escritorio.id,
       cliente_id: clienteId,
       itens: (doCliente.length ? doCliente : [{ nome: "" }]).map((s) => ({ servico: s.nome, escopo: "", entregaveis: [] })),
-      forma_pagamento: "Pagamento por Pix ou transferência bancária.",
+      forma_pagamento: "",
+      meios_pagamento: ctx.sessao.escritorio.cobranca_ativa ? ["pix", "boleto", "cartao"] : ["pix"],
       modo_pagamento: "parcelado",
       entrada_pct: ctx.sessao.escritorio.parcelamento_entrada_pct,
       parcelas_max: ctx.sessao.escritorio.parcelamento_max,
@@ -135,6 +137,9 @@ export async function salvarProposta(id: string, dados: DadosProposta): Promise<
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
   if (!UUID.test(id)) return { erro: "Proposta não encontrada." };
+  if (!ctx.sessao.escritorio.cobranca_ativa && resultado.data.meios_pagamento.some((m) => m !== "pix")) {
+    return { erro: "Ative a conta Asaas para oferecer boleto e cartão.", erros: { meios_pagamento: "Conecte o Asaas em Configurações ou aceite somente Pix." } };
+  }
 
   const { error, count } = await ctx.supabase
     .from("propostas")

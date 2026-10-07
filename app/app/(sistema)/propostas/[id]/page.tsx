@@ -219,6 +219,7 @@ export default async function PropostaPage({
           modelos={(modelos ?? []) as ModeloResumoProposta[]}
           servicosEscritorio={servicos.filter((s) => s.ativo).map((s) => ({ id: s.id, nome: s.nome }))}
           proposta={proposta}
+          cobrancaAtiva={sessao.escritorio.cobranca_ativa}
           cliente={{ nome: cliente.nome, telefone: cliente.telefone }}
           escritorio={sessao.escritorio.nome}
           servicos={servicos.filter((s) => s.ativo).map((s) => s.nome)}

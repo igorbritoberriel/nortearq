@@ -6,6 +6,7 @@ import { BotaoImprimir } from "@/components/briefing/BotaoImprimir";
 import { EditorContrato } from "@/components/contratos/EditorContrato";
 import { TrocarModelo, type ModeloResumo } from "@/components/contratos/ModelosContrato";
 import { Pagamentos } from "@/components/contratos/Pagamentos";
+import { VerPagamentoCliente } from "@/components/contratos/VerPagamentoCliente";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { ConfirmarComSenha } from "@/components/ConfirmarComSenha";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -22,6 +23,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { cancelarContrato, enviarContrato, salvarTextoContrato } from "../acoes";
 
 export const metadata: Metadata = { title: "Contrato" };
+export const maxDuration = 120;
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
@@ -140,6 +142,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
         {aberto && (
           <section className="cartao secao-config">
             <h2>{contrato.status === "rascunho" ? "Enviar para o cliente" : "Aguardando o cliente"}</h2>
+            {contrato.status === "aguardando_assinatura" && <VerPagamentoCliente id={contrato.id} />}
             <p className="muted">
               {contrato.status === "rascunho"
                 ? "Ao enviar, o texto fica travado e vale como o seu aceite. O cliente confere o CPF e o endereço e aceita pelo link."
@@ -162,6 +165,7 @@ export default async function ContratoPage({ params }: { params: Promise<{ id: s
           <div className="ficha contrato-ficha">
             <section className="cartao secao-config">
               <h2>Pagamentos</h2>
+              <VerPagamentoCliente id={contrato.id} />
               <Pagamentos
                 pix={pixDoEscritorio(sessao.escritorio)}
                 cobrancaAtiva={sessao.escritorio.cobranca_ativa}

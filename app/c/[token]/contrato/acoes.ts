@@ -5,6 +5,8 @@ import { after } from "next/server";
 import { avisarContratoAssinado } from "@/lib/avisos";
 import { documentoValido } from "@/lib/contratos";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { prepararCobrancasContrato } from "@/lib/cobranca";
 
 // Aceite eletrônico do contrato (RN-01.13 a RN-01.15). O banco fecha o texto, gera o código de
 // verificação e cria o projeto e os pagamentos.
@@ -13,6 +15,7 @@ const MENSAGENS: Record<string, string> = {
   contrato_fechado: "Este contrato já foi assinado ou cancelado.",
   nome_invalido: "Informe o nome completo.",
   documento_invalido: "Informe um CPF ou CNPJ válido.",
+  meio_obrigatorio: "Confirme a forma de pagamento no quadro acima antes de assinar. Depois, confira o contrato atualizado.",
   endereco_invalido: "Informe o endereço completo do imóvel.",
   link_invalido: "Este link não vale mais. Peça um link novo ao escritório.",
 };
@@ -48,6 +51,16 @@ export async function assinarContrato(
     return { erro: chave ? MENSAGENS[chave] : "Não foi possível registrar agora. Tente de novo." };
   }
 
-  after(() => avisarContratoAssinado(data as string));
+  after(async () => {
+    await Promise.allSettled([
+      avisarContratoAssinado(data as string),
+      (async () => {
+        const admin = criarClienteAdmin();
+        if (!admin) return;
+        const r = await prepararCobrancasContrato(admin, data as string);
+        if ("erro" in r) console.error("[contrato] preparar pagamento", r.erro);
+      })(),
+    ]);
+  });
   return { ok: true };
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { InputMascara } from "@/components/InputMascara";
+import { MEIOS_PAGAMENTO, type MeioPagamento } from "@/lib/condicoes-pagamento";
 import { BookmarkPlus, Check, Copy, Eye, MessageCircle, Plus, Trash2, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
@@ -42,6 +43,7 @@ export function FormProposta({
   escritorio,
   servicos,
   modelos = [],
+  cobrancaAtiva = false,
   servicosEscritorio = [],
 }: {
   proposta: Proposta;
@@ -49,6 +51,7 @@ export function FormProposta({
   escritorio: string;
   servicos: string[];
   modelos?: ModeloResumoProposta[];
+  cobrancaAtiva?: boolean;
   servicosEscritorio?: { id: string; nome: string }[];
 }) {
   const [titulo, setTitulo] = useState(proposta.titulo);
@@ -67,6 +70,9 @@ export function FormProposta({
     proposta.parcelas.map((p) => ({ descricao: p.descricao, valor: paraTexto(p.valor) })),
   );
   const [formaPagamento, setFormaPagamento] = useState(proposta.forma_pagamento ?? "");
+  const [meios, setMeios] = useState<MeioPagamento[]>(
+    (proposta.meios_pagamento ?? ["pix", "boleto", "cartao"]).filter((m) => cobrancaAtiva || m === "pix"),
+  );
   const [prazo, setPrazo] = useState(proposta.prazo ?? "");
   const [revisoes, setRevisoes] = useState(String(proposta.revisoes_incluidas));
   const [visitas, setVisitas] = useState(String(proposta.visitas_incluidas));
@@ -112,6 +118,7 @@ export function FormProposta({
       parcelas_max: modo === "parcelado" ? Number(parcelasMax) || null : null,
       desconto_avista_pct: modo === "parcelado" && pctDesconto > 0 ? pctDesconto : null,
       forma_pagamento: formaPagamento,
+      meios_pagamento: meios,
       prazo,
       revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
       visitas_incluidas: Number.parseInt(visitas, 10) || 0,
@@ -350,6 +357,20 @@ export function FormProposta({
 
       <section className="cartao secao-config">
         <h2>Honorários e pagamento</h2>
+        <fieldset className="campo lista-marcar">
+          <legend className="campo-rotulo">Formas de pagamento aceitas</legend>
+          {(Object.keys(MEIOS_PAGAMENTO) as MeioPagamento[]).map((m) => (
+            <label key={m} className="checagem">
+              <input type="checkbox" checked={meios.includes(m)} disabled={!cobrancaAtiva && m !== "pix"}
+                onChange={(e) => setMeios(e.target.checked ? [...meios, m] : meios.filter((x) => x !== m))} />
+              <span>{MEIOS_PAGAMENTO[m]}</span>
+            </label>
+          ))}
+          <p className="campo-ajuda">O cliente escolhe a forma e as parcelas ao aprovar. {cobrancaAtiva
+            ? "Após a assinatura, o pagamento será preparado no Asaas."
+            : "Conecte o Asaas em Configurações para oferecer boleto e cartão."}</p>
+          {erros.meios_pagamento && <p className="campo-erro">{erros.meios_pagamento}</p>}
+        </fieldset>
         <Campo id="valor_total" rotulo="Valor total (R$)" erro={erros.valor_total}>
           <InputMascara mascara="dinheiro" id="valor_total" inputMode="decimal" placeholder="15.000,00" value={total} onChange={(e) => setTotal(e.target.value)} />
         </Campo>
@@ -386,6 +407,7 @@ export function FormProposta({
                 </select>
               </Campo>
             </div>
+            {meios.includes("cartao") && <p className="campo-ajuda">No cartão, o saldo pode ser dividido em até 12 vezes, dentro do seu limite. A entrada é paga separadamente. Pix e boleto seguem os vencimentos mensais.</p>}
             <Campo
               id="desconto_avista_pct"
               rotulo="Desconto para pagamento à vista (%)"
@@ -626,6 +648,7 @@ export function FormProposta({
                 parcelas_escolhidas: null,
                 avista: false,
                 forma_pagamento: formaPagamento || null,
+                meios_pagamento: meios,
                 prazo: prazo || null,
                 revisoes_incluidas: Number.parseInt(revisoes, 10) || 0,
                 visitas_incluidas: Number.parseInt(visitas, 10) || 0,

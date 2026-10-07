@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Pagamentos } from "@/components/contratos/Pagamentos";
+import { VerPagamentoCliente } from "@/components/contratos/VerPagamentoCliente";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { CapaProjeto, GaleriaRenders } from "@/components/arquivos/GaleriaRenders";
@@ -22,6 +23,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { baixarArquivo, definirCapa, linkDoProjeto } from "../acoes";
 
 export const metadata: Metadata = { title: "Projeto" };
+export const maxDuration = 120;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Etapa = { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
@@ -306,6 +308,7 @@ export default async function ProjetoPage({
       {verValores && financeiro.pagamentos.length > 0 && (
         <section className="cartao secao-config">
           <h2>Pagamentos</h2>
+          <VerPagamentoCliente id={projeto.id} destino="projeto" />
           <Pagamentos
                 pix={pixDoEscritorio(sessao.escritorio)}
                 cobrancaAtiva={sessao.escritorio.cobranca_ativa}

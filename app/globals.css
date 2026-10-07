@@ -966,6 +966,9 @@ p { margin: 0 0 1em; }
 .proposta-lista { margin: 0; padding-left: 20px; }
 .proposta-lista li { white-space: normal; overflow-wrap: anywhere; padding-left: 2px; }
 .proposta-lista li + li { margin-top: 4px; }
+.pagamento-contrato { margin: 20px 0; }
+.pagamento-contrato .proposta-lista { margin: 16px 0; }
+.pagamento-acesso { display: flex; width: fit-content; max-width: 100%; margin-top: 12px; white-space: normal; overflow-wrap: anywhere; }
 .proposta-total { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
 .proposta-parcelas { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
 .proposta-parcelas th { text-align: left; font-weight: 400; padding: 8px 0; border-top: 1px solid var(--cor-borda); }

@@ -1,4 +1,5 @@
 import { CalendarClock, Car, Eye, PencilRuler, Wallet } from "lucide-react";
+import { MEIOS_PAGAMENTO } from "@/lib/condicoes-pagamento";
 import { type ConteudoProposta, dataCurta, linhasDaProposta, opcoesParcelamento, reais, valorAvista, somaParcelas, textoDeslocamento } from "@/lib/propostas";
 
 // A proposta como o cliente lê (RN-01.6). Usada no link do cliente e na pré-visualização do arquiteto.
@@ -45,6 +46,9 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
 
       <section className="proposta-bloco">
         <h2>Investimento</h2>
+        <p className="campo-ajuda">{p.meio_escolhido
+          ? `Forma escolhida: ${MEIOS_PAGAMENTO[p.meio_escolhido]}.`
+          : p.meios_pagamento?.length ? `Formas aceitas: ${p.meios_pagamento.map((m) => MEIOS_PAGAMENTO[m]).join(", ")}.` : null}</p>
         <p className="proposta-total">{reais(p.valor_total)}</p>
         {aEscolher && !!p.desconto_avista_pct && p.desconto_avista_pct > 0 && (
           <p className="proposta-texto avista-destaque">

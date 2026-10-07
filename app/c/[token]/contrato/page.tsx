@@ -6,6 +6,10 @@ import { EmConstrucao } from "@/components/EmConstrucao";
 import type { ContratoPublico } from "@/lib/contratos";
 import { exigirLink } from "@/lib/link-cliente";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { PagamentoContrato } from "@/components/contratos/PagamentoContrato";
+import type { ResumoPagamento } from "@/lib/condicoes-pagamento";
+
+export const maxDuration = 120;
 
 const dataHora = new Intl.DateTimeFormat("pt-BR", {
   day: "2-digit",
@@ -60,6 +64,7 @@ export default async function ContratoClientePage({ params }: { params: Promise<
   // Contrato assinado: convite para o portal (RN-01.15), enquanto o cliente não criou o acesso.
   const { data: cliente } = assinado ? await supabase.rpc("cliente_do_link_portal", { p_token: token }) : { data: null };
   const convite = cliente as { email: string | null; tem_acesso: boolean } | null;
+  const { data: pagamento } = await supabase.rpc("resumo_pagamento_cliente", { p_token: token });
   return (
     <>
       <p className="muted nao-imprimir">
@@ -72,6 +77,7 @@ export default async function ContratoClientePage({ params }: { params: Promise<
           <BotaoImprimir />
         </p>
       )}
+      {pagamento && <PagamentoContrato token={token} inicial={pagamento as ResumoPagamento} />}
       {convite && !convite.tem_acesso && (
         <div className="nao-imprimir">
           <CriarAcessoPortal token={token} email={convite.email} escritorio={link.escritorio.nome} />

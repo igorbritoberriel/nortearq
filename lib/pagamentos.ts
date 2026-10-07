@@ -77,6 +77,10 @@ export async function carregarPagamentos(supabase: SupabaseClient, contratoId: s
       vencimento: p.vencimento,
       pago_em: p.pago_em,
       baixa: p.baixa_id ? (porId.get(p.baixa_id) ?? null) : null,
+      asaas_link: p.asaas_link,
+      asaas_status: p.asaas_status,
+      asaas_valor_liquido: p.asaas_valor_liquido == null ? null : Number(p.asaas_valor_liquido),
+      taxa_plataforma: p.taxa_plataforma == null ? null : Number(p.taxa_plataforma),
     })) as PagamentoComBaixa[],
     eventos,
   };

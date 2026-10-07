@@ -109,7 +109,7 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                 {!p.pago_em && p.asaas_link && aberto?.id !== p.id && (
                   <a className="botao botao-fantasma botao-pequeno" href={p.asaas_link} target="_blank" rel="noopener noreferrer">
                     <ExternalLink size={16} aria-hidden="true" />
-                    Link de pagamento
+                    Ver pagamento como cliente
                   </a>
                 )}
                 {!p.pago_em && !p.asaas_link && cobrancaAtiva && aberto?.id !== p.id && <GerarCobranca pagamentoId={p.id} />}

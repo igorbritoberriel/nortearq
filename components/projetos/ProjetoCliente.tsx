@@ -14,6 +14,8 @@ import { STATUS_ETAPA, versoesAtuais, type ProjetoPublico } from "@/lib/projetos
 import { dataCurta, reais } from "@/lib/propostas";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { PagamentoContrato } from "@/components/contratos/PagamentoContrato";
+import type { ResumoPagamento } from "@/lib/condicoes-pagamento";
 
 const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" });
 
@@ -40,6 +42,10 @@ export async function ProjetoCliente({
     );
   }
   const projeto = bruto as ProjetoPublico;
+  const { data: resumoPagamento } = await supabase.rpc("resumo_pagamento_cliente", { p_token: token });
+  const pagamentoContrato = resumoPagamento as ResumoPagamento | null;
+  const noNovoFluxo = (p: { descricao: string; valor: number }) => !!pagamentoContrato?.cobranca_ativa &&
+    pagamentoContrato.parcelas.some((x) => x.descricao === p.descricao && Number(x.valor) === Number(p.valor));
 
   const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
   // Pix do escritório: cada parcela em aberto ganha QR Code e copia e cola (o dinheiro vai direto para o escritório).
@@ -56,7 +62,7 @@ export async function ProjetoCliente({
   }
   if (pix?.chave) {
     for (const [i, p] of (projeto.pagamentos ?? []).entries()) {
-      if (p.pago_em || !Number(p.valor) || linkDasParcelas.has(i)) continue;
+      if (p.pago_em || !Number(p.valor) || linkDasParcelas.has(i) || noNovoFluxo(p)) continue;
       const codigo = pixCopiaECola(pix, Number(p.valor), p.descricao);
       pixDasParcelas.set(i, { codigo, qrSvg: await QRCode.toString(codigo, { type: "svg", margin: 1, width: 220 }) });
     }
@@ -268,6 +274,7 @@ export async function ProjetoCliente({
         </section>
       )}
 
+      {pagamentoContrato && <PagamentoContrato token={token} inicial={pagamentoContrato} />}
       {!!projeto.pagamentos?.length && (
         <section className="cartao projeto-pagamentos">
           <h2>Pagamentos</h2>
@@ -297,10 +304,10 @@ export async function ProjetoCliente({
                     )}
                   </span>
                 </div>
-                {linkDasParcelas.has(i) && (
+                {linkDasParcelas.has(i) && !noNovoFluxo(p) && (
                   <a className="botao botao-marca botao-pequeno pagar-pix-botao" href={linkDasParcelas.get(i)} target="_blank" rel="noopener noreferrer">
                     <CreditCard size={16} aria-hidden="true" />
-                    Pagar agora (Pix, boleto ou cartão)
+                    Pagar agora
                   </a>
                 )}
                 {pixDasParcelas.has(i) && (

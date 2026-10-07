@@ -5,6 +5,7 @@ import { CircleCheck, MessageSquareText, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { responderProposta, type AcaoResposta } from "@/app/c/[token]/proposta/acoes";
 import { MOTIVOS_RECUSA, opcoesParcelamento, reais, valorAvista, type MotivoRecusa } from "@/lib/propostas";
+import { MEIOS_PAGAMENTO, type MeioPagamento } from "@/lib/condicoes-pagamento";
 
 const CONFIRMACOES: Record<AcaoResposta, { titulo: string; texto: (e: string) => string }> = {
   aprovar: { titulo: "Proposta aprovada!", texto: (e) => `O ${e} vai preparar o contrato e enviar para você.` },
@@ -18,11 +19,13 @@ export function RespostaProposta({
   escritorio,
   parcelamento = null,
   demonstracao = false,
+  meios = ["pix"],
 }: {
   token: string;
   escritorio: string;
   parcelamento?: { total: number; entradaPct: number; maximo: number; descontoAvista?: number | null } | null;
   demonstracao?: boolean; // pré-visualização: nada é gravado
+  meios?: MeioPagamento[];
 }) {
   const [acao, setAcao] = useState<AcaoResposta | null>(null);
   const [comentario, setComentario] = useState("");
@@ -30,8 +33,11 @@ export function RespostaProposta({
   const descontoAvista = parcelamento?.descontoAvista ?? 0;
   const [vezes, setVezes] = useState<number | null>(parcelamento?.maximo === 1 && !descontoAvista ? 1 : null);
   const [avista, setAvista] = useState(false);
+  const [meio, setMeio] = useState<MeioPagamento | null>(meios.length === 1 ? meios[0] : null);
   const valorComDesconto = parcelamento && descontoAvista > 0 ? valorAvista(parcelamento.total, descontoAvista) : null;
-  const opcoes = parcelamento ? opcoesParcelamento(parcelamento.total, parcelamento.entradaPct, parcelamento.maximo) : [];
+  const opcoes = parcelamento ? opcoesParcelamento(parcelamento.total, parcelamento.entradaPct,
+    meio === "cartao" ? Math.min(12, parcelamento.maximo) : parcelamento.maximo)
+    .filter((o) => meio !== "cartao" || (o.parcela >= 5 && (o.entrada === 0 || o.entrada >= 5))) : [];
   const [erro, setErro] = useState<string | null>(null);
   const [feito, setFeito] = useState<AcaoResposta | null>(null);
   const [pendente, iniciar] = useTransition();
@@ -58,6 +64,7 @@ export function RespostaProposta({
             motivo || null,
             escolhida === "aprovar" ? vezes : null,
             escolhida === "aprovar" && avista,
+            escolhida === "aprovar" ? meio : null,
           );
       if ("erro" in resultado) setErro(resultado.erro);
       else {
@@ -88,9 +95,26 @@ export function RespostaProposta({
 
       {acao === "aprovar" && (
         <div className="resposta-etapa">
+          <fieldset className="parcelamento-escolha">
+            <legend>Forma de pagamento</legend>
+            <div className="parcelamento-opcoes">
+              {meios.map((m) => (
+                <label key={m} className={`parcelamento-opcao ${meio === m ? "escolhida" : ""}`}>
+                  <input type="radio" name="meio-pagamento" value={m} checked={meio === m} onChange={() => {
+                    setMeio(m);
+                    if (m === "cartao" && vezes && vezes > 12) setVezes(null);
+                  }} />
+                  <strong>{MEIOS_PAGAMENTO[m]}</strong>
+                </label>
+              ))}
+            </div>
+            <p className="campo-ajuda">{meio === "cartao"
+              ? "A entrada, se houver, é paga separadamente. O saldo é uma compra parcelada no cartão; você informa os dados na página segura do Asaas após assinar."
+              : "Cada pagamento deve ser feito no vencimento. A assinatura do contrato acontece antes do pagamento."}</p>
+          </fieldset>
           {parcelamento && (
             <fieldset className="parcelamento-escolha">
-              <legend>Como você quer pagar?</legend>
+              <legend>Quantidade de parcelas</legend>
               {valorComDesconto !== null && (
                 <label className={`avista-opcao ${avista ? "escolhida" : ""}`}>
                   <input
@@ -111,7 +135,7 @@ export function RespostaProposta({
                 </label>
               )}
               {valorComDesconto !== null && <p className="campo-ajuda avista-ou">ou parcelado:</p>}
-              {opcoes[0].entrada > 0 && (
+              {opcoes[0]?.entrada > 0 && (
                 <p className="campo-ajuda">
                   Entrada de {reais(opcoes[0].entrada)} ({parcelamento.entradaPct}%) na assinatura do contrato, e o saldo em:
                 </p>
@@ -134,6 +158,7 @@ export function RespostaProposta({
                   </label>
                 ))}
               </div>
+              {!opcoes.length && <p className="campo-erro">Não há parcelas disponíveis para esta forma de pagamento. No cartão, os valores devem ser de pelo menos R$ 5,00.</p>}
               {parcelamento.maximo > 1 && <p className="campo-ajuda">Parcelas mensais. A última pode ter diferença de centavos.</p>}
             </fieldset>
           )}
@@ -146,7 +171,7 @@ export function RespostaProposta({
               type="button"
               className="botao botao-marca"
               onClick={() => confirmar("aprovar")}
-              disabled={pendente || (!!parcelamento && !vezes && !avista)}
+              disabled={pendente || !meio || (!!parcelamento && !avista && !opcoes.some((o) => o.n === vezes)) || (meio === "cartao" && avista && (valorComDesconto ?? 0) < 5)}
             >
               {pendente ? "Enviando..." : "Confirmar aprovação"}
             </button>

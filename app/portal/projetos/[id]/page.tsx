@@ -7,6 +7,8 @@ import { carregarDocumentos } from "@/lib/portal-documentos";
 import { dataCurta } from "@/lib/propostas";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
+export const maxDuration = 120;
+
 // Projeto no portal: o mesmo conteúdo do link do WhatsApp (etapas, aprovação, aditivos, pagamentos)
 // e mais os documentos do projeto.
 export default async function PortalProjetoPage({ params }: { params: Promise<{ id: string }> }) {
