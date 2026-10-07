@@ -62,7 +62,8 @@ export async function GET(request: NextRequest) {
   // antes dos lembretes (assim o e-mail já leva o link de pagamento).
   const { data: aGerar } = await admin
     .from("pagamentos")
-    .select("id, escritorio:escritorios!inner(cobranca_ativa)")
+    .select("id, escritorio:escritorios!inner(cobranca_ativa), contrato:contratos!inner(status)")
+    .eq("contrato.status", "assinado")
     .is("pago_em", null)
     .is("asaas_link", null)
     .not("vencimento", "is", null)

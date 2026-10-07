@@ -26,7 +26,7 @@ process.env.COBRANCA_CHAVE = "ab".repeat(32);
 process.env.ASAAS_AMBIENTE = "teste";
 delete process.env.ASAAS_CARTEIRA_NORTEARQ;
 const { planejarCobrancas } = carregar("lib/condicoes-pagamento.ts");
-const { prepararCobrancasContrato, cifrar } = carregar("lib/cobranca.ts");
+const { prepararCobrancasContrato, gerarCobranca, cifrar } = carregar("lib/cobranca.ts");
 const { processarEventoCheckout } = carregar("lib/checkout-eventos.ts");
 const condicoes = [
   { descricao: "Entrada, na assinatura do contrato", valor: 300 },
@@ -135,6 +135,13 @@ function ambiente(meio = "cartao", opcoes = {}) {
     return Response.json(provider.find((p) => p.id === u.pathname.split("/").at(-1)));
   };
   return { admin, tabelas, chamadas, provider };
+}
+{
+  const a = ambiente("pix", { status: "cancelado" });
+  a.tabelas.pagamentos[0].contrato = a.tabelas.contratos[0];
+  a.tabelas.pagamentos[0].asaas_link = "https://pagamento-teste.invalid/antigo";
+  assert.match((await gerarCobranca(a.admin, a.tabelas.pagamentos[0].id)).erro, /não está ativo/);
+  assert.equal(a.chamadas.length, 0);
 }
 for (const [meio, posts, billingType] of [["cartao", 2, "CREDIT_CARD"], ["pix", 5, "PIX"], ["boleto", 5, "BOLETO"]]) {
   const a = ambiente(meio);

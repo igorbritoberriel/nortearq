@@ -123,10 +123,12 @@ export async function gerarCobranca(
 ): Promise<{ link: string } | { erro: string }> {
   const { data: p } = await admin
     .from("pagamentos")
-    .select("id, descricao, valor, vencimento, pago_em, asaas_link, escritorio_id, contrato:contratos(cliente:clientes(id, nome, documento, email, telefone)), escritorio:escritorios(nome, cobranca_ativa)")
+    .select("id, descricao, valor, vencimento, pago_em, asaas_link, escritorio_id, contrato:contratos(status, cliente:clientes(id, nome, documento, email, telefone)), escritorio:escritorios(nome, cobranca_ativa)")
     .eq("id", pagamentoId)
     .maybeSingle();
   if (!p) return { erro: "Parcela não encontrada." };
+  const estadoContrato = p.contrato as unknown as { status: string } | null;
+  if (estadoContrato?.status !== "assinado") return { erro: "Este contrato não está ativo para pagamento." };
   if (p.pago_em) return { erro: "Esta parcela já foi paga." };
   if (p.asaas_link) return { link: p.asaas_link as string };
   const { data: contrato } = await admin.from("pagamentos").select("contrato_id").eq("id", pagamentoId).single();

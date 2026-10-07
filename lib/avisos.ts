@@ -526,19 +526,20 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
   const { data: p } = await admin
     .from("pagamentos")
     .select(
-      "descricao, valor, vencimento, pago_em, asaas_link, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, cobranca_ativa, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
+      "descricao, valor, vencimento, pago_em, asaas_link, contrato:contratos(id, status, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, cobranca_ativa, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
     )
     .eq("id", pagamentoId)
     .maybeSingle();
   const c = p?.contrato as unknown as {
     id: string;
+    status: string;
     cliente_id: string;
     escritorio_id: string;
     cliente: { nome: string; email: string | null } | null;
     escritorio: { nome: string; cobranca_ativa: boolean; pix_tipo: string | null; pix_chave: string | null; pix_nome: string | null; pix_cidade: string | null } | null;
     projeto: { id: string }[] | { id: string } | null;
   } | null;
-  if (!p || !c || p.pago_em || !p.vencimento) return;
+  if (!p || !c || c.status !== "assinado" || p.pago_em || !p.vencimento) return;
   const escritorio = c.escritorio?.nome ?? "O escritório";
   const valor = reais(Number(p.valor));
   const venc = (p.vencimento as string).split("-").reverse().join("/");
