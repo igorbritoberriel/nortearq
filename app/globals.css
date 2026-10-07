@@ -445,20 +445,25 @@ p { margin: 0 0 1em; }
 .auth-sucesso > svg { color: var(--cor-sucesso); margin-bottom: 8px; }
 
 /* ---------- Sistema do arquiteto (/app) ---------- */
-.app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
-.app-lateral { background: var(--cor-norte-escura); color: #dfe6ef; padding: 20px 12px; }
+.app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; align-items: start; }
+.app-lateral { position: sticky; top: 0; height: 100dvh; min-width: 0; overflow-y: auto; overscroll-behavior-y: contain; background: var(--cor-norte-escura); color: #dfe6ef; padding: 20px 12px; }
 .app-lateral .logo { color: #fff; margin: 0 8px 24px; }
 .app-lateral nav { display: flex; flex-direction: column; gap: 2px; }
 .app-lateral nav a { padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; }
 .app-lateral nav a:hover { background: rgba(255, 255, 255, 0.08); }
 .app-lateral nav a small { opacity: 0.5; }
 .app-lateral { display: flex; flex-direction: column; }
+.app-lateral > * { flex-shrink: 0; }
+.app-lateral nav a { min-width: 0; overflow-wrap: anywhere; }
+.app-lateral nav.app-solucoes { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 0.9rem; color: #c5cedb; }
+.app-lateral > nav[aria-label="Funcionalidades"] { margin-bottom: 20px; }
+.ajuda-contato { margin-bottom: 24px; }
 .app-lateral nav a:focus-visible, .app-sair:focus-visible { outline: 2px solid var(--cor-areia); outline-offset: 1px; }
 .app-escritorio { margin: -8px 8px 20px; display: grid; gap: 4px; font-size: 0.92rem; }
 .app-escritorio strong { color: #fff; overflow-wrap: anywhere; }
 .app-teste { font-size: 0.78rem; color: var(--cor-areia); }
 .app-teste-fim { color: #f2b8b5; }
-.app-usuario { margin-top: auto; padding: 16px 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.9rem; }
+.app-usuario { margin-top: 12px; padding: 16px 8px 0; border-top: 1px solid rgba(255, 255, 255, 0.12); display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.9rem; }
 .app-usuario span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-sair { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 6px 8px; border-radius: 6px; flex: none; }
 .app-sair:hover { background: rgba(255, 255, 255, 0.08); }
@@ -1596,7 +1601,9 @@ p { margin: 0 0 1em; }
 .menu-movel-chave { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .menu-movel-botao { display: none; }
 @media (max-width: 860px) {
-  .app-lateral { position: sticky; top: 0; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; }
+  .app-lateral { position: sticky; top: 0; height: auto; max-height: 100dvh; z-index: 40; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; }
+  .app-lateral nav.app-solucoes { margin-top: 4px; }
+  .app-lateral > nav[aria-label="Funcionalidades"] { margin-bottom: 0; }
   .app-lateral .logo { order: 1; margin: 0; }
   .app-lateral .notif { order: 2; margin: 0 0 0 auto; }
   .menu-movel-botao { order: 3; display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }

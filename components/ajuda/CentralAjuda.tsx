@@ -52,7 +52,7 @@ export function CentralAjuda({ capitulos }: { capitulos: Capitulo[] }) {
         <p className="muted" aria-live="polite">
           {visiveis.length
             ? `${visiveis.length} ${visiveis.length === 1 ? "capítulo fala" : "capítulos falam"} de “${busca.trim()}”.`
-            : `Nada encontrado para “${busca.trim()}”. Use “Relatar problema ou sugestão” no menu para perguntar.`}
+            : `Nada encontrado para “${busca.trim()}”. Use “Relatar problema ou sugestão” no in?cio desta p?gina para perguntar.`}
         </p>
       )}
 

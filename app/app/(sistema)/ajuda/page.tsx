@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CentralAjuda } from "@/components/ajuda/CentralAjuda";
+import { RelatarProblema } from "@/components/erros/RelatarProblema";
 import { capitulosAjuda } from "@/lib/manual";
 
 export const metadata: Metadata = { title: "Ajuda" };
@@ -11,8 +12,11 @@ export default function AjudaPage() {
     <div className="pagina-app">
       <h1>Ajuda</h1>
       <p className="muted">
-        Como cada parte do NorteArq funciona. Não achou? Use <strong>Relatar problema ou sugestão</strong> no menu.
+        Como cada parte do NorteArq funciona. Não achou? Use <strong>Relatar problema ou sugestão</strong> abaixo.
       </p>
+      <div className="ajuda-contato">
+        <RelatarProblema destaque />
+      </div>
       {capitulos.length ? (
         <CentralAjuda capitulos={capitulos} />
       ) : (

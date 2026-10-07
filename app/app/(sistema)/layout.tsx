@@ -9,7 +9,6 @@ import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
 import { PAGINA_EXIGE, pode } from "@/lib/permissoes";
 import { ehAdminNorteArq } from "@/lib/admin-nortearq";
-import { RelatarProblema } from "@/components/erros/RelatarProblema";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 import { MenuLateral } from "@/components/MenuLateral";
@@ -112,16 +111,23 @@ export default async function SistemaLayout({ children }: { children: React.Reac
             naoVistasIniciais={notificacoes.naoVistas}
           />
         )}
-        <nav>
+        <nav aria-label="Funcionalidades">
           <MenuLateral
             itens={[
-              ...menu.map((item) => ({ href: item.href, rotulo: item.rotulo })),
-              ...(dono ? [{ href: "/app/assinatura", rotulo: "Plano e assinatura" }] : []),
+              ...menu.filter((item) => !["/app/configuracoes", "/app/ajuda"].includes(item.href)).map((item) => ({ href: item.href, rotulo: item.rotulo })),
+
               ...(sessao && ehAdminNorteArq(sessao.email) ? [{ href: "/app/interno", rotulo: "Painel interno", classe: "app-interno" }] : []),
             ]}
           />
         </nav>
-        {sessao && <RelatarProblema />}
+        <nav className="app-solucoes" aria-label="Conta e suporte">
+          <MenuLateral
+            itens={[
+              ...menu.filter((item) => ["/app/configuracoes", "/app/ajuda"].includes(item.href)).map((item) => ({ href: item.href, rotulo: item.rotulo })),
+              ...(dono ? [{ href: "/app/assinatura", rotulo: "Plano e assinatura" }] : []),
+            ]}
+          />
+        </nav>
         {sessao && <InstalarAplicativo />}
         {sessao && (
           <form action={sair} className="app-usuario">
