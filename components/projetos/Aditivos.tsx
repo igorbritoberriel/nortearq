@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useOptimistic, useState, useTransition } from "react";
+import { InputMascara } from "@/components/InputMascara";
 import { FilePlus, Trash2, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -186,7 +187,7 @@ function FormAditivo({
       </Campo>
       <div className="form-linha">
         <Campo id="aditivo-valor" rotulo="Valor (R$)" erro={erro.valor}>
-          <input id="aditivo-valor" name="valor" inputMode="decimal" placeholder="1.500" defaultValue={v.valor} />
+          <InputMascara mascara="dinheiro" id="aditivo-valor" name="valor" inputMode="decimal" placeholder="1.500" defaultValue={v.valor} />
         </Campo>
         <Campo id="aditivo-parcelas" rotulo="Pagamento" erro={erro.parcelas}>
           <select id="aditivo-parcelas" name="parcelas" defaultValue={v.parcelas ?? "1"}>

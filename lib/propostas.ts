@@ -1,3 +1,4 @@
+import { lerNumero, dataValida } from "./formatacao";
 // Propostas (módulo 01, RN-01.6 a RN-01.11): tipos, rótulos e cálculos.
 
 export type StatusProposta = "rascunho" | "enviada" | "aprovada" | "ajuste_pedido" | "recusada" | "substituida";
@@ -154,10 +155,8 @@ export function somaParcelas(parcelas: Parcela[]) {
 
 // "R$ 15.000,50" → 15000.5. Vazio ou inválido → null.
 export function lerReais(texto: string): number | null {
-  const limpo = texto.replace(/[R$\s]/g, "");
-  if (!limpo) return null;
-  const n = Number(limpo.includes(",") ? limpo.replace(/\./g, "").replace(",", ".") : limpo.replace(/\.(?=\d{3}(\D|$))/g, ""));
-  return Number.isFinite(n) ? Math.round(n * 100) / 100 : null;
+  const n = lerNumero(texto);
+  return n !== null && Number.isFinite(n) ? n : null;
 }
 
 // Valor à vista com desconto, em centavos exatos (o banco calcula igual: valor_avista).
@@ -172,7 +171,13 @@ export function reais(valor: number | null | undefined) {
 
 // "2026-10-16" → "16/10/2026" (data sem fuso).
 export function dataCurta(iso: string | null) {
-  if (!iso) return "—";
+  if (!iso || !dataValida(iso.slice(0, 10))) return "—";
+  if (iso.includes("T")) {
+    const instante = new Date(iso);
+    return Number.isFinite(instante.getTime())
+      ? instante.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })
+      : "\u2014";
+  }
   const [a, m, d] = iso.slice(0, 10).split("-");
   return `${d}/${m}/${a}`;
 }

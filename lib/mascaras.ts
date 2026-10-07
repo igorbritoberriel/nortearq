@@ -7,17 +7,15 @@ const soDigitos = (v: string) => v.replace(/\D/g, "");
 // CPF 000.000.000-00 ou CNPJ 00.000.000/0000-00, decidido pela quantidade de números.
 export function mascaraDocumento(valor: string) {
   const d = soDigitos(valor).slice(0, 14);
-  if (d.length <= 11) {
-    return d
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d)/, "$1.$2")
-      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  const grupos = d.length <= 11 ? [3, 3, 3, 2] : [2, 3, 3, 4, 2];
+  const separadores = d.length <= 11 ? [".", ".", "-"] : [".", ".", "/", "-"];
+  let resultado = "", inicio = 0;
+  for (let i = 0; i < grupos.length && inicio < d.length; i++) {
+    if (i) resultado += separadores[i - 1];
+    resultado += d.slice(inicio, inicio + grupos[i]);
+    inicio += grupos[i];
   }
-  return d
-    .replace(/^(\d{2})(\d)/, "$1.$2")
-    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
-    .replace(/\.(\d{3})(\d)/, ".$1/$2")
-    .replace(/(\d{4})(\d)/, "$1-$2");
+  return resultado;
 }
 
 // (11) 91234-5678, (11) 3456-7890 ou +55 (11) 91234-5678.
@@ -42,7 +40,18 @@ export function mascaraRegistro(valor: string) {
   return d.length >= 2 ? `${letra}${d.slice(0, -1)}-${d.slice(-1)}` : `${letra}${d}`;
 }
 
+// A vírgula separa os centavos; digitar 1500 significa 1.500 reais.
+export function mascaraDinheiro(valor: string): string {
+  let v = valor.replace(/^R\$\s*/, "").replace(/[^\d.,]/g, "");
+  const [inteiro, ...decimal] = v.split(",");
+  const d = inteiro.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
+  if (!d && !decimal.length) return "";
+  const parte = (d || "0").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return parte + (decimal.length ? "," + decimal.join("").replace(/\D/g, "").slice(0, 2) : "");
+}
+
 export const MASCARAS = {
+  dinheiro: mascaraDinheiro,
   documento: mascaraDocumento,
   telefone: mascaraTelefone,
   registro: mascaraRegistro,

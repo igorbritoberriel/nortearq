@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { documentoValido } from "@/lib/contratos";
+import { dataValida } from "@/lib/formatacao";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { linkDoCliente } from "@/lib/clientes";
@@ -110,7 +112,7 @@ function erroPagamento(mensagem: string) {
 
 const esquemaBaixa = z.object({
   pagamento_id: z.uuid(),
-  pago_em: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Informe a data do pagamento."),
+  pago_em: z.string().refine(dataValida, "Informe uma data válida do pagamento."),
   forma: z.enum(["pix", "transferencia", "boleto", "cartao", "dinheiro", "outro"], "Escolha a forma de pagamento."),
   observacao: z.string().trim().max(300, "Use até 300 caracteres.").optional(),
 });
@@ -186,7 +188,7 @@ export async function gerarCobrancaParcela(pagamentoId: string): Promise<{ link:
 export async function definirVencimento(pagamentoId: string, data: string): Promise<{ ok: true } | { erro: string }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
-  if (!UUID.test(pagamentoId) || !/^\d{4}-\d{2}-\d{2}$/.test(data)) return { erro: "Informe uma data válida." };
+  if (!UUID.test(pagamentoId) || !dataValida(data)) return { erro: "Informe uma data válida." };
   const { error } = await ctx.supabase.rpc("definir_vencimento", { p_pagamento: pagamentoId, p_data: data });
   if (error) {
     return {
@@ -339,8 +341,8 @@ const esquemaDados = z.object({
     (v) => (typeof v === "string" && v.trim() === "" ? null : v),
     z
       .string()
+      .refine(documentoValido, "Informe um CPF ou CNPJ válido.")
       .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length === 11 || v.length === 14, "Informe um CPF (11 números) ou CNPJ (14 números).")
       .nullable(),
   ),
   endereco: opcional(200),

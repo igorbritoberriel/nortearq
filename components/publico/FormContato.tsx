@@ -121,7 +121,7 @@ export function FormContato({
             ajuda="Só o projeto, sem a obra. Pode ser um valor aproximado."
             erro={erro.orcamento}
           >
-            <input id="orcamento" name="orcamento" inputMode="decimal" placeholder="15.000" defaultValue={v.orcamento} />
+            <InputMascara mascara="dinheiro" id="orcamento" name="orcamento" inputMode="decimal" placeholder="15.000" defaultValue={v.orcamento} />
           </Campo>
           <Campo id="prazo" rotulo="Quando quer começar?" erro={erro.prazo}>
             <select id="prazo" name="prazo" required defaultValue={v.prazo ?? ""} key={v.prazo}>

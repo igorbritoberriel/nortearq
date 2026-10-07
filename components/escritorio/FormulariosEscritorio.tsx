@@ -250,7 +250,7 @@ export function FormPrecoAgenda({
           ajuda="Abaixo dele, o pedido chega como “fora do perfil”. Em branco, todos chegam como “a avaliar”."
           erro={erro.faixa_preco_min}
         >
-          <input
+          <InputMascara mascara="dinheiro"
             id="faixa_preco_min"
             name="faixa_preco_min"
             inputMode="decimal"
@@ -265,7 +265,7 @@ export function FormPrecoAgenda({
           ajuda="Acima dele, o pedido chega com o aviso “acima da sua faixa” (continua compatível)."
           erro={erro.faixa_preco_max}
         >
-          <input
+          <InputMascara mascara="dinheiro"
             id="faixa_preco_max"
             name="faixa_preco_max"
             inputMode="decimal"

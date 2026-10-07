@@ -73,6 +73,7 @@ export const CAMPOS_CONTRATO: { campo: string; descricao: string }[] = [
 
 // Validação dos dígitos do CPF/CNPJ (o banco confere só o tamanho).
 export function documentoValido(valor: string) {
+  if (!/^[\d.\/\-\s]+$/.test(valor)) return false;
   const d = valor.replace(/\D/g, "");
   if (/^(\d)\1+$/.test(d)) return false;
   const digito = (base: string, pesos: number[]) => {

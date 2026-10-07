@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { documentoValido } from "@/lib/contratos";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
@@ -27,8 +28,8 @@ const esquema = z.object({
   periodo: z.enum(["mensal", "anual"], "Escolha mensal ou anual."),
   documento: z
     .string()
-    .transform((v) => v.replace(/\D/g, ""))
-    .refine((v) => v.length === 11 || v.length === 14, "Informe o CPF ou CNPJ de quem paga a assinatura."),
+    .refine(documentoValido, "Informe um CPF ou CNPJ válido.")
+      .transform((v) => v.replace(/\D/g, "")),
 });
 
 async function contexto() {

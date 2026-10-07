@@ -1,3 +1,4 @@
+import { documentoValido } from "./contratos";
 // Pix copia e cola (BR Code estático, padrão EMV do Banco Central) para o cliente pagar uma parcela.
 // O dinheiro vai direto para a chave do escritório; o pagamento não passa pelo NorteArq.
 
@@ -27,8 +28,8 @@ function limpar(texto: string, max: number) {
 export function normalizarChave(tipo: TipoPix, chave: string): string | null {
   const c = chave.trim();
   const digitos = c.replace(/\D/g, "");
-  if (tipo === "cpf") return digitos.length === 11 ? digitos : null;
-  if (tipo === "cnpj") return digitos.length === 14 ? digitos : null;
+  if (tipo === "cpf") return digitos.length === 11 && documentoValido(c) ? digitos : null;
+  if (tipo === "cnpj") return digitos.length === 14 && documentoValido(c) ? digitos : null;
   if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c) && c.length <= 77 ? c.toLowerCase() : null;
   if (tipo === "telefone") {
     const n = digitos.replace(/^55(?=\d{10,11}$)/, "");

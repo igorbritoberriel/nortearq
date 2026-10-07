@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { lerNumero } from "@/lib/formatacao";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
@@ -32,12 +33,12 @@ const esquemaDados = z
   });
 
 function lerDados(formData: FormData) {
-  const valor = String(formData.get("preco_valor") ?? "").replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".");
+  const valor = lerNumero(String(formData.get("preco_valor") ?? ""));
   return esquemaDados.safeParse({
     nome: formData.get("nome"),
     servicos: formData.getAll("servicos").filter((v): v is string => typeof v === "string"),
     preco_tipo: formData.get("preco_tipo"),
-    preco_valor: valor ? Number(valor) : null,
+    preco_valor: valor,
   });
 }
 

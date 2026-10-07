@@ -1,6 +1,8 @@
 "use server";
 
 import { headers } from "next/headers";
+import { hojeBrasilia } from "@/lib/assinatura";
+import { lerNumero, somarMesesCalendario } from "@/lib/formatacao";
 import { after } from "next/server";
 import { z } from "zod";
 import { avisarNovoContato } from "@/lib/avisos";
@@ -18,7 +20,7 @@ const opcional = <T extends z.ZodType>(esquema: T) =>
 const numeroBr = (mensagem: string) =>
   z
     .string()
-    .transform((v) => Number(v.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".")))
+    .transform((v) => lerNumero(v) ?? NaN)
     .refine((v) => Number.isFinite(v) && v > 0 && v < 1_000_000_000, mensagem);
 
 const esquema = z.object({
@@ -37,9 +39,7 @@ const esquema = z.object({
 });
 
 function somarMeses(meses: number) {
-  const data = new Date();
-  data.setMonth(data.getMonth() + meses);
-  return data.toISOString().slice(0, 10);
+  return somarMesesCalendario(hojeBrasilia(), meses);
 }
 
 export async function enviarContato(

@@ -53,7 +53,7 @@ function quando(data: string) {
   const horas = Math.round(minutos / 60);
   if (horas < 24) return `há ${horas} h`;
   if (horas < 48) return "ontem";
-  return new Date(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return new Date(data).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 }
 
 export function Notificacoes({

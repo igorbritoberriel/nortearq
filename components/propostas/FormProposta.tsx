@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { InputMascara } from "@/components/InputMascara";
 import { BookmarkPlus, Check, Copy, Eye, MessageCircle, Plus, Trash2, X } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { enviarProposta, salvarProposta, type DadosProposta } from "@/app/app/(sistema)/propostas/acoes";
@@ -129,7 +130,7 @@ export function FormProposta({
   const atual = JSON.stringify(dados());
   const [salvo, setSalvo] = useState(atual);
   const sujo = atual !== salvo;
-  const agora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const agora = () => new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 
   async function salvar() {
     setMensagem(null);
@@ -352,7 +353,7 @@ export function FormProposta({
       <section className="cartao secao-config">
         <h2>Honorários e pagamento</h2>
         <Campo id="valor_total" rotulo="Valor total (R$)" erro={erros.valor_total}>
-          <input id="valor_total" inputMode="decimal" placeholder="15.000,00" value={total} onChange={(e) => setTotal(e.target.value)} />
+          <InputMascara mascara="dinheiro" id="valor_total" inputMode="decimal" placeholder="15.000,00" value={total} onChange={(e) => setTotal(e.target.value)} />
         </Campo>
 
         <div className="campo">
@@ -431,7 +432,7 @@ export function FormProposta({
                 onChange={(e) => mudarParcela(i, "descricao", e.target.value)}
                 className={erros[`parcelas.${i}.descricao`] ? "com-erro" : ""}
               />
-              <input
+              <InputMascara mascara="dinheiro"
                 aria-label={`Valor da parcela ${i + 1}`}
                 inputMode="decimal"
                 placeholder="R$"
@@ -520,7 +521,7 @@ export function FormProposta({
                 rotulo={deslocamento === "fixo" ? "Valor por visita (R$)" : "Valor por km rodado (R$)"}
                 erro={erros.deslocamento_valor}
               >
-                <input
+                <InputMascara mascara="dinheiro"
                   id="deslocamento_valor"
                   inputMode="decimal"
                   placeholder={deslocamento === "fixo" ? "150,00" : "1,50"}

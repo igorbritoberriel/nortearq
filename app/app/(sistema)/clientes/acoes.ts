@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { documentoValido } from "@/lib/contratos";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { ETAPAS_CLIENTE, linkDoCliente, type DestinoLink, type EtapaCliente } from "@/lib/clientes";
@@ -33,8 +34,8 @@ const esquemaCliente = z.object({
   documento: opcional(
     z
       .string()
-      .transform((v) => v.replace(/\D/g, ""))
-      .refine((v) => v.length === 11 || v.length === 14, "Informe um CPF (11 números) ou CNPJ (14 números)."),
+      .refine(documentoValido, "Informe um CPF ou CNPJ válido.")
+      .transform((v) => v.replace(/\D/g, "")),
   ),
   endereco_imovel: opcional(z.string().trim().max(200, "Use até 200 caracteres.")),
   observacoes: opcional(z.string().trim().max(2000, "Use até 2.000 caracteres.")),

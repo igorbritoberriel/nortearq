@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState, useTransition } from "react";
+import { InputMascara } from "@/components/InputMascara";
 import { useRouter } from "next/navigation";
 import { BookmarkPlus, LayoutTemplate } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
@@ -213,7 +214,7 @@ export function SalvarComoModelo({
       </fieldset>
       {tipo !== "vazio" && (
         <Campo id="modelo-valor" rotulo={tipo === "m2" ? "Valor por m² (R$)" : "Valor (R$)"} erro={erro.preco_valor}>
-          <input id="modelo-valor" name="preco_valor" inputMode="decimal" placeholder={tipo === "m2" ? "80" : "2.500"} defaultValue={v?.preco_valor} />
+          <InputMascara mascara="dinheiro" id="modelo-valor" name="preco_valor" inputMode="decimal" placeholder={tipo === "m2" ? "80" : "2.500"} defaultValue={v?.preco_valor} />
         </Campo>
       )}
 

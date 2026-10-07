@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { lerNumero, dataValida } from "@/lib/formatacao";
 import { after } from "next/server";
 import { z } from "zod";
 import { avisarEtapaEnviada } from "@/lib/avisos";
@@ -358,7 +359,7 @@ const esquemaAditivo = z.object({
   descricao: z.string().trim().min(5, "Descreva o que o aditivo cobre.").max(2000, "Use até 2.000 caracteres."),
   valor: z
     .string()
-    .transform((v) => Number(v.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".")))
+    .transform((v) => lerNumero(v) ?? NaN)
     .refine((v) => Number.isFinite(v) && v >= 0 && v < 100_000_000, "Informe o valor em reais, como 1.500."),
   prazo_dias: inteiro(0, 3650, "Use de 0 a 3650 dias."),
   revisoes_extras: inteiro(0, 50, "Use de 0 a 50."),
@@ -416,7 +417,7 @@ const esquemaExterna = z.object({
   protocolo: z.string().trim().max(80, "Use até 80 caracteres.").optional(),
   entrada_em: z
     .string()
-    .refine((v) => v === "" || /^\d{4}-\d{2}-\d{2}$/.test(v), "Data inválida.")
+    .refine((v) => v === "" || dataValida(v), "Data inválida.")
     .optional(),
   situacao: z.enum(SITUACOES, "Escolha a situação."),
   observacao: z.string().trim().max(500, "Use até 500 caracteres.").optional(),

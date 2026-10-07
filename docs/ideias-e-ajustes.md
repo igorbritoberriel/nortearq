@@ -206,3 +206,6 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [x] Arquivos do projeto: miniaturas, visualizador, renders, capa e espaço do plano (03/10/2026).
 - [x] Termos de uso e política de privacidade completa; aceite registrado no cadastro (03/10/2026).
 - [x] Lembretes de etapa parada há 3 e 7 dias; aviso de limite de revisões para os dois lados (03/10/2026).
+
+- [ ] CNPJ alfanumérico (revisão de 07/10/2026): adaptar máscaras, validação, normalização SQL de assinar_contrato e integrações Asaas/Pix. O formato atual suporta CPF e CNPJ numéricos. Referência: https://www.gov.br/receitafederal/pt-br/assuntos/noticias/2026/julho/receita-federal-gera-o-primeiro-cnpj-em-formato-alfanumerico
+- [x] Revisão de máscaras (07/10/2026): dinheiro em orçamento, configurações, propostas, parcelas, deslocamento, modelos e aditivos; leitura decimal comum no servidor; CPF/CNPJ numéricos com dígitos verificadores; datas de calendário e exibição em Brasília. Teste: node scripts/test-formatacao.mjs. Backup: .backups/antes-revisao-mascaras-20261007.zip.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState, useTransition } from "react";
+import { InputMascara } from "@/components/InputMascara";
 import { Trash2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
 import { excluirModeloProposta, salvarDadosModelo } from "@/app/app/(sistema)/propostas/modelos/acoes";
@@ -62,7 +63,7 @@ export function EditarModeloProposta({
         </Campo>
         {tipo !== "vazio" && (
           <Campo id={`valor-${modelo.id}`} rotulo={tipo === "m2" ? "Valor por m² (R$)" : "Valor (R$)"} erro={erro.preco_valor}>
-            <input
+            <InputMascara mascara="dinheiro"
               id={`valor-${modelo.id}`}
               name="preco_valor"
               inputMode="decimal"

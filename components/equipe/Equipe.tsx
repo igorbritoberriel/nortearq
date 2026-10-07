@@ -139,7 +139,7 @@ export function Equipe({
             <span className="equipe-pessoa">
               <strong>{c.nome}</strong>
               <small className="muted">
-                {c.email} · convite pendente, vence em {new Date(c.expira_em).toLocaleDateString("pt-BR")}
+                {c.email} · convite pendente, vence em {new Date(c.expira_em).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}
               </small>
               {bloqueados.includes(c.id) && (
                 <small className="equipe-alerta">

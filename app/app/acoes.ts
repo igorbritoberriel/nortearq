@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { lerNumero, dataValida } from "@/lib/formatacao";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { obterSessaoArquiteto } from "@/lib/escritorio";
@@ -29,8 +30,7 @@ async function contexto() {
 
 // "R$ 15.000,50" -> 15000.5
 function lerValor(texto: string) {
-  const limpo = texto.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", ".");
-  return limpo === "" ? null : Number(limpo);
+  return lerNumero(texto);
 }
 
 // ---------- Marca: nome, endereço do link, cor e logo ----------
@@ -192,7 +192,7 @@ const esquemaPreco = z
     faixa_preco_max: valorEmReais("Informe um valor em reais, como 40.000."),
     proxima_data_livre: z
       .string()
-      .refine((v) => v === "" || /^\d{4}-\d{2}-\d{2}$/.test(v), "Data inválida.")
+      .refine((v) => v === "" || dataValida(v), "Data inválida.")
       .transform((v) => v || null),
   })
   .refine((d) => d.faixa_preco_max === null || d.faixa_preco_min === null || d.faixa_preco_max >= d.faixa_preco_min, {

@@ -115,7 +115,7 @@ export async function listarServicos(): Promise<Servico[]> {
 // Dias restantes do teste grátis (RG-1). null quando já é assinante.
 export function diasDeTeste(escritorio: Escritorio): number | null {
   if (escritorio.plano !== "trial" || !escritorio.trial_ate) return null;
-  const fim = new Date(`${escritorio.trial_ate}T23:59:59`);
+  const fim = new Date(`${escritorio.trial_ate}T23:59:59-03:00`);
   return Math.max(0, Math.ceil((fim.getTime() - Date.now()) / 86_400_000));
 }
 
