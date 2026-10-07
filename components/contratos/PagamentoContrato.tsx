@@ -65,6 +65,7 @@ export function PagamentoContrato({ token, inicial }: { token: string; inicial: 
           })}>{pendente ? "Salvando..." : "Confirmar forma de pagamento"}</button>
         </>
       ) : <p><strong>Forma escolhida:</strong> {info.meio ? MEIOS_PAGAMENTO[info.meio] : "Conforme a cobrança já emitida"}.</p>}
+      {assinado && !info.meio && !precisaEscolher && <p className="campo-ajuda">Este contrato já tinha cobrança emitida. Use os links disponíveis abaixo. O escritório disponibiliza os pagamentos das parcelas que ainda estão sem link.</p>}
       <ul className="proposta-lista">
         {(info.parcelas.length ? info.parcelas : info.condicoes).map((p, i) => <li key={i}>
           {p.descricao}: <strong>{reais(Number(p.valor))}</strong>

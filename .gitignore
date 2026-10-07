@@ -6,6 +6,7 @@ next-env.d.ts
 *.tsbuildinfo
 .env
 .env.local
+.backups/
 .DS_Store
 
 # Material de referência de design (não faz parte do app)
