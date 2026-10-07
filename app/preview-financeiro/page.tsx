@@ -1,0 +1,15 @@
+import { notFound } from "next/navigation";
+import { Bell, LogOut } from "lucide-react";
+import { Financeiro } from "@/components/financeiro/Financeiro";
+import { MenuLateral } from "@/components/MenuLateral";
+import { Logo } from "@/components/Logo";
+import { MENU_ARQUITETO } from "@/lib/navegacao";
+import { mesValido, type DadosFinanceiro } from "@/lib/financeiro";
+export default async function Preview({searchParams}:{searchParams:Promise<{aba?:string;vazio?:string;mes?:string}>}) {
+ if(process.env.NODE_ENV!=="development")notFound();
+ const params=await searchParams;
+ const r=(id:string,cliente:string,projeto:string,descricao:string,vencimento:string,valor:number,asaas:boolean)=>({id,contratoId:"exemplo",cliente,projeto,descricao,vencimento,valor,pagoEm:null,forma:asaas&&cliente==="Carlos Mendes"?"boleto":"pix",asaas,checkout:false});
+ const dados:DadosFinanceiro={mes:mesValido(params.mes,"2026-10-07"),hoje:"2026-10-07",recebiveis:[r("1","Marina Costa","Projeto residencial","Entrada","2026-10-10",2400,true),r("2","Carlos Mendes","Interiores","2 de 4","2026-10-05",750,true),r("3","Ana Oliveira","Reforma","1 de 3","2026-10-04",500,false),r("4","Paulo Santos","Projeto comercial","3 de 5","2026-10-15",1600,false),...Array.from({length:5},(_,i)=>({...r(`grafico-${i}`,"Exemplo","Exemplo","Total",`2026-${String(i+6).padStart(2,"0")}-01`,[9000,11500,15000,10700,12500][i],true),pagoEm:`2026-${String(i+6).padStart(2,"0")}-01`}))],despesas:Array.from({length:5},(_,i)=>({id:`d-${i}`,descricao:"Renderização do projeto",fornecedor:"Estúdio 3D",categoria:"servico",valor:[4000,5000,6500,3900,4200][i],vencimento:`2026-${String(i+6).padStart(2,"0")}-01`,pago_em:`2026-${String(i+6).padStart(2,"0")}-01`,observacao:null})),asaas:{ativo:true,teste:false,saldo:4800,aLiberar:7000,taxas:700,erro:false,atualizadoEm:"2026-10-07T12:00:00Z"},podeEditar:true,somenteLeitura:false};
+ if(params.vazio){dados.recebiveis=[];dados.despesas=[];dados.asaas={ativo:false,teste:false,saldo:null,aLiberar:null,taxas:null,erro:false,atualizadoEm:null};}
+ return <div className="app"><aside className="app-lateral"><Logo href="/preview-financeiro"/><div className="app-escritorio"><strong>Débora Ribeiro - Arquitetura</strong><span className="app-plano"><strong>Profissional</strong> · teste grátis, 9 dias</span></div><button className="botao botao-secundario" style={{color:"#dfe6ef",marginBottom:24,borderColor:"#ffffff30"}}><Bell size={20}/>Notificações</button><nav aria-label="Funcionalidades"><MenuLateral itens={MENU_ARQUITETO.filter(m=>!["/app/configuracoes","/app/ajuda"].includes(m.href))}/></nav><nav className="app-solucoes"><MenuLateral itens={MENU_ARQUITETO.filter(m=>["/app/configuracoes","/app/ajuda"].includes(m.href)).concat([{href:"/app/assinatura",rotulo:"Plano e assinatura",modulo:"00"}])}/></nav><div className="app-usuario"><span>Débora Ribeiro</span><button className="app-sair"><LogOut size={18}/>Sair</button></div></aside><main className="app-conteudo"><Financeiro dados={dados} abaInicial={params.aba} caminho="/preview-financeiro"/></main></div>;
+}

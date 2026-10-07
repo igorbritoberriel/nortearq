@@ -57,5 +57,6 @@ export const PAGINA_EXIGE: Record<string, Acao> = {
   "/app/contatos": "ver_pedidos",
   "/app/propostas": "ver_valores",
   "/app/contratos": "ver_valores",
+  "/app/financeiro": "ver_valores",
   "/app/configuracoes": "configurar_escritorio",
 };

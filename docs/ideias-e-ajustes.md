@@ -71,6 +71,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
+- [ ] **Financeiro do escritório (07/10/2026):** implementação local revisada; aplicar a migração
+      `0046_financeiro_despesas.sql` e publicar junto com a aplicação. Testes de cálculos e de RLS/histórico
+      passaram (banco testado em transação com rollback). Manual e especificação atualizados.
 - [ ] Asaas: concluir a aprovação dos documentos e da conta bancária no painel do Asaas (necessário para sacar).
       Antes da 1ª cobrança real: testar uma assinatura de ponta a ponta (dá para usar um escritório de teste e
       estornar).
@@ -131,6 +134,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] **Financeiro:** conferir computador e celular, abas, busca, seletor de mês, cadastro e pagamento de
+      despesa, cancelamento com motivo e recebimento manual com recibo; conferir conta Asaas conectada e
+      desconectada. A prévia local está em `/preview-financeiro` (somente desenvolvimento).
 Conferência automática de 04/10/2026 (conta de teste, computador e celular, 23 telas): painel, menu do celular,
 ficha com "próximo passo", proposta em rascunho, contrato, projeto, configurações, formulário do escritório e as
 páginas do cliente (proposta, contrato, projeto, briefing, dúvidas frequentes) sem erros; 3 desalinhamentos

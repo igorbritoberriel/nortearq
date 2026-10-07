@@ -296,8 +296,8 @@ em estudo.
 
 ## 9. Pagamentos e recibos ✅
 
-O NorteArq **não cobra** o cliente final: é o controle do que foi combinado e recebido. **O pagamento não passa
-pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica com nenhuma parte.
+O NorteArq organiza o que foi combinado e recebido. O cliente paga ao escritório por Pix direto ou pela
+conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa de serviço NorteArq descrita abaixo.
 
 - As parcelas da proposta (e dos aditivos aprovados) aparecem em Pagamentos, no contrato.
 - **Registrar pagamento:** data (não pode ser no futuro), forma (Pix, transferência, boleto, cartão,
@@ -340,6 +340,24 @@ pelo NorteArq**: o cliente paga direto ao escritório, e o NorteArq não fica co
 
 - O contrato padrão (modelos criados daqui para frente) traz a cláusula de **multa de 2% e juros de 1% ao mês** por
   atraso. Modelos já existentes não mudam: dá para acrescentar a frase no próprio modelo.
+
+**Financeiro do escritório**
+- O menu **Financeiro** reúne as parcelas dos contratos assinados e as despesas. Disponível nos planos
+  Profissional e Escritório e durante o teste grátis, para Dono e Administrador.
+- **Visão geral:** recebido no mês, todas as parcelas a receber, parcelas vencidas e despesas pagas no mês.
+  O gráfico compara entradas confirmadas e despesas pagas nos cinco meses até o mês selecionado.
+- **Contas a receber:** todas as pendências, independentemente do vencimento, e os pagamentos confirmados
+  no mês escolhido. Busque pelo cliente ou projeto e filtre por situação.
+- **Registrar pagamento:** disponível para recebimentos manuais; gera o mesmo recibo do contrato.
+  Cobranças ligadas ao Asaas são confirmadas automaticamente. Para abrir o recibo ou estornar, use **Ver contrato**.
+- **Despesas:** todas as pendências e as despesas pagas no mês escolhido. Em **Nova despesa**, informe descrição,
+  categoria, valor e vencimento; fornecedor e observação são opcionais. Se já pagou, marque a opção e informe a data.
+- **Registrar pagamento** da despesa só registra o que já foi pago. **Cancelar despesa** exige motivo e retira
+  o registro dos totais, preservando o histórico. Essas ações não movimentam dinheiro na conta bancária.
+- **Asaas:** saldo disponível, valores confirmados a liberar e taxas das cobranças pagas no mês, considerando
+  toda a conta conectada. A consulta pode levar até cinco minutos para atualizar. Valores indisponíveis aparecem
+  como travessão e com aviso; ambiente de testes é identificado.
+- No **modo leitura**, os registros podem ser consultados, mas nenhum pagamento ou despesa pode ser registrado.
 
 ## 10. Projeto: etapas, arquivos, revisões, aditivos ✅
 

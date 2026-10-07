@@ -81,6 +81,10 @@ escritório". O NorteArq foca em **tirar o cliente das costas do arquiteto**:
 **Fora da V1 (de propósito):** financeiro completo, cronograma de obra, gestão de equipe e tarefas, cobrança
 automática de visitas, IA.
 
+**Extensão de 07/10/2026 — Financeiro do escritório:** visão consolidada das parcelas dos contratos assinados,
+registro de despesas com histórico e consulta da conta Asaas. Incluído no módulo 01, para Dono e Administrador.
+Não inclui contabilidade, conciliação bancária nem execução de pagamentos de despesas.
+
 ---
 
 ## 3. Quem usa (papéis) ✅
@@ -456,6 +460,7 @@ automático exige a API oficial do WhatsApp Business, que é paga, e fica para a
 | Clientes / ficha | `/app/clientes` · `/app/clientes/[id]` | 00 |
 | Propostas / edição | `/app/propostas` · `/app/propostas/[id]` | 01 |
 | Contratos e pagamentos | `/app/contratos` | 01 |
+| Financeiro: recebimentos, despesas e saldo Asaas | `/app/financeiro` | 01 |
 | Briefings / Perfil do Cliente | `/app/briefings` | 02 |
 | Editor de briefing | `/app/briefings/editor` | 02 |
 | Projetos / projeto | `/app/projetos` · `/app/projetos/[id]` | 03 |

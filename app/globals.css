@@ -455,6 +455,13 @@ p { margin: 0 0 1em; }
 .app-lateral { display: flex; flex-direction: column; }
 .app-lateral > * { flex-shrink: 0; }
 .app-lateral nav a { min-width: 0; overflow-wrap: anywhere; }
+.app-lateral nav a { gap: 14px; justify-content: flex-start; align-items: center; }
+.app-lateral nav a svg { flex: none; }
+@media (min-width: 861px) {
+  .app { grid-template-columns: 250px minmax(0, 1fr); }
+  .app-lateral nav a { padding: 11px 12px; font-size: 0.92rem; }
+  .app-lateral nav.app-solucoes { padding-top: 20px; padding-bottom: 10px; gap: 8px; }
+}
 .app-lateral nav.app-solucoes { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.12); font-size: 0.9rem; color: #c5cedb; }
 .app-lateral > nav[aria-label="Funcionalidades"] { margin-bottom: 20px; }
 .ajuda-contato { margin-bottom: 24px; }
