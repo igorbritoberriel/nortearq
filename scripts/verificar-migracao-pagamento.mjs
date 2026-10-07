@@ -33,7 +33,7 @@ if (process.argv.includes("--backup")) {
     console.log("SQL de retorno validado com rollback.");
   } else console.log("SQL de retorno salvo; nenhuma alteração aplicada.");
 } else {
-  const migracao=readFileSync("supabase/migrations/0043_fluxo_pagamento.sql","utf8");
+  const migracao=readFileSync("supabase/migrations/0043_fluxo_pagamento.sql","utf8")+readFileSync("supabase/migrations/0044_cartao_valor_total.sql","utf8");
   const testes=readFileSync("scripts/test-fluxo-pagamento.sql","utf8");
   console.log(await query(`begin;\n${migracao}\n${testes}\nrollback;`));
 }

@@ -43,12 +43,13 @@ const centavos = Array.from({ length: 3 }, (_, i) => ({ ...linhas()[1], id: `c${
 assert.equal(planejarCobrancas(centavos, "cartao", true, "2026-10-07")[0].parcelas.length, 3);
 
 function ambiente(meio = "cartao", opcoes = {}) {
+  const parcelas = opcoes.cartaoTotal ? Array.from({length:4},(_,i)=>({descricao:`Parcela ${i+1} de 4 (mensal)`,valor:250})) : condicoes;
   const tabelas = {
     contratos: [{ id: "contrato-teste", status: opcoes.status ?? "assinado", escritorio_id: "escritorio-teste",
-      proposta: { meio_escolhido: meio, modo_pagamento: "parcelado", avista: false, parcelas: condicoes },
+      proposta: { meio_escolhido: meio, modo_pagamento: "parcelado", avista: false, parcelas, cartao_valor_total: !!opcoes.cartaoTotal },
       cliente: { id: "cliente-teste", nome: "Cliente Teste", documento: "52998224725", email: null, telefone: null },
       escritorio: { nome: "Escritório Teste", cobranca_ativa: true } }],
-    pagamentos: linhas(), cobranca_credenciais: [{ escritorio_id: "escritorio-teste", chave_cifrada: cifrar("$aact_hmlg_teste_falso"), carteira_id: "wallet-teste" }],
+    pagamentos: opcoes.cartaoTotal ? parcelas.map((p,i)=>({...linhas()[i],...p})) : linhas(), cobranca_credenciais: [{ escritorio_id: "escritorio-teste", chave_cifrada: cifrar("$aact_hmlg_teste_falso"), carteira_id: "wallet-teste" }],
     cobranca_preparos: [], cobranca_solicitacoes: [],
   };
   let falhouSave = false;
@@ -155,4 +156,11 @@ for (const [meio, posts, billingType] of [["cartao", 2, "CREDIT_CARD"], ["pix", 
   assert.equal(a.chamadas.filter((c) => c.metodo === "POST").length, 2);
   assert.ok(a.tabelas.pagamentos.every((p) => p.pago_em));
 }
-console.log("OK: entrada + saldo no cartão, Pix, boleto, centavos, assinatura, concorrência, recuperação e proteção contra duplicação.");
+{
+  const a=ambiente("cartao",{cartaoTotal:true});
+  assert.deepEqual(await prepararCobrancasContrato(a.admin,"contrato-teste"),{ok:true});
+  const posts=a.chamadas.filter(c=>c.metodo==="POST");
+  assert.equal(posts.length,1); assert.equal(posts[0].body.totalValue,1000); assert.equal(posts[0].body.installmentCount,4);
+  assert.ok(a.tabelas.pagamentos.every(p=>p.valor===250&&p.asaas_parcelamento_id));
+}
+console.log("OK: cartão com valor total sem entrada, contratos antigos, Pix, boleto, centavos, assinatura, concorrência e recuperação sem duplicação.");

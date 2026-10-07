@@ -56,9 +56,10 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
             {String(p.desconto_avista_pct).replace(".", ",")}% de desconto, pagamento único na assinatura do contrato). Ou:
           </p>
         )}
-        {aEscolher && (
+        {aEscolher && (!p.meios_pagamento || p.meios_pagamento.some((m) => m !== "cartao")) && (
           <>
             <p className="proposta-texto">
+              {p.meios_pagamento?.includes("cartao") ? "Pix ou boleto: " : ""}
               {opcoes[0].entrada > 0
                 ? `Entrada de ${reais(opcoes[0].entrada)} (${p.entrada_pct}%) na assinatura do contrato e o saldo `
                 : "Pagamento "}
@@ -76,11 +77,23 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
             )}
           </>
         )}
+        {!p.meio_escolhido && p.meios_pagamento?.includes("cartao") && !!p.valor_total && (
+          <>
+            <p className="proposta-texto">Cartão de crédito: valor total sem entrada, em até {Math.min(12, p.parcelas_max ?? 1)}x.</p>
+            <ul className="parcelamento-lista">
+              {opcoesParcelamento(p.valor_total, 0, Math.min(12, p.parcelas_max ?? 1)).filter((o) => o.parcela >= 5).map((o) => (
+                <li key={o.n}><strong>{o.n}x</strong> de {reais(o.parcela)}</li>
+              ))}
+            </ul>
+          </>
+        )}
         {p.parcelas_escolhidas && (
           <p className="proposta-texto">
             <strong>Forma escolhida:</strong>{" "}
             {p.avista
               ? `à vista, com ${String(p.desconto_avista_pct ?? 0).replace(".", ",")}% de desconto`
+              : p.cartao_valor_total
+                ? `valor total no cartão em ${p.parcelas_escolhidas}x, sem entrada`
               : p.parcelas_escolhidas === 1
                 ? "saldo em parcela única"
                 : `saldo em ${p.parcelas_escolhidas}x`}

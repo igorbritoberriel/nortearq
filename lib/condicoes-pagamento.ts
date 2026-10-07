@@ -44,6 +44,7 @@ export function planejarCobrancas(
 export type ResumoPagamento = {
   contrato_id: string; status: string; meio: MeioPagamento | null; meios: MeioPagamento[]; cobranca_ativa: boolean;
   modo: string;
+  cartao_total?: boolean;
   condicoes: { descricao: string; valor: number }[];
   parcelas: { id: string; descricao: string; valor: number; vencimento: string | null; pago_em: string | null;
     link: string | null; status: string | null; parcelamento: string | null }[];

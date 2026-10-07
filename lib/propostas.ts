@@ -35,6 +35,7 @@ export type ConteudoProposta = {
   forma_pagamento: string | null;
   meios_pagamento?: MeioPagamento[];
   meio_escolhido?: MeioPagamento | null;
+  cartao_valor_total?: boolean;
   prazo: string | null;
   revisoes_incluidas: number;
   visitas_incluidas: number;
@@ -117,7 +118,7 @@ export const MOTIVOS_RECUSA: Record<MotivoRecusa, string> = {
 };
 
 export const COLUNAS_PROPOSTA =
-  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, desconto_avista_pct, avista, modelo_origem, modelo_aplicado_em, enviada_por, parcelas_escolhidas, forma_pagamento, meios_pagamento, meio_escolhido, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
+  "id, grupo_id, cliente_id, versao, titulo, escopo, itens, valor_total, parcelas, modo_pagamento, entrada_pct, parcelas_max, desconto_avista_pct, avista, modelo_origem, modelo_aplicado_em, enviada_por, parcelas_escolhidas, forma_pagamento, meios_pagamento, meio_escolhido, cartao_valor_total, prazo, revisoes_incluidas, visitas_incluidas, nao_incluido, deslocamento_tipo, deslocamento_valor, deslocamento_cidade, deslocamento_obs, validade_dias, validade_ate, enviada_em, status, comentario_cliente, motivo_recusa, respondida_em, resposta_ip, criado_em, atualizado_em";
 
 // RN-01.8: enviada e vencida aparece como expirada (o banco não muda o status sozinho).
 export function statusVisivel(p: { status: StatusProposta; validade_ate: string | null }): StatusProposta | "expirada" {

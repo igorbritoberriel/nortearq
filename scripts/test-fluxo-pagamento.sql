@@ -4,6 +4,7 @@ declare
   escritorio uuid; cliente uuid := gen_random_uuid(); proposta uuid := gen_random_uuid(); contrato uuid := gen_random_uuid();
   tp text := encode(gen_random_bytes(24),'hex'); tc text := encode(gen_random_bytes(24),'hex');
   v jsonb; total numeric; texto text; dono uuid := gen_random_uuid();
+  meio text; p2 uuid; t2 text;
 begin
   select id into escritorio from escritorios where cobranca_ativa = true limit 1;
   if escritorio is null then raise exception 'Teste requer um escritório conectado'; end if;
@@ -24,9 +25,9 @@ begin
   exception when others then if sqlerrm <> 'meio_invalido' then raise; end if; end;
   perform responder_proposta(tp,'aprovar',null,null,'teste',4,false,'cartao');
   select meio_escolhido,parcelas into texto,v from propostas where id=proposta;
-  if texto <> 'cartao' or jsonb_array_length(v) <> 5 then raise exception 'Escolha/entrada/parcelas incorretas'; end if;
+  if texto <> 'cartao' or jsonb_array_length(v) <> 4 then raise exception 'Escolha/parcelas incorretas'; end if;
   select sum((x->>'valor')::numeric) into total from jsonb_array_elements(v) x;
-  if total <> 1000 or (v->0->>'valor')::numeric <> 300 then raise exception 'Valores alterados'; end if;
+  if total <> 1000 or (v->0->>'valor')::numeric <> 250 then raise exception 'Valores alterados'; end if;
 
   insert into contratos(id,escritorio_id,cliente_id,proposta_id,conteudo,corpo,status,enviado_em)
     values(contrato,escritorio,cliente,proposta,'','Contrato teste {{proposta.parcelas}} {{proposta.forma_pagamento}}','aguardando_assinatura',now());
@@ -48,13 +49,22 @@ begin
   if (select parcelas from propostas where id=proposta) <> v->'condicoes' then raise exception 'Escolha alterou parcelas antigas'; end if;
   perform assinar_contrato(tc,'Cliente Fictício Teste','52998224725','Rua de Teste, 123','teste','teste');
   select conteudo into texto from contratos where id=contrato;
-  if position('Cartão de crédito' in texto)=0 then raise exception 'Método não congelado no texto'; end if;
+  if position('Cartão de crédito' in texto)=0 or position('Não há entrada separada' in texto)=0 then raise exception 'Método não congelado no texto'; end if;
   select sum(valor) into total from pagamentos where contrato_id=contrato;
   if total <> 1000 then raise exception 'Pagamentos diferentes do contrato'; end if;
   if not iniciar_preparo_cobranca(contrato,dono) or iniciar_preparo_cobranca(contrato,gen_random_uuid()) then raise exception 'Trava concorrente falhou'; end if;
   if has_function_privilege('anon','iniciar_preparo_cobranca(uuid,uuid)','execute')
      or has_function_privilege('anon','assinar_contrato_v0043(text,text,text,text,text,text)','execute')
      or has_table_privilege('anon','cobranca_solicitacoes','insert') then raise exception 'Permissão indevida'; end if;
+  foreach meio in array array['pix','boleto'] loop
+    p2 := gen_random_uuid(); t2 := encode(gen_random_bytes(24),'hex');
+    insert into propostas(id,escritorio_id,cliente_id,grupo_id,titulo,status,enviada_em,validade_ate,valor_total,modo_pagamento,entrada_pct,parcelas_max,itens,parcelas,meios_pagamento)
+      values(p2,escritorio,cliente,p2,'Teste Pix Boleto','enviada',now(),current_date+30,1000,'parcelado',30,12,'[{"servico":"Teste"}]','[]',array['pix','boleto','cartao']);
+    insert into links_cliente(token,escritorio_id,cliente_id,destino,referencia_id,expira_em) values(t2,escritorio,cliente,'proposta',p2,now()+interval '1 day');
+    perform responder_proposta(t2,'aprovar',null,null,'teste',4,false,meio);
+    select parcelas into v from propostas where id=p2;
+    if jsonb_array_length(v)<>5 or (v->0->>'valor')::numeric<>300 or (v->1->>'valor')::numeric<>175 then raise exception 'Entrada Pix/Boleto alterada'; end if;
+  end loop;
   update links_cliente set expira_em=now()-interval '1 day' where token=tc;
   begin
     perform resumo_pagamento_cliente(tc);

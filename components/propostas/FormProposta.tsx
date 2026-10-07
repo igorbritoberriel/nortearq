@@ -394,7 +394,7 @@ export function FormProposta({
         {modo === "parcelado" ? (
           <>
             <div className="form-linha">
-              <Campo id="entrada_pct" rotulo="Entrada (%)" ajuda="Use 0 para sem entrada." erro={erros.entrada_pct}>
+              <Campo id="entrada_pct" rotulo="Entrada para Pix ou boleto (%)" ajuda="Use 0 para sem entrada. No cartão, o cliente paga o valor total sem entrada separada." erro={erros.entrada_pct}>
                 <input id="entrada_pct" inputMode="decimal" value={entradaPct} onChange={(e) => setEntradaPct(e.target.value)} />
               </Campo>
               <Campo id="parcelas_max" rotulo="Saldo em até">
@@ -407,7 +407,7 @@ export function FormProposta({
                 </select>
               </Campo>
             </div>
-            {meios.includes("cartao") && <p className="campo-ajuda">No cartão, o saldo pode ser dividido em até 12 vezes, dentro do seu limite. A entrada é paga separadamente. Pix e boleto seguem os vencimentos mensais.</p>}
+            {meios.includes("cartao") && <p className="campo-ajuda">No cartão, o valor total pode ser dividido em até 12 vezes, dentro do seu limite, sem entrada separada. A entrada definida acima vale para Pix e boleto, com o saldo em parcelas mensais.</p>}
             <Campo
               id="desconto_avista_pct"
               rotulo="Desconto para pagamento à vista (%)"

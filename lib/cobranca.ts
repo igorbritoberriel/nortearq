@@ -208,10 +208,10 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
   if (!adquirido) return { erro: "O pagamento está sendo preparado. Atualize em instantes." };
   try {
     const { data: c, error } = await admin.from("contratos").select(
-      "id,status,escritorio_id,proposta:propostas(meio_escolhido,modo_pagamento,avista,parcelas),cliente:clientes(id,nome,documento,email,telefone),escritorio:escritorios(nome,cobranca_ativa)",
+      "id,status,escritorio_id,proposta:propostas(meio_escolhido,modo_pagamento,avista,parcelas,cartao_valor_total),cliente:clientes(id,nome,documento,email,telefone),escritorio:escritorios(nome,cobranca_ativa)",
     ).eq("id", contratoId).single();
     if (error || !c || c.status !== "assinado") return { erro: "Assine o contrato antes de acessar o pagamento." };
-    const p = c.proposta as unknown as { meio_escolhido: MeioPagamento | null; modo_pagamento: string; avista: boolean; parcelas: { descricao: string; valor: number }[] };
+    const p = c.proposta as unknown as { meio_escolhido: MeioPagamento | null; modo_pagamento: string; avista: boolean; cartao_valor_total?: boolean; parcelas: { descricao: string; valor: number }[] };
     const esc = c.escritorio as unknown as { nome: string; cobranca_ativa: boolean };
     const cliente = c.cliente as unknown as ClienteCobranca;
     if (!p.meio_escolhido) return { erro: "Escolha a forma de pagamento primeiro." };
@@ -234,7 +234,7 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
     }) : todas.filter((r) => r.descricao === "Valor total");
     if (new Set(parcelas.map((r) => r.id)).size !== parcelas.length) throw new Error("As parcelas do contrato precisam ser conferidas pelo escritório.");
     if (parcelas.length && parcelas.every((r) => r.pago_em || r.asaas_cobranca_id && r.asaas_link)) return { ok: true };
-    const grupos = planejarCobrancas(parcelas as ParcelaCobranca[], p.meio_escolhido, p.modo_pagamento === "parcelado" && !p.avista, hojeBrasilia());
+    const grupos = planejarCobrancas(parcelas as ParcelaCobranca[], p.meio_escolhido, (p.cartao_valor_total || p.modo_pagamento === "parcelado") && !p.avista, hojeBrasilia());
     const clienteAsaas = await garantirCliente(chave, cliente);
     const billingType = { pix: "PIX", boleto: "BOLETO", cartao: "CREDIT_CARD" }[p.meio_escolhido];
     const carteira = process.env.ASAAS_CARTEIRA_NORTEARQ;
@@ -267,7 +267,7 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
         try { primeira = await asaas<CobrancaCriada>(chave, "/payments", {
           method: "POST", body: JSON.stringify({ customer: clienteAsaas, billingType, dueDate: grupo.vencimento,
             ...(grupo.parcelado ? { installmentCount: grupo.parcelas.length, totalValue: total } : { value: total }),
-            description: `${grupo.parcelado ? "Saldo parcelado do contrato" : grupo.parcelas[0].descricao} · ${esc.nome}`.slice(0, 500),
+            description: `${grupo.parcelado ? (p.cartao_valor_total ? "Valor total parcelado do contrato" : "Saldo parcelado do contrato") : grupo.parcelas[0].descricao} · ${esc.nome}`.slice(0, 500),
             externalReference: referencia, ...(split ? { split } : {}),
           }),
         }); } catch (e) {

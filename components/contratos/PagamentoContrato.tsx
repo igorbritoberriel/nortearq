@@ -37,7 +37,7 @@ export function PagamentoContrato({ token, inicial }: { token: string; inicial: 
       <h2 id="pagamento-contrato-titulo">{assinado ? "Seu pagamento" : "Condições de pagamento"}</h2>
       {precisaEscolher ? (
         <>
-          <p>Escolha a forma de pagamento. Os valores e a quantidade de parcelas aprovados continuam os mesmos.</p>
+          <p>Escolha a forma de pagamento. O valor total e a quantidade de parcelas aprovados continuam os mesmos. Antes de assinar, confira as condições atualizadas no contrato.</p>
           <fieldset className="parcelamento-escolha">
             <legend>Forma de pagamento</legend>
             <div className="parcelamento-opcoes">
@@ -47,8 +47,10 @@ export function PagamentoContrato({ token, inicial }: { token: string; inicial: 
               </label>)}
             </div>
           </fieldset>
-          <p className="campo-ajuda">{meio === "cartao" && info.modo === "parcelado"
-            ? "A entrada, se houver, é paga separadamente. O saldo é uma compra parcelada no cartão."
+          <p className="campo-ajuda">{meio === "cartao" && !assinado
+            ? "No cartão, o valor total é pago em uma única compra, sem entrada separada."
+            : meio === "cartao" && info.modo === "parcelado"
+            ? "Este contrato já foi assinado: a entrada e as parcelas aprovadas serão preservadas."
             : "Cada parcela será paga conforme as condições aprovadas. Não há débito automático."}</p>
           <button type="button" className="botao botao-marca" disabled={!meio || pendente} onClick={() => iniciar(async () => {
             setErro(null);
@@ -74,10 +76,10 @@ export function PagamentoContrato({ token, inicial }: { token: string; inicial: 
         </li>)}
       </ul>
       {!assinado && <p className="campo-ajuda">Confira o contrato abaixo. Após assinar, o acesso ao pagamento aparece nesta página.</p>}
-      {assinado && info.meio === "cartao" && <p className="campo-ajuda">Os dados do cartão são informados somente na página segura do Asaas. {info.parcelas.length > 1 ? (info.modo === "parcelado" ? "A entrada, quando prevista, e o saldo parcelado têm pagamentos separados." : "As parcelas personalizadas são cobranças separadas, conforme o contrato.") : "O valor é pago em uma única cobrança."}</p>}
+      {assinado && info.meio === "cartao" && <p className="campo-ajuda">Os dados do cartão são informados somente na página segura do Asaas. {info.cartao_total ? "O valor total é pago em uma única compra, sem entrada separada." : info.parcelas.length > 1 ? (info.modo === "parcelado" ? "A entrada, quando prevista, e o saldo parcelado têm pagamentos separados." : "As parcelas personalizadas são cobranças separadas, conforme o contrato.") : "O valor é pago em uma única cobrança."}</p>}
       {assinado && grupos.map((grupo) => <a key={grupo[0].parcelamento || grupo[0].id} className="botao botao-marca pagamento-acesso"
         href={grupo[0].link!} target="_blank" rel="noopener noreferrer">
-        {grupo[0].parcelamento ? `Pagar saldo no cartão (${info.parcelas.filter((p) => p.parcelamento === grupo[0].parcelamento).length}x)` : `Pagar ${grupo[0].descricao.toLowerCase()}`} · {reais(grupo.reduce((s, p) => s + Number(p.valor), 0))}
+        {info.cartao_total ? `Pagar no cartão (${info.parcelas.length}x)` : grupo[0].parcelamento ? `Pagar saldo no cartão (${info.parcelas.filter((p) => p.parcelamento === grupo[0].parcelamento).length}x)` : `Pagar ${grupo[0].descricao.toLowerCase()}`} · {reais(grupo.reduce((s, p) => s + Number(p.valor), 0))}
       </a>)}
       {faltando && !precisaEscolher && <>
         <p className="campo-ajuda">Estamos preparando os links de pagamento. Se ainda não apareceram, use o botão abaixo para continuar.</p>
