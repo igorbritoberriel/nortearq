@@ -71,9 +71,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 
 ## A fazer
-- [ ] **Financeiro do escritório (07/10/2026):** implementação local revisada; aplicar a migração
-      `0046_financeiro_despesas.sql` e publicar junto com a aplicação. Testes de cálculos e de RLS/histórico
-      passaram (banco testado em transação com rollback). Manual e especificação atualizados.
 - [ ] Asaas: concluir a aprovação dos documentos e da conta bancária no painel do Asaas (necessário para sacar).
       Antes da 1ª cobrança real: testar uma assinatura de ponta a ponta (dá para usar um escritório de teste e
       estornar).
@@ -176,6 +173,13 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Financeiro do escritório (07/10/2026):** migração `0046_financeiro_despesas.sql` aplicada e aplicação
+      publicada em nortearq.com.br. Visão geral, parcelas a receber, despesas e consulta de saldo Asaas;
+      pendências permanecem visíveis entre meses, pagamentos manuais exibem a forma registrada e despesas
+      usam a máscara de dinheiro do sistema. Build, TypeScript, cálculos e testes de RLS/histórico passaram.
+      Verificado no site com conta temporária: página autenticada, despesa visível, bloqueio do Colaborador e
+      prévia inacessível em produção. Conta e escritório de teste removidos. Manual e especificação atualizados.
+      Conferência visual em computador e celular continua na lista acima.
 - [x] Conta Asaas de teste no site real (04/10/2026): a Débora conectou uma chave do ambiente de testes (sandbox, $aact_hmlg) e aparecia "conta de teste". Agora o site real recusa chave de teste com o passo a passo da chave certa, não gera cobrança com conta de teste já conectada (o cliente continua vendo o Pix) e mostra aviso com os passos para trocar. Nenhuma cobrança de teste chegou aos clientes dela.
 - [x] Máscara na chave Pix (04/10/2026): o campo segue o tipo escolhido (CPF 000.000.000-00, CNPJ 00.000.000/0000-00, celular (11) 91234-5678, e-mail com teclado de e-mail, chave aleatória com exemplo); trocar o tipo limpa o campo.
 - [x] "Salvar Pix" dava erro em Configurações (04/10/2026, migração 0041): a 0037 criou os campos do Pix sem liberar a gravação. Agora grava pela função salvar_pix, só para o dono (a chave decide para onde vai o dinheiro). Pix fixo e cobrança automática convivem: parcela com cobrança do Asaas mostra "Pagar agora (Pix, boleto ou cartão)"; as outras mostram "Pagar com Pix". Login: uma falha momentânea do banco não manda mais o arquiteto para o portal do cliente. Telas de como o cliente paga em "referencias do projeto/asaas-como-o-cliente-ve".
