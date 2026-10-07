@@ -12,6 +12,7 @@ import { linkWhatsapp } from "@/lib/contatos";
 import {
   TIPOS_DESLOCAMENTO,
   lerReais,
+  linhasDaProposta,
   opcoesParcelamento, valorAvista,
   reais,
   textoDeslocamento,
@@ -102,10 +103,7 @@ export function FormProposta({
       itens: itens.map((i) => ({
         servico: i.servico,
         escopo: i.escopo,
-        entregaveis: i.entregaveis
-          .split("\n")
-          .map((e) => e.replace(/^[-•*]\s*/, "").trim())
-          .filter(Boolean),
+        entregaveis: linhasDaProposta(i.entregaveis),
       })),
       valor_total: valorTotal ?? Number.NaN,
       parcelas: modo === "parcelado" ? [] : parcelas.map((p) => ({ descricao: p.descricao, valor: lerReais(p.valor) ?? Number.NaN })),
@@ -327,7 +325,7 @@ export function FormProposta({
                 </button>
               )}
             </div>
-            <Campo id={`escopo-${i}`} rotulo="Escopo" opcional ajuda="O que você vai fazer neste serviço." erro={erros[`itens.${i}.escopo`]}>
+            <Campo id={`escopo-${i}`} rotulo="Escopo" opcional ajuda="Um por linha. Ex.: Levantamento, Estudo preliminar, Projeto executivo. Cada linha vira um item na proposta." erro={erros[`itens.${i}.escopo`]}>
               <textarea id={`escopo-${i}`} rows={3} value={item.escopo} onChange={(e) => mudarItem(i, "escopo", e.target.value)} />
             </Campo>
             <Campo id={`entregaveis-${i}`} rotulo="Entregáveis" opcional ajuda="Um por linha. Ex.: Planta de layout, Projeto 3D, Detalhamento de marcenaria.">

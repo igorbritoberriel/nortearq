@@ -9,6 +9,11 @@ export type MotivoRecusa = "preco" | "prazo" | "escopo" | "outro_profissional" |
 export type ItemProposta = { servico: string; escopo: string; entregaveis: string[] };
 export type Parcela = { descricao: string; valor: number };
 
+// Enter cria um item; a quebra automática do texto não cria outro marcador.
+export function linhasDaProposta(texto: string): string[] {
+  return texto.split(/\r?\n/).map((linha) => linha.trim().replace(/^[-•*]\s*/, "")).filter(Boolean);
+}
+
 // Conteúdo que o cliente vê.
 export type ConteudoProposta = {
   versao: number;

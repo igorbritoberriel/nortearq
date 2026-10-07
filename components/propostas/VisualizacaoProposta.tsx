@@ -1,5 +1,5 @@
 import { CalendarClock, Car, Eye, PencilRuler, Wallet } from "lucide-react";
-import { type ConteudoProposta, dataCurta, opcoesParcelamento, reais, valorAvista, somaParcelas, textoDeslocamento } from "@/lib/propostas";
+import { type ConteudoProposta, dataCurta, linhasDaProposta, opcoesParcelamento, reais, valorAvista, somaParcelas, textoDeslocamento } from "@/lib/propostas";
 
 // A proposta como o cliente lê (RN-01.6). Usada no link do cliente e na pré-visualização do arquiteto.
 export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta }) {
@@ -23,13 +23,19 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
       {p.itens.map((item, i) => (
         <section key={i} className="proposta-bloco">
           <h2>{item.servico || "Serviço"}</h2>
-          {item.escopo && <p className="proposta-texto">{item.escopo}</p>}
+          {linhasDaProposta(item.escopo).length > 0 && (
+            <ul className="proposta-lista">
+              {linhasDaProposta(item.escopo).map((linha, n) => (
+                <li key={n}>{linha}</li>
+              ))}
+            </ul>
+          )}
           {item.entregaveis.length > 0 && (
             <>
               <h3>O que você recebe</h3>
               <ul className="proposta-lista">
-                {item.entregaveis.map((e) => (
-                  <li key={e}>{e}</li>
+                {item.entregaveis.map((e, n) => (
+                  <li key={n}>{e}</li>
                 ))}
               </ul>
             </>
