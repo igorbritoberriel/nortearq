@@ -526,7 +526,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
   const { data: p } = await admin
     .from("pagamentos")
     .select(
-      "descricao, valor, vencimento, pago_em, asaas_link, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
+      "descricao, valor, vencimento, pago_em, asaas_link, contrato:contratos(id, cliente_id, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, cobranca_ativa, pix_tipo, pix_chave, pix_nome, pix_cidade), projeto:projetos(id))",
     )
     .eq("id", pagamentoId)
     .maybeSingle();
@@ -535,7 +535,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
     cliente_id: string;
     escritorio_id: string;
     cliente: { nome: string; email: string | null } | null;
-    escritorio: { nome: string; pix_tipo: string | null; pix_chave: string | null; pix_nome: string | null; pix_cidade: string | null } | null;
+    escritorio: { nome: string; cobranca_ativa: boolean; pix_tipo: string | null; pix_chave: string | null; pix_nome: string | null; pix_cidade: string | null } | null;
     projeto: { id: string }[] | { id: string } | null;
   } | null;
   if (!p || !c || p.pago_em || !p.vencimento) return;
@@ -549,7 +549,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
     const e = c.escritorio;
     const linkAsaas = (p.asaas_link as string | null) ?? null;
     const codigo =
-      !linkAsaas && e?.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
+      !linkAsaas && !e?.cobranca_ativa && e?.pix_tipo && e.pix_chave && e.pix_nome && e.pix_cidade
         ? pixCopiaECola({ tipo: e.pix_tipo as TipoPix, chave: e.pix_chave, nome: e.pix_nome, cidade: e.pix_cidade }, Number(p.valor), p.descricao as string)
         : null;
     const token = projetoId ? await tokenDoProjeto(admin, projetoId, c.escritorio_id, c.cliente_id) : null;
@@ -571,7 +571,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
         linhas: [
           `Olá, ${primeiro}! Um lembrete do ${escaparHtml(escritorio)}: ${frase}`,
           ...(linkAsaas
-            ? [`Para pagar por <strong>Pix, boleto ou cartão</strong>: <a href="${escaparHtml(linkAsaas)}">${escaparHtml(linkAsaas)}</a>`]
+            ? [`Acesse o pagamento no Asaas: <a href="${escaparHtml(linkAsaas)}">${escaparHtml(linkAsaas)}</a>`]
             : []),
           ...(codigo
             ? [
@@ -585,7 +585,7 @@ export async function avisarParcela(pagamentoId: string, momento: "antes" | "dia
       }),
       texto: `Olá! Lembrete do ${escritorio}: parcela "${p.descricao}" de ${valor}, vencimento ${venc}.${linkAsaas ? `
 
-Pague por Pix, boleto ou cartão: ${linkAsaas}` : ""}${codigo ? `
+Acesse o pagamento no Asaas: ${linkAsaas}` : ""}${codigo ? `
 
 Pix copia e cola:
 ${codigo}` : ""}${link ? `

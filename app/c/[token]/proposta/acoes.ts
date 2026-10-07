@@ -21,6 +21,7 @@ const MENSAGENS: Record<string, string> = {
   cobranca_desativada: "O escritório precisa ativar o Asaas para esta forma de pagamento.",
   cartao_maximo: "No cartão, escolha até 12 parcelas para o saldo.",
   cartao_minimo: "No cartão, cada pagamento precisa ser de pelo menos R$ 5,00.",
+  cartao_condicoes: "No cartão, o valor total deve ser de pelo menos R$ 5,00; as parcelas serão escolhidas no Asaas. Atualize a página para continuar.",
   link_invalido: "Este link não vale mais. Peça um link novo ao escritório.",
 };
 

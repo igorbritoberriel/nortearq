@@ -20,14 +20,14 @@ export function RespostaProposta({
   parcelamento = null,
   demonstracao = false,
   meios = ["pix"],
-  cartaoTotal,
+  valorCartao,
 }: {
   token: string;
   escritorio: string;
   parcelamento?: { total: number; entradaPct: number; maximo: number; descontoAvista?: number | null } | null;
   demonstracao?: boolean; // pré-visualização: nada é gravado
   meios?: MeioPagamento[];
-  cartaoTotal?: { total: number; maximo: number };
+  valorCartao?: number;
 }) {
   const [acao, setAcao] = useState<AcaoResposta | null>(null);
   const [comentario, setComentario] = useState("");
@@ -37,10 +37,8 @@ export function RespostaProposta({
   const [avista, setAvista] = useState(false);
   const [meio, setMeio] = useState<MeioPagamento | null>(meios.length === 1 ? meios[0] : null);
   const valorComDesconto = parcelamento && descontoAvista > 0 ? valorAvista(parcelamento.total, descontoAvista) : null;
-  const condicoes = parcelamento ?? (meio === "cartao" && cartaoTotal ? { ...cartaoTotal, entradaPct: 0 } : null);
-  const opcoes = condicoes ? opcoesParcelamento(condicoes.total, meio === "cartao" ? 0 : condicoes.entradaPct,
-    meio === "cartao" ? Math.min(12, condicoes.maximo) : condicoes.maximo)
-    .filter((o) => meio !== "cartao" || (o.parcela >= 5 && (o.entrada === 0 || o.entrada >= 5))) : [];
+  const condicoes = meio === "cartao" ? null : parcelamento;
+  const opcoes = condicoes ? opcoesParcelamento(condicoes.total, condicoes.entradaPct, condicoes.maximo) : [];
   const [erro, setErro] = useState<string | null>(null);
   const [feito, setFeito] = useState<AcaoResposta | null>(null);
   const [pendente, iniciar] = useTransition();
@@ -65,8 +63,8 @@ export function RespostaProposta({
             escolhida,
             comentario,
             motivo || null,
-            escolhida === "aprovar" ? vezes : null,
-            escolhida === "aprovar" && avista,
+            escolhida === "aprovar" && meio !== "cartao" ? vezes : null,
+            escolhida === "aprovar" && meio !== "cartao" && avista,
             escolhida === "aprovar" ? meio : null,
           );
       if ("erro" in resultado) setErro(resultado.erro);
@@ -105,16 +103,16 @@ export function RespostaProposta({
                 <label key={m} className={`parcelamento-opcao ${meio === m ? "escolhida" : ""}`}>
                   <input type="radio" name="meio-pagamento" value={m} checked={meio === m} onChange={() => {
                     setMeio(m);
-                    if (m === "cartao" && vezes && vezes > 12) setVezes(null);
                   }} />
                   <strong>{MEIOS_PAGAMENTO[m]}</strong>
                 </label>
               ))}
             </div>
             <p className="campo-ajuda">{meio === "cartao"
-              ? "O valor total é uma única compra no cartão, sem entrada separada. Você informa os dados na página segura do Asaas após assinar."
+              ? "Você escolhe à vista ou parcelado na página segura do Asaas após assinar. A entrada e as parcelas definidas pelo escritório valem somente para Pix ou boleto."
               : "Cada pagamento deve ser feito no vencimento. A assinatura do contrato acontece antes do pagamento."}</p>
           </fieldset>
+          {meio === "cartao" && <p>Valor total no cartão: <strong>{reais(valorCartao ?? parcelamento?.total ?? 0)}</strong>, sem entrada separada. As opções de parcelamento aparecem no Asaas.</p>}
           {condicoes && (
             <fieldset className="parcelamento-escolha">
               <legend>Quantidade de parcelas</legend>
@@ -174,7 +172,7 @@ export function RespostaProposta({
               type="button"
               className="botao botao-marca"
               onClick={() => confirmar("aprovar")}
-              disabled={pendente || !meio || (!!condicoes && !avista && !opcoes.some((o) => o.n === vezes)) || (meio === "cartao" && avista && (valorComDesconto ?? 0) < 5)}
+              disabled={pendente || !meio || (!!condicoes && !avista && !opcoes.some((o) => o.n === vezes)) || (meio === "cartao" && (valorCartao ?? parcelamento?.total ?? 0) < 5)}
             >
               {pendente ? "Enviando..." : "Confirmar aprovação"}
             </button>

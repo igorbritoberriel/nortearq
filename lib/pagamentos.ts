@@ -44,6 +44,7 @@ export type PagamentoComBaixa = {
   // Cobrança integrada (0038)
   asaas_link?: string | null;
   asaas_status?: string | null;
+  asaas_checkout_id?: string | null;
   asaas_valor_liquido?: number | null;
   taxa_plataforma?: number | null;
 };
@@ -52,7 +53,7 @@ export type PagamentoComBaixa = {
 export async function carregarPagamentos(supabase: SupabaseClient, contratoId: string) {
   const { data: linhas } = await supabase
     .from("pagamentos")
-    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem, asaas_link, asaas_status, asaas_valor_liquido, taxa_plataforma")
+    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem, asaas_link, asaas_status, asaas_checkout_id, asaas_valor_liquido, taxa_plataforma")
     .eq("contrato_id", contratoId)
     .order("ordem")
     .order("descricao");
@@ -79,6 +80,7 @@ export async function carregarPagamentos(supabase: SupabaseClient, contratoId: s
       baixa: p.baixa_id ? (porId.get(p.baixa_id) ?? null) : null,
       asaas_link: p.asaas_link,
       asaas_status: p.asaas_status,
+      asaas_checkout_id: p.asaas_checkout_id,
       asaas_valor_liquido: p.asaas_valor_liquido == null ? null : Number(p.asaas_valor_liquido),
       taxa_plataforma: p.taxa_plataforma == null ? null : Number(p.taxa_plataforma),
     })) as PagamentoComBaixa[],

@@ -93,7 +93,7 @@ export default async function PropostaClientePage({ params }: { params: Promise<
             token={token}
             escritorio={escritorio.nome}
             meios={proposta.meios_pagamento ?? ["pix"]}
-            cartaoTotal={{ total: Number(proposta.valor_total), maximo: proposta.parcelas_max ?? 1 }}
+            valorCartao={Number(proposta.valor_total)}
             parcelamento={
               proposta.modo_pagamento === "parcelado" && proposta.valor_total
                 ? {

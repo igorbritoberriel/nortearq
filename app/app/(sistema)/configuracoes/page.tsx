@@ -105,10 +105,9 @@ export default async function ConfiguracoesPage() {
       </section>
 
       <section className="cartao secao-config" id="parcelamento">
-        <h2>Parcelamento</h2>
+        <h2>Entrada e parcelas para Pix/boleto</h2>
         <p className="muted">
-          Na proposta, o cliente escolhe em quantas vezes quer pagar o saldo, até o máximo que você aceita. As parcelas são
-          calculadas sozinhas.
+          No Pix ou boleto, o cliente escolhe as parcelas do saldo dentro do limite que você aceita. No cartão, paga o valor total e escolhe o parcelamento disponível no Asaas.
         </p>
         <FormParcelamento entradaPct={escritorio.parcelamento_entrada_pct} maximo={escritorio.parcelamento_max}
           descontoAvista={Number(escritorio.desconto_avista_pct ?? 0)}
@@ -135,8 +134,7 @@ export default async function ConfiguracoesPage() {
         <section className="cartao secao-config" id="cobranca">
           <h2>Cobrança automática (Pix, boleto e cartão)</h2>
           <p className="muted">
-            Opcional. Conecte a sua conta Asaas e cada parcela vira uma cobrança: o cliente escolhe Pix, boleto ou cartão, e o
-            pagamento é registrado sozinho, com recibo. Sem ativar, tudo continua funcionando com o Pix acima e o registro manual.
+            Conecte a sua conta Asaas para receber pelo contrato. Pix e boleto seguem a entrada e as parcelas da proposta; no cartão, o cliente paga o valor total e escolhe as parcelas no Asaas. Sem ativar, o Pix direto ao escritório usa registro manual.
           </p>
           <FormCobranca
             ativa={escritorio.cobranca_ativa}

@@ -92,6 +92,7 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                         : " (tarifa do Asaas)"}
                     </small>
                   )}
+                  {p.asaas_checkout_id && <small className="muted">{p.pago_em ? "Compra aprovada no cartão. O recebimento segue os prazos e tarifas do Asaas." : "O cliente escolhe as parcelas no Asaas. A entrada e o limite de parcelas do escritório não se aplicam ao cartão."}</small>}
                 </span>
                 <strong>{reais(p.valor)}</strong>
               </div>
@@ -132,8 +133,8 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                         p.vencimento ? `, com vencimento em ${dataCurta(p.vencimento)}` : ""
                       }.${
                         p.asaas_link
-                          ? `\n\nPague por Pix, boleto ou cartão neste link: ${p.asaas_link}`
-                          : pix
+                          ? `\n\nAcesse o pagamento neste link: ${p.asaas_link}`
+                          : pix && !cobrancaAtiva
                             ? `\n\nPix copia e cola:\n${pixCopiaECola(pix, p.valor, p.descricao)}`
                             : ""
                       }`,

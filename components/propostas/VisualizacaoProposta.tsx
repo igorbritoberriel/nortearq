@@ -79,14 +79,10 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
         )}
         {!p.meio_escolhido && p.meios_pagamento?.includes("cartao") && !!p.valor_total && (
           <>
-            <p className="proposta-texto">Cartão de crédito: valor total sem entrada, em até {Math.min(12, p.parcelas_max ?? 1)}x.</p>
-            <ul className="parcelamento-lista">
-              {opcoesParcelamento(p.valor_total, 0, Math.min(12, p.parcelas_max ?? 1)).filter((o) => o.parcela >= 5).map((o) => (
-                <li key={o.n}><strong>{o.n}x</strong> de {reais(o.parcela)}</li>
-              ))}
-            </ul>
+            <p className="proposta-texto">Cartão de crédito: valor total sem entrada. Você escolhe à vista ou parcelado nas opções disponíveis no Asaas, após assinar o contrato.</p>
           </>
         )}
+        {p.cartao_no_asaas && <p className="proposta-texto">Forma escolhida: cartão de crédito. O parcelamento será escolhido no Asaas.</p>}
         {p.parcelas_escolhidas && (
           <p className="proposta-texto">
             <strong>Forma escolhida:</strong>{" "}

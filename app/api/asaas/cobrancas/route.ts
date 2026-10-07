@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { formaDoAsaas, hashToken } from "@/lib/cobranca";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { processarEventoCheckout, type EventoCheckout } from "@/lib/checkout-eventos";
 
 // Avisos do Asaas do ARQUITETO sobre as cobranças das parcelas (cobrança integrada, migração 0038).
 // Cada escritório tem a própria senha (só o hash fica guardado). Pago → registra o pagamento com recibo.
@@ -9,6 +10,7 @@ import { criarClienteAdmin } from "@/lib/supabase/admin";
 type Evento = {
   id: string;
   event: string;
+  checkout?: EventoCheckout["checkout"];
   payment?: {
     id: string;
     externalReference?: string | null;
@@ -41,6 +43,10 @@ export async function POST(request: NextRequest) {
   }
 
   const evento = (await request.json().catch(() => null)) as Evento | null;
+  if (evento?.checkout && evento.event.startsWith("CHECKOUT_")) {
+    const resultado = await processarEventoCheckout(admin, escritorioId, { event: evento.event, checkout: evento.checkout });
+    return NextResponse.json(resultado, { status: "erro" in resultado ? 500 : 200 });
+  }
   const pg = evento?.payment;
   if (!evento?.event || !pg?.id) return NextResponse.json({ ok: true });
 

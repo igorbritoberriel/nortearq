@@ -58,8 +58,7 @@ export function FormCobranca({
           </div>
         )}
         <p className="muted">
-          Cada parcela vira uma cobrança na sua conta Asaas: o cliente paga por Pix, boleto ou cartão e o NorteArq registra o
-          pagamento sozinho, com recibo. Taxa de serviço aceita em {aceiteEm ? new Date(aceiteEm).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "—"}.
+          Pix e boleto seguem a entrada e as parcelas aprovadas. No cartão, o cliente paga o valor total e escolhe as parcelas no Asaas. A confirmação gera o recibo; o recebimento segue os prazos do Asaas. Taxa de serviço aceita em {aceiteEm ? new Date(aceiteEm).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "—"}.
         </p>
         {souDono && (
           <ConfirmarComSenha

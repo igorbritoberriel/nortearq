@@ -366,7 +366,7 @@ export function FormProposta({
               <span>{MEIOS_PAGAMENTO[m]}</span>
             </label>
           ))}
-          <p className="campo-ajuda">O cliente escolhe a forma e as parcelas ao aprovar. {cobrancaAtiva
+          <p className="campo-ajuda">O cliente escolhe a forma ao aprovar. Pix e boleto seguem as parcelas da proposta; no cartão, o parcelamento é escolhido no Asaas. {cobrancaAtiva
             ? "Após a assinatura, o pagamento será preparado no Asaas."
             : "Conecte o Asaas em Configurações para oferecer boleto e cartão."}</p>
           {erros.meios_pagamento && <p className="campo-erro">{erros.meios_pagamento}</p>}
@@ -382,7 +382,7 @@ export function FormProposta({
           <div className="lista-marcar" role="radiogroup" aria-labelledby="modo-pagamento">
             <label className="checagem">
               <input type="radio" name="modo_pagamento" checked={modo === "parcelado"} onChange={() => setModo("parcelado")} />
-              <span>O cliente escolhe as parcelas</span>
+              <span>O cliente escolhe as parcelas para Pix/boleto</span>
             </label>
             <label className="checagem">
               <input type="radio" name="modo_pagamento" checked={modo === "manual"} onChange={() => setModo("manual")} />
@@ -397,7 +397,7 @@ export function FormProposta({
               <Campo id="entrada_pct" rotulo="Entrada para Pix ou boleto (%)" ajuda="Use 0 para sem entrada. No cartão, o cliente paga o valor total sem entrada separada." erro={erros.entrada_pct}>
                 <input id="entrada_pct" inputMode="decimal" value={entradaPct} onChange={(e) => setEntradaPct(e.target.value)} />
               </Campo>
-              <Campo id="parcelas_max" rotulo="Saldo em até">
+              <Campo id="parcelas_max" rotulo="Saldo no Pix/boleto em até">
                 <select id="parcelas_max" value={parcelasMax} onChange={(e) => setParcelasMax(e.target.value)}>
                   {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
                     <option key={n} value={n}>
@@ -407,10 +407,10 @@ export function FormProposta({
                 </select>
               </Campo>
             </div>
-            {meios.includes("cartao") && <p className="campo-ajuda">No cartão, o valor total pode ser dividido em até 12 vezes, dentro do seu limite, sem entrada separada. A entrada definida acima vale para Pix e boleto, com o saldo em parcelas mensais.</p>}
+            {meios.includes("cartao") && <p className="campo-ajuda">A entrada e o limite de parcelas acima valem somente para Pix e boleto. No cartão, o cliente paga o valor total e escolhe o parcelamento disponível no Asaas, sem entrada separada.</p>}
             <Campo
               id="desconto_avista_pct"
-              rotulo="Desconto para pagamento à vista (%)"
+              rotulo="Desconto à vista no Pix/boleto (%)"
               opcional
               ajuda="Valor todo na assinatura do contrato. Em branco, sem a opção à vista com desconto."
               erro={erros.desconto_avista_pct}

@@ -1,5 +1,5 @@
 import "server-only";
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { planejarCobrancas, type MeioPagamento, type ParcelaCobranca } from "./condicoes-pagamento";
 import { hojeBrasilia } from "./assinatura";
@@ -9,6 +9,7 @@ import { hojeBrasilia } from "./assinatura";
 // A chave do arquiteto é guardada criptografada (AES-256-GCM, COBRANCA_CHAVE) e não pode sacar.
 
 export const TAXA_PLATAFORMA = 0.99;
+export const EVENTOS_CHECKOUT = ["CHECKOUT_CREATED", "CHECKOUT_PAID", "CHECKOUT_EXPIRED", "CHECKOUT_CANCELED"];
 
 const URL_PRODUCAO = "https://api.asaas.com/v3";
 const URL_TESTE = "https://api-sandbox.asaas.com/v3";
@@ -85,7 +86,7 @@ export async function criarWebhook(chave: string, escritorioId: string, token: s
       apiVersion: 3,
       authToken: token,
       sendType: "SEQUENTIALLY",
-      events: ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_OVERDUE", "PAYMENT_REFUNDED", "PAYMENT_DELETED"],
+      events: ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_OVERDUE", "PAYMENT_REFUNDED", "PAYMENT_DELETED", ...EVENTOS_CHECKOUT],
     }),
   });
   return w.id;
@@ -208,16 +209,16 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
   if (!adquirido) return { erro: "O pagamento está sendo preparado. Atualize em instantes." };
   try {
     const { data: c, error } = await admin.from("contratos").select(
-      "id,status,escritorio_id,proposta:propostas(meio_escolhido,modo_pagamento,avista,parcelas,cartao_valor_total),cliente:clientes(id,nome,documento,email,telefone),escritorio:escritorios(nome,cobranca_ativa)",
+      "id,status,escritorio_id,proposta:propostas(meio_escolhido,modo_pagamento,avista,parcelas,cartao_valor_total,cartao_no_asaas),cliente:clientes(id,nome,documento,email,telefone),escritorio:escritorios(nome,cobranca_ativa)",
     ).eq("id", contratoId).single();
     if (error || !c || c.status !== "assinado") return { erro: "Assine o contrato antes de acessar o pagamento." };
-    const p = c.proposta as unknown as { meio_escolhido: MeioPagamento | null; modo_pagamento: string; avista: boolean; cartao_valor_total?: boolean; parcelas: { descricao: string; valor: number }[] };
+    const p = c.proposta as unknown as { meio_escolhido: MeioPagamento | null; modo_pagamento: string; avista: boolean; cartao_valor_total?: boolean; cartao_no_asaas?: boolean; parcelas: { descricao: string; valor: number }[] };
     const esc = c.escritorio as unknown as { nome: string; cobranca_ativa: boolean };
     const cliente = c.cliente as unknown as ClienteCobranca;
     if (!p.meio_escolhido) return { erro: "Escolha a forma de pagamento primeiro." };
     if (!esc.cobranca_ativa) return { erro: "O escritório não está com o Asaas ativo. Fale com o escritório para combinar o pagamento." };
     if (!cliente.documento) return { erro: "Confira o CPF ou CNPJ informado no contrato." };
-    const { data: cred } = await admin.from("cobranca_credenciais").select("chave_cifrada,carteira_id").eq("escritorio_id", c.escritorio_id).single();
+    const { data: cred } = await admin.from("cobranca_credenciais").select("chave_cifrada,carteira_id,webhook_id").eq("escritorio_id", c.escritorio_id).single();
     if (!cred) return { erro: "O escritório precisa reconectar a conta Asaas." };
     const chave = decifrar(cred.chave_cifrada as string);
     if (siteEmProducao() && ambienteDaChave(chave) !== "producao") return { erro: "O escritório precisa conectar sua conta real do Asaas." };
@@ -233,6 +234,10 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
       return linha;
     }) : todas.filter((r) => r.descricao === "Valor total");
     if (new Set(parcelas.map((r) => r.id)).size !== parcelas.length) throw new Error("As parcelas do contrato precisam ser conferidas pelo escritório.");
+    if (p.cartao_no_asaas && p.meio_escolhido === "cartao") {
+      if (parcelas.length !== 1) throw new Error("Confira o valor total do contrato antes de abrir o cartão.");
+      return await prepararCheckoutCartao(admin, chave, parcelas[0], c.id, c.escritorio_id, esc.nome, cred.webhook_id, cred.carteira_id);
+    }
     if (parcelas.length && parcelas.every((r) => r.pago_em || r.asaas_cobranca_id && r.asaas_link)) return { ok: true };
     const grupos = planejarCobrancas(parcelas as ParcelaCobranca[], p.meio_escolhido, (p.cartao_valor_total || p.modo_pagamento === "parcelado") && !p.avista, hojeBrasilia());
     const clienteAsaas = await garantirCliente(chave, cliente);
@@ -315,6 +320,72 @@ export async function prepararCobrancasContrato(admin: SupabaseClient, contratoI
   } finally {
     await admin.from("cobranca_preparos").delete().eq("contrato_id", contratoId).eq("dono", dono);
   }
+}
+
+export function linkCheckout(id: string, ambiente: Ambiente) {
+  return `https://${ambiente === "teste" ? "sandbox.asaas.com" : "asaas.com"}/checkoutSession/show?id=${encodeURIComponent(id)}`;
+}
+
+export async function habilitarEventosCheckout(chave: string, webhookId: string) {
+  const w = await asaas<{ events: string[]; enabled: boolean; interrupted: boolean }>(chave, `/webhooks/${encodeURIComponent(webhookId)}`);
+  if (!w.enabled || w.interrupted) throw new Error("O escritório precisa verificar o webhook no Asaas antes de receber pelo cartão.");
+  const events = [...new Set([...w.events, ...EVENTOS_CHECKOUT])];
+  if (events.length !== w.events.length) await asaas(chave, `/webhooks/${encodeURIComponent(webhookId)}`, {
+    method: "PUT", body: JSON.stringify({ events }),
+  });
+}
+
+async function prepararCheckoutCartao(
+  admin: SupabaseClient, chave: string, pg: { id: string; valor: number; pago_em: string | null },
+  contratoId: string, escritorioId: string, nome: string, webhookId: string | null, carteiraId: string,
+): Promise<{ ok: true }> {
+  if (pg.pago_em) return { ok: true };
+  const { data: anterior, error: consultarErro } = await admin.from("cobranca_checkout_sessoes").select("id,estado,link")
+    .eq("pagamento_id", pg.id).eq("escritorio_id", escritorioId).order("criado_em", { ascending: false }).limit(1).maybeSingle();
+  if (consultarErro) throw new Error("Não foi possível consultar o pagamento no cartão.");
+  if (anterior?.estado === "PAID") return { ok: true };
+  if (anterior?.estado === "ACTIVE" && anterior.link) return { ok: true };
+  if (anterior && ["SOLICITADO", "ACTIVE"].includes(anterior.estado))
+    throw new Error("O Asaas está confirmando a abertura do pagamento. Atualize em instantes; não criaremos outro checkout enquanto essa solicitação estiver pendente.");
+  if (!webhookId) throw new Error("O escritório precisa reconectar a conta Asaas para receber pelo cartão.");
+  await habilitarEventosCheckout(chave, webhookId);
+  const { data: publico, error: linkErro } = await admin.from("links_cliente").select("token,destino")
+    .eq("referencia_id", contratoId).eq("destino", "contrato").eq("escritorio_id", escritorioId)
+    .gt("expira_em", new Date().toISOString()).order("expira_em", { ascending: false }).limit(1).maybeSingle();
+  if (linkErro || !publico) throw new Error("Peça ao escritório um link válido do contrato antes de pagar.");
+  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://nortearq.com.br").replace(/\/$/, "");
+  if (!site.startsWith("https://") && siteEmProducao()) throw new Error("O endereço seguro do site precisa ser configurado pelo suporte.");
+  const sessao = randomUUID();
+  const retorno = `${site}/c/${publico.token}/contrato?pagamento=${sessao}#pagamento`;
+  const { error: iniciarErro } = await admin.from("cobranca_checkout_sessoes").insert({
+    id: sessao, pagamento_id: pg.id, escritorio_id: escritorioId, valor: pg.valor,
+  });
+  if (iniciarErro) throw new Error("O pagamento está sendo preparado. Atualize em instantes.");
+  const maximo = Math.min(21, Math.floor(pg.valor / 5));
+  const carteira = process.env.ASAAS_CARTEIRA_NORTEARQ;
+  const comSplit = ambienteDaChave(chave) === "producao" && carteira && carteira !== carteiraId;
+  let checkout: { id: string; status?: string };
+  try {
+    checkout = await asaas(chave, "/checkouts", { method: "POST", body: JSON.stringify({
+      billingTypes: ["CREDIT_CARD"], chargeTypes: maximo > 1 ? ["DETACHED", "INSTALLMENT"] : ["DETACHED"],
+      ...(maximo > 1 ? { installment: { maxInstallmentCount: maximo } } : {}),
+      minutesToExpire: 1440, externalReference: sessao,
+      callback: { successUrl: retorno, cancelUrl: retorno, expiredUrl: retorno },
+      items: [{ name: "Serviços contratados", description: `Valor total · ${nome}`.slice(0, 150), quantity: 1, value: pg.valor, externalReference: pg.id }],
+      ...(comSplit ? { splits: [{ walletId: carteira, fixedValue: TAXA_PLATAFORMA }] } : {}),
+    }) });
+  } catch (e) {
+    // Recusa conclusiva libera nova tentativa. Timeout/5xx depende do webhook e de conferência.
+    if (e instanceof ErroAsaas && [400,401,403,404,422].includes(e.status))
+      await admin.from("cobranca_checkout_sessoes").update({ estado: "RECUSADO" }).eq("id", sessao).eq("estado", "SOLICITADO");
+    throw e;
+  }
+  if (!checkout.id) throw new Error("O Asaas ainda não confirmou o acesso ao cartão. Atualize em instantes.");
+  const { error: salvarErro } = await admin.rpc("registrar_checkout", { p_sessao: sessao, p_escritorio: escritorioId,
+    p_asaas: checkout.id, p_estado: "ACTIVE", p_total: pg.valor, p_link: linkCheckout(checkout.id, ambienteDaChave(chave)!),
+  });
+  if (salvarErro) throw new Error("O checkout foi aberto, mas ainda estamos recuperando o link pelo Asaas. Atualize em instantes.");
+  return { ok: true };
 }
 
 // Forma de pagamento do Asaas → forma do recibo.

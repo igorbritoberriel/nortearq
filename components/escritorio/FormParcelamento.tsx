@@ -32,7 +32,7 @@ export function FormParcelamento({
       {estado.status === "erro" && estado.mensagem && <Aviso tipo="erro">{estado.mensagem}</Aviso>}
       {estado.status === "sucesso" && estado.mensagem && <Aviso tipo="sucesso">{estado.mensagem}</Aviso>}
       <div className="form-linha">
-        <Campo id="parcelamento_entrada_pct" rotulo="Entrada (%)" ajuda="Use 0 para sem entrada." erro={erro.parcelamento_entrada_pct}>
+        <Campo id="parcelamento_entrada_pct" rotulo="Entrada para Pix/boleto (%)" ajuda="Use 0 para sem entrada. No cartão, o cliente paga o total e escolhe o parcelamento no Asaas." erro={erro.parcelamento_entrada_pct}>
           <input
             id="parcelamento_entrada_pct"
             name="parcelamento_entrada_pct"
@@ -41,7 +41,7 @@ export function FormParcelamento({
             onChange={(e) => setPct(e.target.value)}
           />
         </Campo>
-        <Campo id="parcelamento_max" rotulo="Aceito parcelar o saldo em até" erro={erro.parcelamento_max}>
+        <Campo id="parcelamento_max" rotulo="Parcelas para Pix/boleto: saldo em até" erro={erro.parcelamento_max}>
           <select id="parcelamento_max" name="parcelamento_max" value={max} onChange={(e) => setMax(e.target.value)}>
             {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
               <option key={n} value={n}>
@@ -53,7 +53,7 @@ export function FormParcelamento({
       </div>
       <Campo
         id="desconto_avista_pct"
-        rotulo="Desconto para pagamento à vista (%)"
+        rotulo="Desconto à vista no Pix/boleto (%)"
         opcional
         ajuda="Valor todo de uma vez, na assinatura do contrato. Em branco ou 0, a opção à vista com desconto não aparece."
         erro={erro.desconto_avista_pct}
