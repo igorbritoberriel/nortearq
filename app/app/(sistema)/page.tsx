@@ -19,6 +19,7 @@ import { LinkDoEscritorio } from "@/components/escritorio/FormulariosEscritorio"
 import { diasDeTeste, linkDoEscritorio, obterSessaoArquiteto } from "@/lib/escritorio";
 import { reais } from "@/lib/propostas";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { FinanceiroMes } from "./FinanceiroMes";
 import "./inicio.css";
 
 // Painel inicial (RN-00.6): o dia do escritório em uma lista única, por prioridade.
@@ -670,43 +671,18 @@ export default async function PainelPage() {
       </div>
 
       {mostrarFinanceiro && (
-        <section className="cartao inicio-cartao inicio-financeiro" aria-labelledby="financeiro-mes">
-          <div className="inicio-financeiro-topo">
-            <h2 id="financeiro-mes">Financeiro de {mesNome}</h2>
-            <Link href="/app/financeiro">Abrir financeiro</Link>
-          </div>
-          <div className="inicio-numeros">
-            <div className="inicio-numero inicio-numero-verde">
-              <span>Recebido no mês</span>
-              <b>{reais(recebidoContratos + recebidoOutras)}</b>
-              <small>
-                Contratos {reais(recebidoContratos)} · outras {reais(recebidoOutras)}
-              </small>
-            </div>
-            <div className="inicio-numero">
-              <span>A receber</span>
-              <b>{reais(totalReceber)}</b>
-              <small>
-                {pendentes.length} {pendentes.length === 1 ? "parcela pendente" : "parcelas pendentes"}
-              </small>
-            </div>
-            <div className={`inicio-numero ${totalAtrasado > 0 ? "inicio-numero-vermelho" : ""}`}>
-              <span>Em atraso</span>
-              <b>{reais(totalAtrasado)}</b>
-              <small>
-                {atrasadas.length} {atrasadas.length === 1 ? "parcela vencida" : "parcelas vencidas"}
-              </small>
-            </div>
-            <div className="inicio-numero">
-              <span>Despesas a pagar</span>
-              <b>{reais(totalDespesas)}</b>
-              <small>
-                {despesas.length} {despesas.length === 1 ? "despesa" : "despesas"}
-                {despesasHoje > 0 && ` · ${despesasHoje} ${despesasHoje === 1 ? "vencida ou vence hoje" : "vencidas ou vencem hoje"}`}
-              </small>
-            </div>
-          </div>
-        </section>
+        <FinanceiroMes
+          mesNome={mesNome}
+          recebidoContratos={recebidoContratos}
+          recebidoOutras={recebidoOutras}
+          totalReceber={totalReceber}
+          parcelasPendentes={pendentes.length}
+          totalAtrasado={totalAtrasado}
+          parcelasAtrasadas={atrasadas.length}
+          totalDespesas={totalDespesas}
+          despesasPendentes={despesas.length}
+          despesasHoje={despesasHoje}
+        />
       )}
 
       <section className="cartao secao-config painel-link">

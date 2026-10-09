@@ -189,6 +189,11 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Olho para esconder valores financeiros** (09/10/2026, ideia do Igor): botão em formato de olho, sempre
+      escondido por padrão, que mostra ou esconde os totais (cartões do Financeiro, gráfico de entradas e saídas,
+      saldo do Asaas, e o quadro "Financeiro de [mês]" do Início). A escolha é lembrada no aparelho
+      (`localStorage`), e abrir em outro aparelho volta a esconder. Componente único em
+      `components/valores/OcultarValores.tsx`.
 - [x] **Cobrar no WhatsApp pelo Financeiro** (09/10/2026, ideia do Igor): botão em cada parcela não paga de Contas a
       receber, com a mesma mensagem do contrato (função única em `lib/cobrar.ts`). Ainda possível depois: o mesmo
       atalho na ficha do cliente e "Cobrar" do Início abrindo direto o WhatsApp.

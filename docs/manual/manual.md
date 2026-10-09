@@ -380,6 +380,9 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
   toda a conta conectada. A consulta pode levar até cinco minutos para atualizar. Valores indisponíveis aparecem
   como travessão e com aviso; ambiente de testes é identificado.
 - No **modo leitura**, os registros podem ser consultados, mas nenhum pagamento ou despesa pode ser registrado.
+- **Esconder valores:** o ícone de olho, ao lado do mês, esconde os totais (cartões, gráfico e saldo do Asaas)
+  atrás de bolinhas — útil para olhar a tela perto de outras pessoas. Começa sempre escondido e lembra a escolha
+  no aparelho; o mesmo olho aparece no quadro "Financeiro de [mês]" da tela Início.
 
 **Outras entradas (RT, aportes e reembolsos)**
 - Em **Nova entrada**, registre o que o escritório recebeu fora dos contratos: RT de loja, serviço avulso, aporte,
