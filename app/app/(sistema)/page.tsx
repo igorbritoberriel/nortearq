@@ -629,11 +629,17 @@ export default async function PainelPage() {
             )}
           </section>
 
-          {agenda.length > 0 && (
-            <section className="cartao inicio-cartao" aria-labelledby="entregas">
-              <h2 id="entregas">
-                <CalendarDays size={18} aria-hidden="true" /> Entregas da semana
-              </h2>
+          <section className="cartao inicio-cartao" aria-labelledby="entregas">
+            <h2 id="entregas">
+              <CalendarDays size={18} aria-hidden="true" /> Entregas da semana
+            </h2>
+            {agenda.length === 0 ? (
+              <p className="inicio-sub">
+                Nenhuma entrega prevista nos próximos 7 dias. Para acompanhar as entregas aqui, defina o prazo das etapas
+                em <Link href="/app/projetos">Projetos</Link> (botão &quot;Alterar prazo&quot; em cada etapa).
+              </p>
+            ) : (
+              <>
               <p className="inicio-sub">Prazos das etapas nos projetos em andamento.</p>
               <ul className="inicio-lista">
                 {agenda.slice(0, 6).map((et) => {
@@ -657,8 +663,9 @@ export default async function PainelPage() {
                   );
                 })}
               </ul>
-            </section>
-          )}
+              </>
+            )}
+          </section>
         </div>
       </div>
 

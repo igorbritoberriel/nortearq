@@ -89,8 +89,9 @@ para resolver. No topo, um resumo: quantas tarefas urgentes, para hoje, pendênc
   - Aparecem oito tarefas; as outras ficam em "Ver mais".
 - **Esperando o cliente:** proposta, assinatura, aprovação de etapa e aditivo, com há quantos dias foi enviado.
   A partir de 7 dias aparece **Lembrar cliente**.
-- **Entregas da semana:** etapas com prazo (atrasadas, de hoje e dos próximos 7 dias). Só aparece quando
-  alguma etapa tem prazo; etapa com o cliente não vira tarefa do escritório.
+- **Entregas da semana:** etapas com prazo (atrasadas, de hoje e dos próximos 7 dias). Sem nenhuma entrega
+  com data, o quadro avisa e lembra de definir os prazos em Projetos. Etapa com o cliente não vira tarefa do
+  escritório.
 - **Financeiro do mês** (Dono e Administrador): recebido no mês (contratos e outras entradas), a receber,
   em atraso e despesas a pagar.
 - Projetos pausados, entregues ou encerrados não geram tarefas. O Colaborador vê só projetos e prazos, sem valores.
