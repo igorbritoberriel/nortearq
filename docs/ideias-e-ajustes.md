@@ -128,8 +128,10 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
-- [ ] **Fornecedores e entradas:** conferir computador e celular, cadastro, edição, arquivar, exclusão bloqueada
-      quando usado, cadastro rápido dentro de Nova entrada e Nova despesa, e a máscara de dinheiro.
+- [ ] **Fornecedores e entradas:** conferido no site em 09/10 (computador e celular): cadastro, arquivar e lista.
+      Falta: escolha e cadastro rápido de fornecedor dentro de Nova entrada e Nova despesa, e a máscara de dinheiro.
+- [x] **Situação e prazos (09/10):** conferido no site, computador e celular: prazo da etapa, pausar e retomar.
+      Migração 0047 aplicada nesse dia (estava publicada no código sem estar no banco).
 - [ ] **Nova tela Início:** prévia em `/preview-inicio` (somente desenvolvimento) aguardando sua aprovação.
 - [ ] **Situação e prazos de projetos:** conferir computador e celular, pausa com motivo, encerramento,
       reabertura, histórico e edição da data; conferir agenda e visão do cliente em projeto pausado.
