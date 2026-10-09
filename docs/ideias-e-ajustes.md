@@ -133,8 +133,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [x] **Situação e prazos (09/10):** conferido no site, computador e celular: prazo da etapa, pausar e retomar.
       Migração 0047 aplicada nesse dia (estava publicada no código sem estar no banco).
 - [ ] **Nova tela Início:** prévia em `/preview-inicio` (somente desenvolvimento) aguardando sua aprovação.
-- [ ] **Situação e prazos de projetos:** conferir computador e celular, pausa com motivo, encerramento,
-      reabertura, histórico e edição da data; conferir agenda e visão do cliente em projeto pausado.
+- [ ] **Situação e prazos de projetos, restante:** encerramento, reabertura, agenda de atrasos e a visão do
+      cliente em projeto pausado (pausar, retomar e prazo já conferidos em 09/10).
 - [ ] **Financeiro:** conferir computador e celular, abas, busca, seletor de mês, cadastro e pagamento de
       despesa, cancelamento com motivo e recebimento manual com recibo; conferir conta Asaas conectada e
       desconectada. A prévia local está em `/preview-financeiro` (somente desenvolvimento).
