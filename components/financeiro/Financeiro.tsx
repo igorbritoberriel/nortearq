@@ -40,9 +40,8 @@ export function Financeiro({ dados, abaInicial, caminho = "/app/financeiro" }: {
   const trocarAba = (id: string) => { setAba(id); setBusca(""); setSituacao("todos"); router.replace(`${caminho}?mes=${dados.mes}&aba=${id}`, { scroll: false }); };
   const fechar = () => { setModal(null); router.refresh(); };
   return <div className="financeiro">
-    <header className="fin-cabecalho"><div><h1>Financeiro</h1><p>Acompanhe os recebimentos e as despesas do escritório.</p></div><div className="fin-acoes">
+    <header className="fin-cabecalho"><div><h1>Financeiro <BotaoOcultarValores/></h1><p>Acompanhe os recebimentos e as despesas do escritório.</p></div><div className="fin-acoes">
       <label className="fin-periodo"><CalendarDays size={19} aria-hidden="true"/><span>{nomeMes(dados.mes)}</span><ChevronDown size={16} aria-hidden="true"/><input aria-label="Mês do financeiro" type="month" min="2000-01" max="2100-12" value={dados.mes} onChange={e => { if (e.target.value) router.push(`${caminho}?mes=${e.target.value}&aba=${aba}`, {scroll:false}); }}/></label>
-      <BotaoOcultarValores/>
       {editar && <><button className="botao botao-secundario fin-nova" onClick={() => setModal({tipo:"entrada",id:crypto.randomUUID()})}><Plus size={20} aria-hidden="true"/>Nova entrada</button><button className="botao botao-primario fin-nova" onClick={() => setModal({tipo:"nova",id:crypto.randomUUID()})}><Plus size={20} aria-hidden="true"/>Nova despesa</button></>}
     </div></header>
     <nav className="fin-abas" aria-label="Seções do financeiro">{ABAS.map(a=><button key={a.id} className={aba===a.id?"ativo":""} aria-current={aba===a.id?"page":undefined} onClick={()=>trocarAba(a.id)}>{a.nome}</button>)}</nav>
@@ -74,7 +73,7 @@ export function Financeiro({ dados, abaInicial, caminho = "/app/financeiro" }: {
   </div>;
 }
 function forma(p: Recebivel) { const f=({transferencia:"Transferência",dinheiro:"Dinheiro",outro:"Outro",PIX:"Pix",pix:"Pix",BOLETO:"Boleto",boleto:"Boleto",CREDIT_CARD:"Cartão",cartao:"Cartão",UNDEFINED:"A escolher"} as Record<string,string>)[p.forma??""]??"Não definida"; return !p.asaas&&p.forma==="pix"?"Pix direto":f; }
-function Resumo({ titulo, valor, detalhe, cor, icone, oculto }: {titulo:string;valor:number;detalhe:string;cor:string;icone:React.ReactNode;oculto:boolean}) { return <section className={`fin-cartao fin-resumo fin-${cor}`}><span className="fin-resumo-icone" aria-hidden="true">{icone}</span><div><h2>{titulo}</h2><strong><Valor oculto={oculto}>{reais(valor)}</Valor></strong><p>{oculto?"Toque no olho para ver":detalhe}</p></div></section>; }
+function Resumo({ titulo, valor, detalhe, cor, icone, oculto }: {titulo:string;valor:number;detalhe:string;cor:string;icone:React.ReactNode;oculto:boolean}) { return <section className={`fin-cartao fin-resumo fin-${cor}`}><span className="fin-resumo-icone" aria-hidden="true">{icone}</span><div><h2>{titulo}</h2><strong><Valor oculto={oculto}>{reais(valor)}</Valor></strong><p>{detalhe}</p></div></section>; }
 function Selo({situacao}:{situacao:string}) {return <span className={`fin-selo fin-selo-${situacao}`}><span aria-hidden="true"/>{situacao==="pago"?"Pago":situacao==="atraso"?"Em atraso":"Pendente"}</span>;}
 function Grafico({dados,oculto}:{dados:DadosFinanceiro;oculto:boolean}) {
   const serie=serieFinanceiro(dados.recebiveis,dados.despesas,dados.mes,dados.entradas), maior=Math.max(0,...serie.flatMap(s=>[s.entradas,s.saidas]));

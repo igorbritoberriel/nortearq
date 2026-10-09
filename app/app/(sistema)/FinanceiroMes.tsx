@@ -32,11 +32,10 @@ export function FinanceiroMes({
   return (
     <section className="cartao inicio-cartao inicio-financeiro" aria-labelledby="financeiro-mes">
       <div className="inicio-financeiro-topo">
-        <h2 id="financeiro-mes">Financeiro de {mesNome}</h2>
-        <div className="inicio-financeiro-acoes">
-          <BotaoOcultarValores />
-          <Link href="/app/financeiro">Abrir financeiro</Link>
-        </div>
+        <h2 id="financeiro-mes">
+          Financeiro de {mesNome} <BotaoOcultarValores />
+        </h2>
+        <Link href="/app/financeiro">Abrir financeiro</Link>
       </div>
       <div className="inicio-numeros">
         <div className="inicio-numero inicio-numero-verde">

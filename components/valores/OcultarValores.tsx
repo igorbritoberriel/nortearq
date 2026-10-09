@@ -53,11 +53,13 @@ export function BotaoOcultarValores({ className = "" }: { className?: string }) 
 }
 
 export function Valor({ oculto, children }: { oculto: boolean; children: React.ReactNode }) {
-  return oculto ? (
-    <span className="valor-oculto" aria-label="Valor oculto">
-      ••••••
-    </span>
-  ) : (
-    <>{children}</>
+  if (!oculto) return <>{children}</>;
+  return (
+    <>
+      <span className="valor-oculto" aria-hidden="true">
+        {children}
+      </span>
+      <span className="sr-only">Valor oculto</span>
+    </>
   );
 }
