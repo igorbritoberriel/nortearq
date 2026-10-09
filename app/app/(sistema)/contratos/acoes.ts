@@ -11,7 +11,7 @@ import { confirmarSenha } from "@/lib/confirmar-senha";
 import { errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
-import { gerarCobranca } from "@/lib/cobranca";
+import { atualizarVencimentosAsaas, gerarCobranca } from "@/lib/cobranca";
 import { pode } from "@/lib/permissoes";
 import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 
@@ -201,6 +201,51 @@ export async function definirVencimento(pagamentoId: string, data: string): Prom
   }
   revalidatePath("/app", "layout");
   return { ok: true };
+}
+
+type VencimentoAlterado = { id: string; antes: string; depois: string; asaas: string | null };
+const ERROS_VENCIMENTO: Record<string, string> = {
+  pagamento_nao_encontrado: "Parcela não encontrada ou sem permissão para alterar.",
+  escritorio_somente_leitura: "Sua conta está em modo leitura.",
+  pagamento_ja_baixado: "Esta parcela já foi paga: o vencimento não muda.",
+  parcelamento_cartao: "No cartão parcelado, as datas seguem o cartão do cliente.",
+  sem_vencimento: "Esta parcela ainda não tem vencimento: use Definir vencimento.",
+  data_invalida: "Escolha uma data de hoje em diante (até 2 anos).",
+  mesma_data: "Esta já é a data de vencimento.",
+};
+
+// Muda o vencimento de parcelas não pagas e leva a data nova para o Asaas (o link de pagamento continua o mesmo).
+export async function alterarVencimento(
+  pagamentoId: string,
+  data: string,
+  motivo: string,
+  proximas: boolean,
+): Promise<{ ok: true; alteradas: { id: string; depois: string }[]; aviso?: string } | { erro: string }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  if (!pode(ctx.sessao.membro.papel, "registrar_pagamento")) return { erro: ERROS_VENCIMENTO.pagamento_nao_encontrado };
+  if (!UUID.test(pagamentoId) || !dataValida(data)) return { erro: "Informe uma data válida." };
+  if (motivo.length > 200) return { erro: "Use até 200 caracteres no motivo." };
+  const { data: r, error } = await ctx.supabase.rpc("alterar_vencimento", {
+    p_pagamento: pagamentoId,
+    p_data: data,
+    p_motivo: motivo.trim() || null,
+    p_proximas: proximas,
+  });
+  if (error) {
+    const chave = Object.keys(ERROS_VENCIMENTO).find((k) => error.message.includes(k));
+    return { erro: chave ? ERROS_VENCIMENTO[chave] : "Não foi possível alterar. Tente de novo." };
+  }
+  const alteradas = (r ?? []) as VencimentoAlterado[];
+  let aviso: string | undefined;
+  const noAsaas = alteradas.filter((a) => a.asaas).map((a) => ({ asaas: a.asaas as string, depois: a.depois }));
+  if (noAsaas.length) {
+    const admin = criarClienteAdmin();
+    const falha = admin ? await atualizarVencimentosAsaas(admin, ctx.sessao.escritorio.id, noAsaas) : "serviço indisponível";
+    if (falha) aviso = `A data mudou no NorteArq, mas o Asaas não aceitou a mudança (${falha}). Ajuste a cobrança no painel do Asaas.`;
+  }
+  revalidatePath("/app", "layout");
+  return { ok: true, alteradas: alteradas.map((a) => ({ id: a.id, depois: a.depois })), ...(aviso ? { aviso } : {}) };
 }
 
 // ---------- Modelo de contrato e dados do escritório ----------

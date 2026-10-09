@@ -47,13 +47,16 @@ export type PagamentoComBaixa = {
   asaas_checkout_id?: string | null;
   asaas_valor_liquido?: number | null;
   taxa_plataforma?: number | null;
+  asaas_parcelamento_id?: string | null;
+  // 0050: última mudança de data
+  alteracao?: { antes: string; criado_em: string; motivo: string | null } | null;
 };
 
 // Parcelas do contrato em ordem (Entrada, 1, 2, 3...) com a baixa em vigor e o histórico completo.
 export async function carregarPagamentos(supabase: SupabaseClient, contratoId: string) {
   const { data: linhas } = await supabase
     .from("pagamentos")
-    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem, asaas_link, asaas_status, asaas_checkout_id, asaas_valor_liquido, taxa_plataforma")
+    .select("id, descricao, valor, vencimento, pago_em, baixa_id, ordem, asaas_link, asaas_status, asaas_checkout_id, asaas_valor_liquido, taxa_plataforma, asaas_parcelamento_id")
     .eq("contrato_id", contratoId)
     .order("ordem")
     .order("descricao");
@@ -68,6 +71,15 @@ export async function carregarPagamentos(supabase: SupabaseClient, contratoId: s
         .order("criado_em", { ascending: false })
     : { data: [] };
   const eventos = (eventosBrutos ?? []) as EventoPagamento[];
+  const { data: mudancas } = pagamentos.length
+    ? await supabase
+        .from("pagamentos_vencimentos")
+        .select("pagamento_id, antes, motivo, criado_em")
+        .in("pagamento_id", pagamentos.map((p) => p.id))
+        .order("criado_em", { ascending: false })
+    : { data: [] };
+  const ultimaMudanca = new Map<string, { antes: string; criado_em: string; motivo: string | null }>();
+  for (const m of mudancas ?? []) if (!ultimaMudanca.has(m.pagamento_id)) ultimaMudanca.set(m.pagamento_id, m);
   const porId = new Map(eventos.map((e) => [e.id, e]));
 
   return {
@@ -83,6 +95,8 @@ export async function carregarPagamentos(supabase: SupabaseClient, contratoId: s
       asaas_checkout_id: p.asaas_checkout_id,
       asaas_valor_liquido: p.asaas_valor_liquido == null ? null : Number(p.asaas_valor_liquido),
       taxa_plataforma: p.taxa_plataforma == null ? null : Number(p.taxa_plataforma),
+      asaas_parcelamento_id: p.asaas_parcelamento_id,
+      alteracao: ultimaMudanca.get(p.id) ?? null,
     })) as PagamentoComBaixa[],
     eventos,
   };

@@ -44,6 +44,7 @@ const esquema = z.object({
   entrada_pct: z.number("Informe a entrada.").min(0, "Mínimo de 0%.").max(90, "Máximo de 90%.").nullable(),
   parcelas_max: z.number().int().min(1).max(24).nullable(),
   desconto_avista_pct: z.number("Informe o desconto.").min(0, "Mínimo de 0%.").max(30, "Máximo de 30%.").nullable(),
+  dia_vencimento: z.number().int().min(1, "Escolha um dia de 1 a 28.").max(28, "Escolha um dia de 1 a 28.").nullable().default(null),
   forma_pagamento: textoOpcional(1000),
   meios_pagamento: z.array(z.enum(["pix", "boleto", "cartao"])).min(1, "Escolha pelo menos uma forma de pagamento.").max(3).default(["pix"]),
   prazo: textoOpcional(300),

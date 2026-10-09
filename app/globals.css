@@ -1688,3 +1688,7 @@ p { margin: 0 0 1em; }
 .agenda-lista { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 12px; }
 .agenda-lista li { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--borda, #ddd); }
 .projeto-situacao .editor-botoes { flex-wrap: wrap; }
+
+/* Dia fixo de vencimento na proposta (0050) */
+.proposta-dia-fixo { flex-wrap: wrap; align-items: center; }
+.proposta-dia-fixo select { width: auto; min-width: 64px; padding: 4px 8px; }

@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState, useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, CreditCard, ExternalLink, History, Lock, MessageCircle, Receipt, Undo2 } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
-import { definirVencimento, estornarPagamento, gerarCobrancaParcela, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
+import { alterarVencimento, definirVencimento, estornarPagamento, gerarCobrancaParcela, registrarPagamento } from "@/app/app/(sistema)/contratos/acoes";
 import { linkWhatsapp } from "@/lib/contatos";
 import type { EstadoFormulario } from "@/lib/formulario";
 import {
@@ -45,7 +46,7 @@ type Props = {
 };
 
 export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, escritorio, pix = null, cobrancaAtiva = false }: Props) {
-  const [aberto, setAberto] = useState<{ id: string; modo: "baixa" | "estorno" | "vencimento" } | null>(null);
+  const [aberto, setAberto] = useState<{ id: string; modo: "baixa" | "estorno" | "vencimento" | "alterar" } | null>(null);
   const pago = pagamentos.filter((p) => p.pago_em).reduce((s, p) => s + p.valor, 0);
   const total = pagamentos.reduce((s, p) => s + p.valor, 0);
   const nomePagamento = new Map(pagamentos.map((p) => [p.id, p.descricao]));
@@ -82,6 +83,12 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                   ) : (
                     <small className="muted">
                       Pendente{p.vencimento ? ` · vence em ${dataCurta(p.vencimento)}` : " · sem data de vencimento"}
+                    </small>
+                  )}
+                  {p.alteracao && !p.pago_em && (
+                    <small className="muted">
+                      Vencimento alterado em {dataCurta(p.alteracao.criado_em.slice(0, 10))} (antes {dataCurta(p.alteracao.antes)})
+                      {p.alteracao.motivo ? ` · ${p.alteracao.motivo}` : ""}
                     </small>
                   )}
                   {p.pago_em && p.asaas_valor_liquido != null && (
@@ -122,6 +129,16 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                   >
                     <CalendarDays size={16} aria-hidden="true" />
                     Definir vencimento
+                  </button>
+                )}
+                {!p.pago_em && p.vencimento && !p.asaas_parcelamento_id && !p.asaas_checkout_id && aberto?.id !== p.id && (
+                  <button
+                    type="button"
+                    className="botao botao-fantasma botao-pequeno"
+                    onClick={() => setAberto({ id: p.id, modo: "alterar" })}
+                  >
+                    <CalendarDays size={16} aria-hidden="true" />
+                    Alterar vencimento
                   </button>
                 )}
                 {!p.pago_em && cliente.telefone && aberto?.id !== p.id && (
@@ -185,6 +202,17 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
               )}
               {aberto?.id === p.id && aberto.modo === "estorno" && (
                 <FormEstorno pagamento={p} fechar={() => setAberto(null)} />
+              )}
+              {aberto?.id === p.id && aberto.modo === "alterar" && (
+                <FormAlterarVencimento
+                  pagamento={p}
+                  proximas={pagamentos.filter((x) => !x.pago_em && x.vencimento && x.vencimento > (p.vencimento ?? "") && x.id !== p.id && !x.asaas_parcelamento_id)}
+                  todas={pagamentos}
+                  hoje={hoje}
+                  cliente={cliente}
+                  escritorio={escritorio}
+                  fechar={() => setAberto(null)}
+                />
               )}
               {aberto?.id === p.id && aberto.modo === "vencimento" && (
                 <FormVencimento pagamento={p} hoje={hoje} fechar={() => setAberto(null)} />
@@ -346,6 +374,121 @@ function FormVencimento({ pagamento, hoje, fechar }: { pagamento: PagamentoComBa
               const r = await definirVencimento(pagamento.id, data);
               if ("erro" in r) setErro(r.erro);
               else fechar();
+            })
+          }
+        >
+          {pendente ? "Salvando..." : "Salvar vencimento"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Mudança de data de parcela não paga (0050): registra no histórico e atualiza a cobrança do Asaas.
+function FormAlterarVencimento({
+  pagamento,
+  proximas,
+  todas,
+  hoje,
+  cliente,
+  escritorio,
+  fechar,
+}: {
+  pagamento: PagamentoComBaixa;
+  proximas: PagamentoComBaixa[];
+  todas: PagamentoComBaixa[];
+  hoje: string;
+  cliente: { nome: string; telefone: string | null };
+  escritorio: string;
+  fechar: () => void;
+}) {
+  const [data, setData] = useState(pagamento.vencimento && pagamento.vencimento >= hoje ? pagamento.vencimento : hoje);
+  const [motivo, setMotivo] = useState("");
+  const [moverProximas, setMoverProximas] = useState(proximas.length > 0);
+  const [erro, setErro] = useState<string | null>(null);
+  const [feito, setFeito] = useState<{ alteradas: { id: string; depois: string }[]; aviso?: string } | null>(null);
+  const [pendente, iniciar] = useTransition();
+  const router = useRouter();
+  const delta = pagamento.vencimento ? Math.round((Date.parse(data) - Date.parse(pagamento.vencimento)) / 86_400_000) : 0;
+  const somarDias = (iso: string, dias: number) => new Date(Date.parse(`${iso}T12:00:00Z`) + dias * 86_400_000).toISOString().slice(0, 10);
+  const descricao = new Map(todas.map((p) => [p.id, p.descricao]));
+
+  if (feito) {
+    const linhas = feito.alteradas.map((a) => `• ${descricao.get(a.id) ?? "Parcela"}: ${dataCurta(a.depois)}`).join("\n");
+    const mensagem = `Olá, ${cliente.nome.split(" ")[0]}! Aqui é do ${escritorio}. Conforme combinado, ${
+      feito.alteradas.length === 1 ? "o novo vencimento ficou assim" : "os novos vencimentos ficaram assim"
+    }:\n${linhas}\n\nO link de pagamento continua o mesmo.`;
+    return (
+      <div className="pagamento-form">
+        {feito.aviso ? <Aviso tipo="erro">{feito.aviso}</Aviso> : <Aviso tipo="sucesso">Vencimento alterado.</Aviso>}
+        <p className="campo-ajuda">
+          {feito.alteradas.length === 1 ? "Nova data" : "Novas datas"}: {feito.alteradas.map((a) => `${descricao.get(a.id)} em ${dataCurta(a.depois)}`).join(" · ")}.
+          O cliente vê a data nova no projeto e os lembretes por e-mail passam a seguir essa data.
+        </p>
+        <div className="form-rodape">
+          <button type="button" className="botao botao-fantasma botao-pequeno" onClick={fechar}>
+            Fechar
+          </button>
+          {cliente.telefone && (
+            <a className="botao botao-primario botao-pequeno" href={linkWhatsapp(cliente.telefone, mensagem)} target="_blank" rel="noopener noreferrer">
+              <MessageCircle size={16} aria-hidden="true" />
+              Avisar o cliente no WhatsApp
+            </a>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pagamento-form">
+      {erro && <Aviso tipo="erro">{erro}</Aviso>}
+      <div className="form-linha">
+        <Campo id={`novo-venc-${pagamento.id}`} rotulo="Novo vencimento">
+          <input id={`novo-venc-${pagamento.id}`} type="date" min={hoje} value={data} onChange={(e) => setData(e.target.value)} />
+        </Campo>
+        <Campo id={`motivo-venc-${pagamento.id}`} rotulo="Motivo" opcional>
+          <input
+            id={`motivo-venc-${pagamento.id}`}
+            maxLength={200}
+            placeholder="Ex.: cliente recebe no dia 20"
+            value={motivo}
+            onChange={(e) => setMotivo(e.target.value)}
+          />
+        </Campo>
+      </div>
+      {proximas.length > 0 && (
+        <label className="checagem">
+          <input type="checkbox" checked={moverProximas} onChange={(e) => setMoverProximas(e.target.checked)} />
+          <span>
+            Mover também as próximas {proximas.length === 1 ? "parcela" : `${proximas.length} parcelas`}
+            {delta !== 0 && proximas[0].vencimento
+              ? ` (${dataCurta(proximas[0].vencimento)} → ${dataCurta(somarDias(proximas[0].vencimento, delta))}${proximas.length > 1 ? "…" : ""})`
+              : ""}
+          </span>
+        </label>
+      )}
+      <p className="campo-ajuda">
+        O valor não muda. {pagamento.asaas_link ? "A cobrança no Asaas é atualizada sozinha e o link de pagamento continua o mesmo. " : ""}
+        A mudança fica registrada com a data e o motivo.
+      </p>
+      <div className="form-rodape">
+        <button type="button" className="botao botao-fantasma botao-pequeno" onClick={fechar} disabled={pendente}>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="botao botao-primario botao-pequeno"
+          disabled={pendente || !data || data === pagamento.vencimento}
+          onClick={() =>
+            iniciar(async () => {
+              setErro(null);
+              const r = await alterarVencimento(pagamento.id, data, motivo, moverProximas && proximas.length > 0);
+              if ("erro" in r) setErro(r.erro);
+              else {
+                setFeito(r);
+                router.refresh();
+              }
             })
           }
         >

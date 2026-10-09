@@ -75,6 +75,13 @@ export function VisualizacaoProposta({ proposta }: { proposta: ConteudoProposta 
                 ))}
               </ul>
             )}
+            {(p.parcelas_max ?? 1) > 1 && (
+              <p className="campo-ajuda">
+                {p.dia_vencimento
+                  ? `As parcelas do saldo vencem todo dia ${p.dia_vencimento}, a partir do mês seguinte à assinatura.`
+                  : "As parcelas do saldo vencem todo mês, no dia da assinatura do contrato."}
+              </p>
+            )}
           </>
         )}
         {!p.meio_escolhido && p.meios_pagamento?.includes("cartao") && !!p.valor_total && (

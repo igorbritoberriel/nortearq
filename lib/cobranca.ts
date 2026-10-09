@@ -197,6 +197,28 @@ export async function gerarCobranca(
   }
 }
 
+// Leva a nova data para as cobranças já geradas. O link de pagamento continua o mesmo.
+export async function atualizarVencimentosAsaas(
+  admin: SupabaseClient,
+  escritorioId: string,
+  itens: { asaas: string; depois: string }[],
+): Promise<string | null> {
+  if (!itens.length) return null;
+  const { data: cred } = await admin.from("cobranca_credenciais").select("chave_cifrada").eq("escritorio_id", escritorioId).maybeSingle();
+  if (!cred) return "a cobrança automática não está conectada";
+  const chave = decifrar(cred.chave_cifrada as string);
+  const falhas: string[] = [];
+  for (const i of itens) {
+    try {
+      await asaas(chave, `/payments/${i.asaas}`, { method: "POST", body: JSON.stringify({ dueDate: i.depois }) });
+    } catch (e) {
+      console.error("[cobrança] vencimento", (e as Error).message);
+      falhas.push((e as Error).message);
+    }
+  }
+  return falhas.length ? falhas.join(" ") : null;
+}
+
 type CobrancaCriada = {
   id: string; invoiceUrl: string; status: string; value: number; dueDate: string;
   installment?: string | null; installmentNumber?: number; billingType?: string;

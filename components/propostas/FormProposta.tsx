@@ -63,6 +63,7 @@ export function FormProposta({
   const [modo, setModo] = useState<ModoPagamento>(proposta.modo_pagamento);
   const [entradaPct, setEntradaPct] = useState(String(proposta.entrada_pct ?? 30));
   const [parcelasMax, setParcelasMax] = useState(String(proposta.parcelas_max ?? 12));
+  const [diaVencimento, setDiaVencimento] = useState(proposta.dia_vencimento ? String(proposta.dia_vencimento) : "");
   const [descontoAvista, setDescontoAvista] = useState(
     proposta.desconto_avista_pct ? String(proposta.desconto_avista_pct).replace(".", ",") : "",
   );
@@ -117,6 +118,7 @@ export function FormProposta({
       entrada_pct: modo === "parcelado" ? (Number.isFinite(pctNumero) && entradaPct.trim() !== "" ? pctNumero : null) : null,
       parcelas_max: modo === "parcelado" ? Number(parcelasMax) || null : null,
       desconto_avista_pct: modo === "parcelado" && pctDesconto > 0 ? pctDesconto : null,
+      dia_vencimento: modo === "parcelado" && diaVencimento ? Number(diaVencimento) : null,
       forma_pagamento: formaPagamento,
       meios_pagamento: meios,
       prazo,
@@ -407,6 +409,38 @@ export function FormProposta({
                 </select>
               </Campo>
             </div>
+            <div className="campo">
+              <span className="campo-rotulo" id="dia-vencimento">
+                Parcelas do saldo vencem
+              </span>
+              <div className="lista-marcar" role="radiogroup" aria-labelledby="dia-vencimento">
+                <label className="checagem">
+                  <input type="radio" name="dia_vencimento_modo" checked={!diaVencimento} onChange={() => setDiaVencimento("")} />
+                  <span>Todo mês, no dia da assinatura do contrato</span>
+                </label>
+                <label className="checagem proposta-dia-fixo">
+                  <input type="radio" name="dia_vencimento_modo" checked={!!diaVencimento} onChange={() => setDiaVencimento(diaVencimento || "10")} />
+                  <span>Todo dia</span>
+                  <select
+                    aria-label="Dia do vencimento"
+                    value={diaVencimento || "10"}
+                    onChange={(e) => setDiaVencimento(e.target.value)}
+                    onFocus={() => !diaVencimento && setDiaVencimento("10")}
+                  >
+                    {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                  <span>, a partir do mês seguinte à assinatura</span>
+                </label>
+              </div>
+              <p className="campo-ajuda">
+                A entrada vence no dia da assinatura. Datas diferentes para um cliente se ajustam depois, no contrato, em
+                &quot;Alterar vencimento&quot;.
+              </p>
+            </div>
             {meios.includes("cartao") && <p className="campo-ajuda">A entrada e o limite de parcelas acima valem somente para Pix e boleto. No cartão, o cliente paga o valor total e escolhe o parcelamento disponível no Asaas, sem entrada separada.</p>}
             <Campo
               id="desconto_avista_pct"
@@ -643,6 +677,7 @@ export function FormProposta({
                 entrada_pct: modo === "parcelado" && Number.isFinite(pctNumero) ? pctNumero : null,
                 parcelas_max: modo === "parcelado" ? Number(parcelasMax) || 1 : null,
                 desconto_avista_pct: modo === "parcelado" && pctDesconto > 0 ? pctDesconto : null,
+                dia_vencimento: modo === "parcelado" && diaVencimento ? Number(diaVencimento) : null,
                 parcelas:
                   modo === "manual" ? parcelas.map((p) => ({ descricao: p.descricao, valor: lerReais(p.valor) ?? 0 })) : [],
                 parcelas_escolhidas: null,

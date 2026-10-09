@@ -245,6 +245,8 @@ deslocamento, o que não está incluído e validade (dias contados a partir do e
 **Pagamento**
 - **O cliente escolhe as parcelas:** entrada em %, saldo em até N vezes e desconto à vista opcional. A tela
   mostra as opções que o cliente vai ver. Parcelas iguais; a última absorve os centavos.
+- **Parcelas do saldo vencem:** todo mês no dia da assinatura (padrão) ou **todo dia X** (1 a 28), a partir do mês
+  seguinte à assinatura. A entrada vence no dia da assinatura. O cliente vê a regra na proposta e no contrato.
 - **Parcelas manuais:** por etapa ou datas específicas. A soma precisa bater com o total para enviar.
 
 **Deslocamento** (vira cláusula do contrato): incluído nos honorários, taxa fixa por visita, valor por km
@@ -323,10 +325,15 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
 - A próxima etapa não é bloqueada por falta de pagamento (decisão em aberto).
 
 **Vencimentos, Pix e lembretes**
-- **Vencimento automático** das parcelas de contratos assinados daqui para frente: entrada e pagamento único no
-  dia da assinatura; "Parcela k de n" mês a mês; saldo em parcela única 1 mês depois; parcelas de aditivo mês a mês
-  a partir da aprovação. Parcelas manuais (ex.: "na entrega do anteprojeto") ficam sem data: use **Definir
-  vencimento** (uma vez; depois não muda). Parcelas de contratos antigos também podem ganhar data por esse botão.
+- **Vencimento automático** das parcelas de contratos assinados: entrada e pagamento único no dia da assinatura;
+  "Parcela k de n" mês a mês no dia da assinatura ou, se a proposta definiu, **todo dia X** a partir do mês seguinte;
+  saldo em parcela única 1 mês depois (ou no dia X do mês seguinte); parcelas de aditivo mês a mês a partir da
+  aprovação. Parcelas manuais (ex.: "na entrega do anteprojeto") ficam sem data: use **Definir vencimento**.
+- **Alterar vencimento** (Dono e Administrador): em qualquer parcela não paga que já tem data. Nova data (de hoje
+  até 2 anos), motivo opcional e a opção **mover também as próximas parcelas** pelo mesmo número de dias. O valor não
+  muda. A cobrança no Asaas é atualizada sozinha e o **link de pagamento continua o mesmo**; os lembretes por e-mail
+  passam a seguir a nova data. Depois de salvar, **Avisar o cliente no WhatsApp** abre a mensagem com as novas datas.
+  A parcela mostra "Vencimento alterado em … (antes …)". Parcela paga e cartão parcelado não mudam de data.
 - **Pix do escritório** (Configurações → Recebimento por Pix): tipo e chave, nome de quem recebe e cidade. Com isso,
   cada parcela em aberto mostra **Pagar com Pix** para o cliente (QR Code e copia e cola com o valor certo). O
   dinheiro cai direto na conta do escritório: o pagamento não passa pelo NorteArq, que não fica com nenhuma parte.
@@ -633,6 +640,8 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "O cliente quer corrigir o briefing" | Briefing enviado não é editado pelo cliente | Perfil do Cliente → Reabrir para o cliente |
 | "Não consigo editar a proposta" | Proposta enviada fica fechada | Criar nova versão (o mesmo link mostra a nova) |
 | "Não consigo enviar a proposta" | Sem valor total ou serviço, ou parcelas manuais com soma diferente do total | Preencher; ajustar as parcelas |
+| "O cliente quer pagar em outro dia" | A data foi combinada depois do contrato | Contrato → Pagamentos → **Alterar vencimento** (com "mover as próximas"); depois **Avisar o cliente no WhatsApp**. Para os próximos clientes, escolher "todo dia X" na proposta |
+| "Não aparece Alterar vencimento" | Parcela já paga, sem data (use Definir vencimento) ou paga no cartão parcelado | No cartão, as datas seguem o cartão do cliente; para mudar, cancelar a cobrança no Asaas e gerar de novo |
 | "O cliente não consegue aprovar a proposta" | Proposta expirada (passou da validade) | Nova versão, com validade nova |
 | "O botão de enviar o contrato não funciona" | Falta algum dado que o contrato usa (aparece na lista em amarelo) | Preencher pelos atalhos, ou tirar do texto o campo que não se aplica |
 | "Não consigo editar o contrato" | Contrato já enviado ao cliente | Cancelar (com senha) e gerar outro a partir da proposta |

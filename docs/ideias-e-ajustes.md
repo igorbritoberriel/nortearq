@@ -184,6 +184,10 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Vencimentos ajustáveis** (09/10/2026, pedido do Igor, seguindo o padrão dos sistemas de cobrança): na
+      proposta, "parcelas do saldo vencem todo dia X"; no contrato, "Alterar vencimento" de parcela não paga, com
+      mover as próximas, histórico, atualização da cobrança no Asaas (testado no sandbox: o link continua o mesmo)
+      e aviso ao cliente no WhatsApp. Migração 0050 aplicada; testes em `scripts/test-vencimentos.sql`.
 - [x] **Fornecedores e outras entradas do financeiro** (08/10/2026): cadastro de fornecedores e parceiros
       (busca, segmento, arquivar, excluir só se nunca usado), escolha do fornecedor em entradas e despesas com
       cadastro rápido, nome gravado como retrato no lançamento. Entradas fora de contrato (RT, aporte, reembolso)
