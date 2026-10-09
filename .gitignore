@@ -11,3 +11,8 @@ next-env.d.ts
 
 # Material de referência de design (não faz parte do app)
 skills/
+
+# Saída temporária de geração de PDF
+output/
+tmp/
+artifacts/

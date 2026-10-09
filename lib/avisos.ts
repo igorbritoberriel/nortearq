@@ -402,7 +402,8 @@ export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
   if (!admin) return;
   const { data: e } = await admin
     .from("etapas")
-    .select("nome, projeto_id, projeto:projetos(nome, escritorio_id, cliente_id, cliente:clientes(nome, email), escritorio:escritorios(nome))")
+    .select("nome, projeto_id, projeto:projetos!inner(nome, status, escritorio_id, cliente_id, cliente:clientes(nome, email), escritorio:escritorios(nome))")
+    .eq("projeto.status", "ativo")
     .eq("id", etapaId)
     .maybeSingle();
   const projeto = e?.projeto as unknown as {

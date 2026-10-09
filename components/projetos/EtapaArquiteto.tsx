@@ -21,6 +21,7 @@ import { CATEGORIAS, CATEGORIAS_ETAPA, formatarEspaco, sugerirCategoria, type Ar
 import { enviarDerivados, gerarDerivados } from "@/lib/miniaturas";
 import { STATUS_ETAPA, TAMANHO_MAXIMO_ARQUIVO, nomeSeguro, rotuloVersao, versoesAtuais, type StatusEtapa } from "@/lib/projetos";
 import { criarClienteNavegador } from "@/lib/supabase/client";
+import { PrazoEtapa } from "./SituacaoProjeto";
 import { useOrdemEtapas } from "./ListaEtapas";
 
 export type DecisaoArquiteto = {
@@ -49,9 +50,13 @@ export function EtapaArquiteto({
   historico,
   cliente,
   podeCobrar = true,
+  somenteLeitura = false,
+  hoje,
 }: {
   projetoId: string;
-  etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
+  somenteLeitura?: boolean;
+  hoje: string;
+  etapa: { id: string; nome: string; ordem: number; status: StatusEtapa; prazo: string | null; enviada_em: string | null; aprovada_em: string | null };
   arquivos: ArquivoVisivel[];
   historico: DecisaoArquiteto[];
   cliente: { nome: string; telefone: string | null; escritorio: string };
@@ -86,7 +91,7 @@ export function EtapaArquiteto({
   );
   const lista = otimista.arquivos;
 
-  const aberta = etapa.status === "pendente" || etapa.status === "em_andamento" || etapa.status === "revisao";
+  const aberta = !somenteLeitura && (etapa.status === "pendente" || etapa.status === "em_andamento" || etapa.status === "revisao");
   const atuais = versoesAtuais(lista);
   const anteriores = lista.filter((a) => !atuais.includes(a)).sort((x, y) => y.criado_em.localeCompare(x.criado_em));
   const temVisivel = lista.some((a) => a.visivel);
@@ -171,7 +176,7 @@ export function EtapaArquiteto({
           {a.visivel && etapa.enviada_em && !a.enviado && <span className="arquivo-novo"> · vai no próximo envio</span>}
         </>
       }
-      acoes={
+      acoes={somenteLeitura ? undefined :
         <>
           <select
             className="cartao-arquivo-tipo"
@@ -227,7 +232,7 @@ export function EtapaArquiteto({
   if (otimista.apagada) return null;
 
   return (
-    <section className={`cartao etapa etapa-${etapa.status}`} aria-labelledby={`etapa-${etapa.id}`}>
+    <section id={`etapa-${etapa.id}`} className={`cartao etapa etapa-${etapa.status}`} aria-labelledby={`titulo-etapa-${etapa.id}`}>
       <div className="etapa-topo">
         <span className="etapa-numero" aria-hidden="true">
           {etapa.status === "aprovada" ? <Check size={16} /> : etapa.ordem}
@@ -253,7 +258,7 @@ export function EtapaArquiteto({
             </button>
           </form>
         ) : (
-          <h2 id={`etapa-${etapa.id}`}>{etapa.nome}</h2>
+          <h2 id={`titulo-etapa-${etapa.id}`}>{etapa.nome}</h2>
         )}
         <span className={`selo-status selo-etapa-status-${etapa.status}`}>{STATUS_ETAPA[etapa.status]}</span>
         {aberta && !editando && (
@@ -298,6 +303,7 @@ export function EtapaArquiteto({
         )}
       </div>
 
+      <PrazoEtapa etapa={etapa} hoje={hoje} podeEditar={!somenteLeitura} />
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
 
       {/* M6 da revisão de UX: em revisão, o pedido do cliente vem primeiro, não escondido no histórico. */}
@@ -327,7 +333,7 @@ export function EtapaArquiteto({
         </details>
       )}
 
-      {etapa.status !== "aprovada" && (
+      {!somenteLeitura && etapa.status !== "aprovada" && (
         <div className="etapa-envio">
           {/* M5 da revisão de UX: a escolha vale para os próximos arquivos, então vem antes do botão. */}
           <label className="checagem">
@@ -350,7 +356,7 @@ export function EtapaArquiteto({
         </div>
       )}
 
-      {(aberta || etapa.status === "aguardando_aprovacao") && (
+      {!somenteLeitura && (aberta || etapa.status === "aguardando_aprovacao") && (
         <div className="etapa-aprovacao">
           {!temVisivel ? (
             <p className="campo-ajuda">Para enviar ao cliente, a etapa precisa de pelo menos 1 arquivo visível.</p>
@@ -413,7 +419,7 @@ export function EtapaArquiteto({
                   Passou do limite de revisões. O dono ou um administrador decide se concede ou cobra.
                 </span>
               )}
-              {h.excedente && !h.aditivo_id && podeCobrar && (
+              {h.excedente && !h.aditivo_id && podeCobrar && !somenteLeitura && (
                 <span className="etapa-excedente">
                   Passou do limite de revisões.{" "}
                   <Confirmar

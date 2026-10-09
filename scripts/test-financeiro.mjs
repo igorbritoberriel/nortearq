@@ -23,4 +23,16 @@ assert.deepEqual(f.despesasDoPeriodo(despesasPeriodo,'2026-10').map(d=>d.id),['d
 assert.deepEqual(f.resumoFinanceiro(pagamentos,despesas,'2026-10','2026-10-07'),{recebido:.3,aReceber:150,emAtraso:50,parcelasAtrasadas:1,despesas:30});
 const serie=f.serieFinanceiro(pagamentos,despesas,'2026-10');assert.equal(serie.length,5);assert.deepEqual(serie.at(-1),{mes:'2026-10',entradas:.3,saidas:30});assert.equal(serie.at(-2).entradas,300);
 assert.deepEqual(f.serieFinanceiro([],[],'2026-01').map(s=>s.mes),['2025-09','2025-10','2025-11','2025-12','2026-01']);
+const entradas = [
+ {categoria:'rt',valor:790.15,recebido_em:'2026-10-03'},
+ {categoria:'aporte',valor:2000,recebido_em:'2026-10-04'},
+ {categoria:'emprestimo',valor:500,recebido_em:'2026-09-30'},
+ {categoria:'rt',valor:999,recebido_em:'2026-11-01'},
+];
+const resumoEntradas=f.resumoFinanceiro(pagamentos,despesas,'2026-10','2026-10-07',entradas);
+assert.equal(resumoEntradas.recebido,2790.45);
+assert.equal(resumoEntradas.aReceber,150);
+assert.equal(resumoEntradas.emAtraso,50);
+assert.equal(f.serieFinanceiro(pagamentos,despesas,'2026-10',entradas).at(-1).entradas,2790.45);
+assert.equal(f.serieFinanceiro(pagamentos,despesas,'2026-10',entradas).at(-2).entradas,800);
 console.log('OK: centavos, vencimentos, meses, despesas pagas, entradas confirmadas e gráfico sem valores futuros.');

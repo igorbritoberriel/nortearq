@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, ContactRound, Users, FileText, FileSignature, ClipboardList, Folder, ChartNoAxesColumnIncreasing, Settings, CircleHelp, CreditCard, LayoutDashboard } from "lucide-react";
-const ICONES = { "/app": House, "/app/contatos": ContactRound, "/app/clientes": Users, "/app/propostas": FileText, "/app/contratos": FileSignature, "/app/briefings": ClipboardList, "/app/projetos": Folder, "/app/financeiro": ChartNoAxesColumnIncreasing, "/app/configuracoes": Settings, "/app/ajuda": CircleHelp, "/app/assinatura": CreditCard, "/app/interno": LayoutDashboard };
+import { House, ContactRound, Users, FileText, FileSignature, ClipboardList, Folder, ChartNoAxesColumnIncreasing, Settings, CircleHelp, CreditCard, LayoutDashboard, Store } from "lucide-react";
+const ICONES = { "/app/fornecedores": Store, "/app": House, "/app/contatos": ContactRound, "/app/clientes": Users, "/app/propostas": FileText, "/app/contratos": FileSignature, "/app/briefings": ClipboardList, "/app/projetos": Folder, "/app/financeiro": ChartNoAxesColumnIncreasing, "/app/configuracoes": Settings, "/app/ajuda": CircleHelp, "/app/assinatura": CreditCard, "/app/interno": LayoutDashboard };
 
 // Links do menu lateral com o item da tela atual destacado (M12 da revisão de UX).
 // No celular, o menu recolhido (M11) fecha sozinho ao trocar de tela.

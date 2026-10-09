@@ -359,7 +359,44 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
   como travessão e com aviso; ambiente de testes é identificado.
 - No **modo leitura**, os registros podem ser consultados, mas nenhum pagamento ou despesa pode ser registrado.
 
+**Outras entradas (RT, aportes e reembolsos)**
+- Em **Nova entrada**, registre o que o escritório recebeu fora dos contratos: RT de loja, serviço avulso, aporte,
+  empréstimo, reembolso ou outros. Informe descrição, categoria, valor, data e a origem (opcional).
+- A data não pode ser futura. A entrada entra em "Outras entradas" na visão geral, separada dos contratos.
+- Não dá para editar uma entrada. Se errar, use **Cancelar entrada** e informe o motivo; ela sai dos totais e o
+  histórico fica guardado. Depois, registre a entrada correta.
+
+**Fornecedores**
+- O menu **Fornecedores** (Dono e Administrador, nos planos com o Financeiro) guarda lojas, marmorarias, marcenarias
+  e outros parceiros, para você escolher em vez de digitar o nome de novo.
+- Em **Novo fornecedor**, informe o nome. CPF/CNPJ, segmento, contato, telefone, e-mail e observações são opcionais.
+  O CPF/CNPJ não pode se repetir no mesmo escritório. Use a busca e o filtro Ativos/Arquivados para achar um cadastro.
+- Nas telas **Nova entrada** e **Nova despesa**, escolha o fornecedor na lista ou clique em **Cadastrar fornecedor**
+  sem sair da tela. Também dá para informar o nome na mão, sem cadastro.
+- O nome fica gravado no lançamento no dia do registro. Editar ou arquivar o fornecedor depois **não muda**
+  os lançamentos antigos.
+- **Arquivar** tira o fornecedor da lista de novos lançamentos e preserva o histórico; **Reativar** traz de volta.
+  **Excluir permanentemente** só funciona se ele nunca foi usado em entrada ou despesa (inclusive canceladas);
+  caso contrário, arquive.
+
 ## 10. Projeto: etapas, arquivos, revisões, aditivos ✅
+
+**Situação e encerramento**
+- Dono e administrador podem **Pausar**, **Concluir entrega**, **Encerrar**, **Retomar** ou **Reabrir**.
+- Pausar e encerrar pedem um motivo. A mudança registra autor, data, situação anterior e motivo no histórico.
+- **Concluir entrega** exige pelo menos uma etapa, todas aprovadas, e nenhum aditivo aguardando resposta.
+- Projetos pausados, entregues ou encerrados preservam os arquivos e o histórico, mas bloqueiam alterações
+  do trabalho e respostas do cliente. O cliente vê a situação e continua consultando os arquivos disponíveis.
+- Pausar reserva a vaga do plano. Encerrar libera a vaga; reabrir um projeto incompleto depende de vaga disponível.
+- Encerrar o trabalho não cancela contratos, parcelas ou cobranças. Os pagamentos continuam disponíveis.
+
+**Prazos e agenda**
+- Em cada etapa não aprovada, use **Alterar prazo** para definir ou retirar a data de entrega planejada.
+  Dono, administrador e colaborador podem editar; cada alteração fica no histórico.
+- A data também aparece para o cliente. Etapa aprovada conserva a data registrada.
+- A tela **Projetos** reúne atrasos e entregas dos próximos sete dias, com a próxima ação indicada para
+  o escritório ou o cliente. A agenda inclui apenas projetos em andamento e etapas ainda não aprovadas.
+- Ao retomar um projeto, revise os prazos. As datas não são adiadas automaticamente.
 
 **Etapas**
 - Padrão: Estudo preliminar → Anteprojeto → Aprovações externas → Projeto executivo → Entrega.

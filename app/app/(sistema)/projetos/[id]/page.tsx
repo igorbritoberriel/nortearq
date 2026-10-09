@@ -18,7 +18,8 @@ import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritor
 import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
 import { ETAPA_RENDERS, assinarCaminhos, formatarEspaco, formatoDe, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
-import type { StatusEtapa } from "@/lib/projetos";
+import { SituacaoProjeto, type EventoProjeto } from "@/components/projetos/SituacaoProjeto";
+import type { StatusProjeto, StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { baixarArquivo, definirCapa, linkDoProjeto } from "../acoes";
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = { title: "Projeto" };
 export const maxDuration = 120;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-type Etapa = { id: string; nome: string; ordem: number; status: StatusEtapa; enviada_em: string | null; aprovada_em: string | null };
+type Etapa = { id: string; nome: string; ordem: number; status: StatusEtapa; prazo: string | null; enviada_em: string | null; aprovada_em: string | null };
 
 export default async function ProjetoPage({
   params,
@@ -46,14 +47,17 @@ export default async function ProjetoPage({
 
   const { data: projeto } = await supabase
     .from("projetos")
-    .select("id, nome, contrato_id, capa_arquivo_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
+    .select("id, nome, status, contrato_id, capa_arquivo_id, revisoes_incluidas, visitas_incluidas, cliente:clientes(id, nome, telefone)")
     .eq("id", id)
     .maybeSingle();
   if (!projeto) notFound();
+  const trabalhoEditavel = projeto.status === "ativo" && !["leitura", "suspenso"].includes(sessao.situacao);
+  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  const { data: eventos } = await supabase.from("projeto_eventos").select("id, tipo, etapa_nome, antes, depois, motivo, membro_nome, criado_em").eq("projeto_id", id).order("criado_em", { ascending: false }).limit(100);
   const cliente = projeto.cliente as unknown as { id: string; nome: string; telefone: string | null };
 
   const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro, { data: espaco }] = await Promise.all([
-    supabase.from("etapas").select("id, nome, ordem, status, enviada_em, aprovada_em").eq("projeto_id", id).order("ordem").order("id"),
+    supabase.from("etapas").select("id, nome, ordem, status, prazo, enviada_em, aprovada_em").eq("projeto_id", id).order("ordem").order("id"),
     supabase
       .from("arquivos")
       .select(
@@ -183,7 +187,7 @@ export default async function ProjetoPage({
   return (
     <ProvedorArquivos todos={[...todos, ...renders]} baixar={baixarArquivo.bind(null, id)}>
     <div className="pagina-app pagina-larga">
-      <MiniaturasPendentes projetoId={id} pendentes={pendentes} />
+      {trabalhoEditavel && <MiniaturasPendentes projetoId={id} pendentes={pendentes} />}
       <Link href="/app/projetos" className="voltar">
         <ArrowLeft size={16} aria-hidden="true" />
         Projetos
@@ -209,6 +213,8 @@ export default async function ProjetoPage({
           </p>
         </div>
       </div>
+
+      <SituacaoProjeto projetoId={id} status={projeto.status as StatusProjeto} podeEditar={pode(sessao.membro.papel, "encerrar_projetos") && !["leitura", "suspenso"].includes(sessao.situacao)} podeEntregar={etapas.length > 0 && aprovadas === etapas.length && !(aditivos ?? []).some(a => a.status === "enviado")} eventos={(eventos ?? []) as EventoProjeto[]} />
 
       {/* RN-03.9: o contador fica visível para os dois lados. */}
       <div className="projeto-resumo">
@@ -271,11 +277,12 @@ export default async function ProjetoPage({
         renders={renders}
         capaId={capa?.id ?? null}
         escolhidaId={renders.some((r) => r.id === projeto.capa_arquivo_id) ? projeto.capa_arquivo_id : null}
-        definirCapa={definirCapa.bind(null, id)}
-        projetoId={id}
+        definirCapa={trabalhoEditavel ? definirCapa.bind(null, id) : undefined}
+        projetoId={trabalhoEditavel ? id : undefined}
       />
 
       <ListaEtapas
+        somenteLeitura={!trabalhoEditavel}
         projetoId={id}
         itens={etapas.map((e) => ({
           id: e.id,
@@ -284,6 +291,8 @@ export default async function ProjetoPage({
             <EtapaArquiteto
               projetoId={id}
               etapa={e}
+              hoje={hoje}
+              somenteLeitura={!trabalhoEditavel}
               arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
               podeCobrar={pode(sessao.membro.papel, "gerir_aditivos")}
@@ -292,10 +301,11 @@ export default async function ProjetoPage({
           ),
         }))}
       />
-      <NovaEtapa projetoId={id} />
+      {trabalhoEditavel && <NovaEtapa projetoId={id} />}
 
       {verValores && (
       <Aditivos
+        somenteLeitura={!trabalhoEditavel || !pode(sessao.membro.papel, "gerir_aditivos")}
         projetoId={id}
         aditivos={(aditivos ?? []) as Aditivo[]}
         cobrar={revisaoACobrar}
@@ -303,7 +313,7 @@ export default async function ProjetoPage({
         temContrato={!!projeto.contrato_id}
       />
       )}
-      <AprovacoesExternas projetoId={id} itens={(externas ?? []) as AprovacaoExterna[]} />
+      <AprovacoesExternas somenteLeitura={!trabalhoEditavel} projetoId={id} itens={(externas ?? []) as AprovacaoExterna[]} />
 
       {verValores && financeiro.pagamentos.length > 0 && (
         <section className="cartao secao-config">

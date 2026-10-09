@@ -105,6 +105,9 @@ Fonte única no código: `lib/permissoes.ts` (menu, páginas e botões). A trava
 | Clientes: cadastrar, editar, arquivar, enviar links | ✅ | ✅ | ✅ |
 | Briefings: enviar e ver respostas | ✅ | ✅ | ✅ |
 | Projetos: etapas, arquivos, capa, envio para aprovação, aprovações externas | ✅ | ✅ | ✅ |
+| Projetos: definir prazos planejados das etapas | ✅ | ✅ | ✅ |
+| Projetos: pausar, retomar, entregar, encerrar e reabrir | ✅ | ✅ | ❌ |
+| Fornecedores e outras entradas do financeiro | ✅ | ✅ | ❌ |
 | Pedidos de orçamento (mostram o investimento do cliente) | ✅ | ✅ | ❌ |
 | Propostas, contratos, pagamentos, aditivos e recibos (valores) | ✅ | ✅ | ❌ |
 | Revisão além do limite: conceder cortesia ou cobrar como aditivo | ✅ | ✅ | ❌ |

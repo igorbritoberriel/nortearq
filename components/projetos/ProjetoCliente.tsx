@@ -7,6 +7,7 @@ import { PagarPix } from "@/components/projetos/PagarPix";
 import { pixCopiaECola, type DadosPix } from "@/lib/pix";
 import { ProvedorArquivos } from "@/components/arquivos/ProvedorArquivos";
 import { RespostaAditivo } from "@/components/projetos/RespostaAditivo";
+import { STATUS_PROJETO } from "@/lib/projetos";
 import { RespostaEtapa } from "@/components/projetos/RespostaEtapa";
 import { SITUACOES_EXTERNAS, STATUS_ADITIVO, resumoAditivo } from "@/lib/aditivos";
 import { ETAPA_RENDERS, assinarCaminhos, type ArquivoVisivel } from "@/lib/arquivos";
@@ -114,14 +115,17 @@ export async function ProjetoCliente({
   const capa = (projeto.capa && renders.find((a) => a.id === projeto.capa!.id)) || null;
 
   const aprovadas = projeto.etapas.filter((e) => e.status === "aprovada").length;
-  const aguardando = projeto.etapas.filter((e) => e.status === "aguardando_aprovacao");
-  const aditivosPendentes = (projeto.aditivos ?? []).filter((a) => a.status === "enviado").length;
+  const ativo = !projeto.status || projeto.status === "ativo";
+  const aguardando = (ativo ? projeto.etapas : []).filter((e) => e.status === "aguardando_aprovacao");
+  const aditivosPendentes = (ativo ? (projeto.aditivos ?? []) : []).filter((a) => a.status === "enviado").length;
 
   return (
     <ProvedorArquivos todos={[...todos, ...renders]} baixar={baixarArquivoCliente.bind(null, token)}>
       <CapaProjeto capa={capa} lista={renders.length ? renders : capa ? [capa] : []} />
       <p className="muted">Olá, {clienteNome}! Aqui você acompanha o seu projeto com o {escritorioNome}.</p>
       <h1>{projeto.nome}</h1>
+      <p className="campo-ajuda">{STATUS_PROJETO[projeto.status ?? "ativo"]}</p>
+      {!ativo && <p className="contato-alerta">O trabalho está {projeto.status === "pausado" ? "pausado" : "finalizado"}. Os arquivos continuam disponíveis. Para continuar o trabalho, fale com o escritório.</p>}
 
       <div className="projeto-resumo projeto-resumo-cliente">
         <div className="cartao">
@@ -178,6 +182,7 @@ export async function ProjetoCliente({
                 <h2>{e.nome}</h2>
                 <span className={`selo-status selo-etapa-status-${e.status}`}>{STATUS_ETAPA[e.status]}</span>
               </div>
+              {e.prazo && <p className="campo-ajuda">Entrega planejada: {dataCurta(e.prazo)}.</p>}
               {e.aprovada_em && <p className="campo-ajuda">Aprovada em {data.format(new Date(e.aprovada_em))}.</p>}
 
               {atuais.length > 0 && (
@@ -210,7 +215,7 @@ export async function ProjetoCliente({
                 </ul>
               )}
 
-              {e.status === "aguardando_aprovacao" && (
+              {ativo && e.status === "aguardando_aprovacao" && (
                 <RespostaEtapa
                   token={token}
                   etapaId={e.id}
@@ -245,7 +250,7 @@ export async function ProjetoCliente({
                     </span>
                   </span>
                 </div>
-                {a.status === "enviado" && <RespostaAditivo token={token} aditivoId={a.id} valor={Number(a.valor)} />}
+                {ativo && a.status === "enviado" && <RespostaAditivo token={token} aditivoId={a.id} valor={Number(a.valor)} />}
                 {a.status === "recusado" && a.motivo_recusa && <p className="campo-ajuda">Motivo: {a.motivo_recusa}</p>}
               </li>
             ))}

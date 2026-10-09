@@ -16,6 +16,7 @@ export const MENU_ARQUITETO: ItemMenu[] = [
   { href: "/app/briefings", rotulo: "Briefings", modulo: "02" },
   { href: "/app/projetos", rotulo: "Projetos", modulo: "03" },
   { href: "/app/financeiro", rotulo: "Financeiro", modulo: "01" },
+  { href: "/app/fornecedores", rotulo: "Fornecedores", modulo: "01" },
   // "Obras" (/app/obras, módulo 04) volta ao menu quando o módulo existir (M13 da revisão de UX).
   { href: "/app/configuracoes", rotulo: "Configurações", modulo: "00" },
   { href: "/app/ajuda", rotulo: "Ajuda", modulo: "00" },

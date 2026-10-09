@@ -26,7 +26,7 @@ function carregar(arquivo) {
 }
 
 const { lerNumero, dataValida, somarMesesCalendario } = carregar("lib/formatacao.ts");
-const { mascaraDocumento, mascaraDinheiro, mascaraTelefone } = carregar("lib/mascaras.ts");
+const { mascaraDocumento, mascaraDinheiro, finalizarDinheiro, mascaraTelefone } = carregar("lib/mascaras.ts");
 const { documentoValido } = carregar("lib/contratos.ts");
 const { lerReais, dataCurta } = carregar("lib/propostas.ts");
 const { normalizarChave } = carregar("lib/pix.ts");
@@ -66,10 +66,18 @@ let digitado = "";
 for (const c of "1500,50") digitado = mascaraDinheiro(digitado + c);
 assert.equal(digitado, "1.500,50");
 for (const esperado of ["1.500,5", "1.500,", "1.500", "150", "15", "1", ""]){
-  digitado = mascaraDinheiro(digitado.slice(0, -1));
+  digitado = mascaraDinheiro(digitado.slice(0, -1), false);
   assert.equal(digitado, esperado);
 }
 assert.equal(mascaraDinheiro("0,01"), "0,01");
+for (const entrada of ["7900", "7.900", "7900.00", "7.900,00", "R$ 7.900,00"]) {
+  assert.equal(finalizarDinheiro(entrada), "7.900,00", entrada);
+  assert.equal(lerReais(mascaraDinheiro(entrada)), 7900, entrada);
+}
+assert.equal(mascaraDinheiro("7.900.00"), "7.900,00");
+assert.equal(finalizarDinheiro("7900,5"), "7.900,50");
+assert.equal(finalizarDinheiro(""), "");
+assert.equal(InputMascara({ mascara: "dinheiro", defaultValue: 7900 }).props.defaultValue, "7.900,00");
 // A vírgula e os centavos devem ficar depois do cursor ao inserir a separação de milhares.
 let recebido;
 const elemento = InputMascara({ mascara: "dinheiro", onChange: (e) => { recebido = e.target.value; } });
@@ -89,6 +97,16 @@ elemento.props.onPaste({
   preventDefault: () => { impedido = true; },
 });
 assert.ok(impedido);
-assert.equal(recebido, "1.500,5");
+assert.equal(recebido, "1.500,50");
+campo.value = "7.900";
+elemento.props.onBlur({ currentTarget: campo, target: campo });
+assert.equal(recebido, "7.900,00");
+assert.equal(lerReais(recebido), 7900);
+campo.value = "7.900.00";
+elemento.props.onChange({ currentTarget: campo, target: campo });
+assert.equal(recebido, "7.900,00");
+campo.value = "1.50";
+elemento.props.onChange({ currentTarget: campo, target: campo, nativeEvent: { inputType: "deleteContentBackward" } });
+assert.equal(recebido, "150");
 delete globalThis.document;
 console.log("OK: dinheiro, documentos, Pix, datas e edição do cursor.");

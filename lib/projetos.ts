@@ -2,6 +2,14 @@
 
 export type StatusEtapa = "pendente" | "em_andamento" | "aguardando_aprovacao" | "revisao" | "aprovada";
 export type DecisaoEtapa = "aprovada" | "revisao_pedida";
+export type StatusProjeto = "ativo" | "pausado" | "entregue" | "encerrado";
+export const STATUS_PROJETO: Record<StatusProjeto, string> = { ativo: "Em andamento", pausado: "Pausado", entregue: "Entregue", encerrado: "Encerrado" };
+export function situacaoPrazo(prazo: string | null, status: StatusEtapa, hoje: string) {
+  if (status === "aprovada") return "concluido";
+  if (!prazo) return "sem_prazo";
+  return prazo < hoje ? "atrasado" : prazo === hoje ? "hoje" : "planejado";
+}
+export const responsavelEtapa = (status: StatusEtapa) => status === "aguardando_aprovacao" ? "Cliente" : "Escritório";
 
 export type ArquivoProjeto = {
   id: string;
@@ -32,6 +40,7 @@ export type EtapaPublica = {
 export type ProjetoPublico = {
   id: string;
   nome: string;
+  status?: StatusProjeto;
   revisoes_incluidas: number;
   revisoes_usadas: number;
   // Capa do projeto (migração 0040): o render escolhido pelo arquiteto ou o primeiro adicionado.

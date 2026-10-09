@@ -35,7 +35,7 @@ const EXPLICA_DESLOCAMENTO: Record<TipoDeslocamento, string> = {
 };
 
 const paraTexto = (n: number | null | undefined) =>
-  n === null || n === undefined ? "" : n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  n === null || n === undefined ? "" : n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function FormProposta({
   proposta,

@@ -21,7 +21,7 @@ export const useOrdemEtapas = () => useContext(OrdemEtapas);
 
 const travada = (s: StatusEtapa) => s === "aguardando_aprovacao" || s === "aprovada";
 
-export function ListaEtapas({ projetoId, itens }: { projetoId: string; itens: Item[] }) {
+export function ListaEtapas({ projetoId, itens, somenteLeitura = false }: { projetoId: string; itens: Item[]; somenteLeitura?: boolean }) {
   const doServidor = itens.map((i) => i.id).join(",");
   const [ordem, setOrdem] = useState(() => itens.map((i) => i.id));
   const { agendar, status, ocupado } = useSalvarEmFila();
@@ -34,7 +34,7 @@ export function ListaEtapas({ projetoId, itens }: { projetoId: string; itens: It
   }, [doServidor, ocupado]);
 
   const porId = new Map(itens.map((i) => [i.id, i]));
-  const livre = (id: string | undefined) => !!id && !!porId.get(id) && !travada(porId.get(id)!.status);
+  const livre = (id: string | undefined) => !somenteLeitura && !!id && !!porId.get(id) && !travada(porId.get(id)!.status);
   const vizinha = (id: string, direcao: -1 | 1) => atual.current[atual.current.indexOf(id) + direcao];
 
   const contexto: Ordem = {

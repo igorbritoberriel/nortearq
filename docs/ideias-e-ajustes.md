@@ -124,13 +124,15 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
       `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens.
       Falta ainda a conferência visual no navegador (prints).
-- [ ] Botão "Concluir projeto" (marcar como entregue): hoje um projeto libera a vaga do limite quando todas
-      as etapas são aprovadas; não existe como encerrar um projeto que parou no meio (cliente desistiu). Entra
-      junto com o módulo 05, Pós-entrega.
 - [ ] Adicional "+50 GB de espaço" (R$ 19/mês): somar ao limite do plano quando for contratado.
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
+- [ ] **Fornecedores e entradas:** conferir computador e celular, cadastro, edição, arquivar, exclusão bloqueada
+      quando usado, cadastro rápido dentro de Nova entrada e Nova despesa, e a máscara de dinheiro.
+- [ ] **Nova tela Início:** prévia em `/preview-inicio` (somente desenvolvimento) aguardando sua aprovação.
+- [ ] **Situação e prazos de projetos:** conferir computador e celular, pausa com motivo, encerramento,
+      reabertura, histórico e edição da data; conferir agenda e visão do cliente em projeto pausado.
 - [ ] **Financeiro:** conferir computador e celular, abas, busca, seletor de mês, cadastro e pagamento de
       despesa, cancelamento com motivo e recebimento manual com recibo; conferir conta Asaas conectada e
       desconectada. A prévia local está em `/preview-financeiro` (somente desenvolvimento).
@@ -173,6 +175,15 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Fornecedores e outras entradas do financeiro** (08/10/2026): cadastro de fornecedores e parceiros
+      (busca, segmento, arquivar, excluir só se nunca usado), escolha do fornecedor em entradas e despesas com
+      cadastro rápido, nome gravado como retrato no lançamento. Entradas fora de contrato (RT, aporte, reembolso)
+      com cancelamento por motivo e histórico. Migrações 0048 e 0049 aplicadas no banco; 0042 corrige o pedido
+      de orçamento repetido. Máscara de dinheiro aceita ponto decimal e completa os centavos ao sair do campo.
+- [x] **Situação e prazos de projetos** (07/10/2026): pausar, retomar, concluir entrega, encerrar e reabrir
+      com histórico; bloqueio do trabalho em projetos inativos; pagamentos preservados; prazos por etapa,
+      agenda de atrasos e próximos sete dias e filtros por situação. Migração 0047 com testes em transação
+      desfeita: permissões, isolamento entre escritórios, limite do plano e respostas do cliente.
 - [x] **Financeiro do escritório (07/10/2026):** migração `0046_financeiro_despesas.sql` aplicada e aplicação
       publicada em nortearq.com.br. Visão geral, parcelas a receber, despesas e consulta de saldo Asaas;
       pendências permanecem visíveis entre meses, pagamentos manuais exibem a forma registrada e despesas

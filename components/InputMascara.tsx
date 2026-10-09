@@ -1,7 +1,7 @@
 "use client";
 
 import { lerNumero } from "@/lib/formatacao";
-import { MASCARAS, type TipoMascara } from "@/lib/mascaras";
+import { finalizarDinheiro, mascaraDinheiro, MASCARAS, type TipoMascara } from "@/lib/mascaras";
 
 const TAMANHO: Record<TipoMascara, number> = { dinheiro: 24, documento: 18, telefone: 19, registro: 20 };
 
@@ -26,6 +26,7 @@ export function InputMascara({
   mascara,
   onChange,
   onPaste,
+  onBlur,
   value,
   defaultValue,
   ...props
@@ -35,13 +36,25 @@ export function InputMascara({
   defaultValue?: string | number | null;
 }) {
   const formatar = MASCARAS[mascara];
+  const valorInicial = (v: string | number | null) => {
+    const texto = typeof v === "number" ? v.toLocaleString("pt-BR", { minimumFractionDigits: mascara === "dinheiro" ? 2 : 0, maximumFractionDigits: 2 }) : v ?? "";
+    return formatar(texto);
+  };
   return (
     <input
       maxLength={TAMANHO[mascara]}
       autoComplete="off"
       {...props}
-      value={value === undefined ? undefined : formatar(typeof value === "number" ? value.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : value ?? "")}
-      defaultValue={defaultValue === undefined ? undefined : formatar(typeof defaultValue === "number" ? defaultValue.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : defaultValue ?? "")}
+      value={value === undefined ? undefined : valorInicial(value)}
+      defaultValue={defaultValue === undefined ? undefined : valorInicial(defaultValue)}
+      onBlur={(e) => {
+        if (mascara === "dinheiro") {
+          const antes = e.currentTarget.value;
+          aplicar(e.currentTarget, finalizarDinheiro, true);
+          if (antes !== e.currentTarget.value) onChange?.(e as unknown as React.ChangeEvent<HTMLInputElement>);
+        }
+        onBlur?.(e);
+      }}
       onPaste={(e) => {
         onPaste?.(e);
         if (e.defaultPrevented || mascara !== "dinheiro") return;
@@ -51,11 +64,12 @@ export function InputMascara({
         // Colagem decimal com ponto vira formato brasileiro antes da inserção.
         const el = e.currentTarget;
         e.preventDefault();
-        el.setRangeText(n.toLocaleString("pt-BR", { maximumFractionDigits: 2 }), el.selectionStart ?? 0, el.selectionEnd ?? el.value.length, "end");
+        el.setRangeText(n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), el.selectionStart ?? 0, el.selectionEnd ?? el.value.length, "end");
         el.dispatchEvent(new Event("input", { bubbles: true }));
       }}
       onChange={(e) => {
-        aplicar(e.currentTarget, formatar, mascara === "dinheiro");
+        const apagando = (e.nativeEvent as InputEvent | undefined)?.inputType?.startsWith("delete");
+        aplicar(e.currentTarget, mascara === "dinheiro" && apagando ? (v) => mascaraDinheiro(v, false) : formatar, mascara === "dinheiro");
         onChange?.(e);
       }}
     />

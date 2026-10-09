@@ -7,6 +7,8 @@ import { obterSessaoArquiteto } from "@/lib/escritorio";
 import { assinarCaminhos } from "@/lib/arquivos";
 import { STATUS_ETAPA, type StatusEtapa } from "@/lib/projetos";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { AgendaProjetos } from "@/components/projetos/AgendaProjetos";
+import { STATUS_PROJETO, type StatusProjeto } from "@/lib/projetos";
 
 export const metadata: Metadata = { title: "Projetos" };
 
@@ -22,7 +24,7 @@ type Linha = {
 
 const data = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "America/Sao_Paulo" });
 
-export default async function ProjetosPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function ProjetosPage({ searchParams }: { searchParams: Promise<{ q?: string; situacao?: string }> }) {
   const sessao = await obterSessaoArquiteto();
   const supabase = await criarClienteServidor();
   if (!sessao || !supabase) {
@@ -36,12 +38,15 @@ export default async function ProjetosPage({ searchParams }: { searchParams: Pro
     );
   }
 
-  const busca = termoDaBusca((await searchParams).q);
+  const filtros = await searchParams;
+  const busca = termoDaBusca(filtros.q);
+  const situacao = filtros.situacao && Object.hasOwn(STATUS_PROJETO, filtros.situacao) ? filtros.situacao as StatusProjeto : null;
   const colunas = "id, nome, status, revisoes_incluidas, atualizado_em, cliente:clientes(nome), etapas(nome, ordem, status)";
   let base = supabase
     .from("projetos")
     .select(busca ? colunas.replace("cliente:clientes(", "cliente:clientes!inner(") : colunas);
   if (busca) base = base.ilike("cliente.nome", `%${busca}%`);
+  if (situacao) base = base.eq("status", situacao);
   const { data: linhas, error } = await base
     .order("atualizado_em", { ascending: false })
     .limit(200);
@@ -64,9 +69,15 @@ export default async function ProjetosPage({ searchParams }: { searchParams: Pro
       <h1>Projetos</h1>
       <p className="muted">Cada contrato assinado vira um projeto com as etapas padrão.</p>
 
+      <AgendaProjetos supabase={supabase} />
+      <nav className="editor-botoes" aria-label="Filtrar projetos por situação">
+        {[['', 'Todos'], ...Object.entries(STATUS_PROJETO)].map(([valor, rotulo]) => <Link key={valor} className={`botao botao-pequeno ${valor === (situacao ?? '') ? 'botao-primario' : 'botao-secundario'}`} href={`/app/projetos?${new URLSearchParams({ ...(busca ? { q: busca } : {}), ...(valor ? { situacao: valor } : {}) })}`}>{rotulo}</Link>)}
+      </nav>
       <BuscaPorCliente busca={busca} limpar="/app/projetos" />
       {busca && projetos.length === 0 ? (
         <p className="muted">Nenhum projeto de cliente com “{busca}” no nome.</p>
+      ) : situacao && projetos.length === 0 ? (
+        <p className="muted">Nenhum projeto nesta situação.</p>
       ) : projetos.length === 0 ? (
         <div className="cartao vazio">
           <FolderKanban size={36} aria-hidden="true" />
@@ -83,6 +94,7 @@ export default async function ProjetosPage({ searchParams }: { searchParams: Pro
               <tr>
                 <th>Projeto</th>
                 <th>Etapa atual</th>
+                <th>Situação</th>
                 <th>Progresso</th>
                 <th>Atualizado</th>
               </tr>
@@ -121,6 +133,7 @@ export default async function ProjetosPage({ searchParams }: { searchParams: Pro
                         "Todas aprovadas"
                       )}
                     </td>
+                    <td><span className={`selo-status selo-projeto-${p.status}`}>{STATUS_PROJETO[p.status as StatusProjeto]}</span></td>
                     <td>
                       {aprovadas} de {etapas.length}
                     </td>

@@ -2,8 +2,9 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { criarClienteAdmin } from "./supabase/admin";
+import { carregarFornecedores } from "./fornecedores-servidor";
 import { ambienteDaChave, decifrar } from "./cobranca";
-import { intervaloMes, somaValores, type Recebivel, type Despesa, type SaldoAsaas } from "./financeiro";
+import { intervaloMes, somaValores, type Recebivel, type Despesa, type Entrada, type SaldoAsaas } from "./financeiro";
 
 // Nenhum dado nem credencial de outro escritório chega ao navegador.
 export async function carregarFinanceiro(db: SupabaseClient, escritorioId: string, inicio: string) {
@@ -30,7 +31,17 @@ export async function carregarFinanceiro(db: SupabaseClient, escritorioId: strin
     if ((data?.length ?? 0) < passo) break;
     if (offset >= 49000) throw new Error("Este volume de despesas precisa de um relatório específico. Fale com o suporte.");
   }
-  return { recebiveis: pagamentos, despesas };
+  const entradas: Entrada[] = [];
+  for (let offset = 0; ; offset += passo) {
+    const { data, error } = await db.from("financeiro_entradas").select("id,descricao,origem,categoria,valor,recebido_em,observacao")
+      .eq("escritorio_id", escritorioId).is("cancelada_em", null).gte("recebido_em", inicio).order("id").range(offset, offset + passo - 1);
+    if (error) throw new Error("Não foi possível carregar as entradas. Tente novamente.");
+    entradas.push(...(data ?? []).map(e => ({ ...e, valor: Number(e.valor) })) as Entrada[]);
+    if ((data?.length ?? 0) < passo) break;
+    if (offset >= 49000) throw new Error("Este volume de entradas precisa de um relatório específico. Fale com o suporte.");
+  }
+  const fornecedores = await carregarFornecedores(db, escritorioId, true);
+  return { recebiveis: pagamentos, despesas, entradas, fornecedores };
 }
 
 const indisponivel: SaldoAsaas = { ativo: true, teste: false, saldo: null, aLiberar: null, taxas: null, erro: true, atualizadoEm: null };

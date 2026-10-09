@@ -1676,3 +1676,15 @@ p { margin: 0 0 1em; }
 .pagamento-cliente-linha .pagamento-descricao { min-width: 0; }
 .parcelamento-lista li { display: block; text-align: left; }
 .parcelamento-lista strong { min-width: 0; margin-right: 4px; }
+/* Situação e agenda dos projetos. */
+.selo-projeto-ativo { background: #edf5ef; color: #24603b; }
+.selo-projeto-pausado { background: #fff3da; color: #805b16; }
+.selo-projeto-entregue { background: #eaf1fb; color: #315b91; }
+.selo-projeto-encerrado { background: #efefef; color: #555; }
+.projeto-prazo { margin: 12px 0; }
+.projeto-prazo .form-linha { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.projeto-prazo .form-linha p { flex-basis: 100%; }
+.projeto-prazo label { display: grid; gap: 6px; }
+.agenda-lista { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 12px; }
+.agenda-lista li { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--borda, #ddd); }
+.projeto-situacao .editor-botoes { flex-wrap: wrap; }

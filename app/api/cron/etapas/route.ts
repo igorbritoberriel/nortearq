@@ -18,8 +18,9 @@ export async function GET(request: NextRequest) {
 
   const { data: etapas, error } = await admin
     .from("etapas")
-    .select("id, enviada_em, lembrete_3_para, lembrete_7_para")
+    .select("id, enviada_em, lembrete_3_para, lembrete_7_para, projeto:projetos!inner(status)")
     .eq("status", "aguardando_aprovacao")
+    .eq("projeto.status", "ativo")
     .lte("enviada_em", new Date(Date.now() - 3 * DIA).toISOString())
     .limit(500);
   if (error) return NextResponse.json({ erro: error.message }, { status: 500 });

@@ -41,13 +41,25 @@ export function mascaraRegistro(valor: string) {
 }
 
 // A vírgula separa os centavos; digitar 1500 significa 1.500 reais.
-export function mascaraDinheiro(valor: string): string {
+export function mascaraDinheiro(valor: string, pontoDecimal = true): string {
   let v = valor.replace(/^R\$\s*/, "").replace(/[^\d.,]/g, "");
+  // Preserva pontos de milhares; aceita também ponto decimal sem multiplicar o valor.
+  if (pontoDecimal && !v.includes(",") && !/^\d{1,3}(?:\.\d{3})+$/.test(v)) {
+    v = v.replace(/^(\d+|\d{1,3}(?:\.\d{3})+)\.(\d{0,2})$/, "$1,$2");
+  }
   const [inteiro, ...decimal] = v.split(",");
   const d = inteiro.replace(/\D/g, "").replace(/^0+(?=\d)/, "");
   if (!d && !decimal.length) return "";
   const parte = (d || "0").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return parte + (decimal.length ? "," + decimal.join("").replace(/\D/g, "").slice(0, 2) : "");
+}
+
+// Ao finalizar a edição, todos os campos monetários exibem os dois centavos.
+export function finalizarDinheiro(valor: string): string {
+  const v = mascaraDinheiro(valor);
+  if (!v) return "";
+  const [inteiro, centavos = ""] = v.split(",");
+  return `${inteiro},${centavos.padEnd(2, "0")}`;
 }
 
 export const MASCARAS = {

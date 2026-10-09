@@ -45,14 +45,16 @@ export function Aditivos({
   cobrar,
   cliente,
   temContrato,
+  somenteLeitura = false,
 }: {
   projetoId: string;
   aditivos: Aditivo[];
   cobrar: { aprovacaoId: string; etapa: string } | null; // veio do "Cobrar como aditivo" de uma revisão excedente
   cliente: Cliente;
   temContrato: boolean;
+  somenteLeitura?: boolean;
 }) {
-  const [abrindo, setAbrindo] = useState(!!cobrar);
+  const [abrindo, setAbrindo] = useState(!somenteLeitura && !!cobrar);
   const [pendente, iniciar] = useTransition();
   const [erro, setErro] = useState<string | null>(null);
   const aguardando = aditivos.some((a) => a.status === "enviado");
@@ -61,7 +63,7 @@ export function Aditivos({
     <section className="cartao secao-config" id="aditivos">
       <div className="titulo-com-acao">
         <h2>Aditivos</h2>
-        {!abrindo && (
+        {!somenteLeitura && !abrindo && (
           <button type="button" className="botao botao-secundario botao-pequeno" onClick={() => setAbrindo(true)}>
             <FilePlus size={16} aria-hidden="true" />
             Novo aditivo
@@ -74,7 +76,7 @@ export function Aditivos({
       </p>
       {!temContrato && <Aviso tipo="erro">Este projeto não tem contrato: o aditivo aprovado não gera parcelas.</Aviso>}
 
-      {abrindo && (
+      {!somenteLeitura && abrindo && (
         <FormAditivo projetoId={projetoId} cobrar={cobrar} fechar={() => setAbrindo(false)} />
       )}
 
@@ -108,7 +110,7 @@ export function Aditivos({
                   {a.motivo_recusa ?? "—"}
                 </p>
               )}
-              {a.status === "enviado" && (
+              {!somenteLeitura && a.status === "enviado" && (
                 <div className="aditivo-acoes">
                   <EnviarLinkAcao
                     acao={linkDoProjeto.bind(null, projetoId)}
@@ -232,7 +234,7 @@ function FormAditivo({
 
 // ---------- Aprovações externas (RN-03.17) ----------
 
-export function AprovacoesExternas({ projetoId, itens }: { projetoId: string; itens: AprovacaoExterna[] }) {
+export function AprovacoesExternas({ projetoId, itens, somenteLeitura = false }: { projetoId: string; itens: AprovacaoExterna[]; somenteLeitura?: boolean }) {
   const [abrindo, setAbrindo] = useState(false);
   const [, iniciar] = useTransition();
   // Mudar situação e apagar aparecem na hora; voltam sozinhos se o servidor recusar.
@@ -248,7 +250,7 @@ export function AprovacoesExternas({ projetoId, itens }: { projetoId: string; it
     <section className="cartao secao-config" id="aprovacoes-externas">
       <div className="titulo-com-acao">
         <h2>Aprovações externas</h2>
-        {!abrindo && (
+        {!somenteLeitura && !abrindo && (
           <button type="button" className="botao botao-secundario botao-pequeno" onClick={() => setAbrindo(true)}>
             <FilePlus size={16} aria-hidden="true" />
             Registrar
@@ -257,7 +259,7 @@ export function AprovacoesExternas({ projetoId, itens }: { projetoId: string; it
       </div>
       <p className="muted">Condomínio, prefeitura, bombeiros: protocolo e situação. O cliente vê a situação no link do projeto.</p>
 
-      {abrindo && <FormExterna projetoId={projetoId} fechar={() => setAbrindo(false)} />}
+      {!somenteLeitura && abrindo && <FormExterna projetoId={projetoId} fechar={() => setAbrindo(false)} />}
 
       {lista.length > 0 ? (
         <ul className="externas">
@@ -275,6 +277,7 @@ export function AprovacoesExternas({ projetoId, itens }: { projetoId: string; it
               <label>
                 <span className="sr-only">Situação de {x.orgao}</span>
                 <select
+                  disabled={somenteLeitura}
                   value={x.situacao}
                   onChange={(e) => {
                     const situacao = e.target.value as SituacaoExterna;
@@ -294,6 +297,7 @@ export function AprovacoesExternas({ projetoId, itens }: { projetoId: string; it
               <button
                 type="button"
                 className="botao-icone"
+                disabled={somenteLeitura}
                 aria-label={`Apagar ${x.orgao}`}
                 onClick={() => {
                   if (!window.confirm(`Apagar o registro de ${x.orgao}?`)) return;

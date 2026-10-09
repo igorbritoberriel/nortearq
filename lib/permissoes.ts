@@ -19,6 +19,7 @@ export type Acao =
   | "anonimizar_cliente"
   | "gerir_briefings"
   | "gerir_projetos" // etapas, arquivos, capa, envio para aprovação, aprovações externas
+  | "encerrar_projetos" // pausar, retomar, entregar, encerrar e reabrir
   | "configurar_escritorio" // marca, serviços, faixa de preço, modelos, editor de briefing
   | "gerir_equipe"
   | "gerir_assinatura";
@@ -37,6 +38,7 @@ const TODAS: Acao[] = [
   "anonimizar_cliente",
   "gerir_briefings",
   "gerir_projetos",
+  "encerrar_projetos",
   "configurar_escritorio",
   "gerir_equipe",
   "gerir_assinatura",
@@ -58,5 +60,6 @@ export const PAGINA_EXIGE: Record<string, Acao> = {
   "/app/propostas": "ver_valores",
   "/app/contratos": "ver_valores",
   "/app/financeiro": "ver_valores",
+  "/app/fornecedores": "ver_valores",
   "/app/configuracoes": "configurar_escritorio",
 };

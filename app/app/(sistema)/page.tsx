@@ -108,17 +108,18 @@ export default async function PainelPage() {
       supabase.from("propostas").select("id, enviada_em").eq("status", "enviada"),
       supabase.from("contratos").select("id, criado_em").eq("status", "rascunho"),
       supabase.from("contratos").select("id, enviado_em").eq("status", "aguardando_assinatura"),
-      supabase.from("etapas").select("id, projeto_id, atualizado_em").eq("status", "revisao"),
-      supabase.from("etapas").select("id, projeto_id, enviada_em").eq("status", "aguardando_aprovacao"),
+      supabase.from("etapas").select("id, projeto_id, atualizado_em, projeto:projetos!inner(status)").eq("projeto.status", "ativo").eq("status", "revisao"),
+      supabase.from("etapas").select("id, projeto_id, enviada_em, projeto:projetos!inner(status)").eq("projeto.status", "ativo").eq("status", "aguardando_aprovacao"),
       supabase.from("pagamentos").select("valor, vencimento, contrato_id").is("pago_em", null),
-      supabase.from("aditivos").select("id, projeto_id, criado_em").eq("status", "enviado"),
+      supabase.from("aditivos").select("id, projeto_id, criado_em, projeto:projetos!inner(status)").eq("projeto.status", "ativo").eq("status", "enviado"),
       // A7: proposta aprovada sem contrato (cancelado não conta).
       supabase.from("propostas").select("id, respondida_em, contratos(status)").eq("status", "aprovada"),
       // A7: revisões que contam, para achar as que passaram do limite sem decisão (cortesia ou aditivo).
       pode(papel, "gerir_aditivos")
         ? supabase
             .from("aprovacoes")
-            .select("id, decidido_em, cortesia, aditivo_id, etapa:etapas(projeto_id, projeto:projetos(revisoes_incluidas))")
+            .select("id, decidido_em, cortesia, aditivo_id, etapa:etapas!inner(projeto_id, projeto:projetos!inner(revisoes_incluidas, status))")
+            .eq("etapa.projeto.status", "ativo")
             .eq("conta_revisao", true)
             .order("decidido_em")
         : Promise.resolve({ data: [] }),
