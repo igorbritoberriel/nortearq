@@ -1,8 +1,10 @@
 import { ArrowDown, ArrowUp, ArrowUpRight, Bell, BriefcaseBusiness, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, Compass, FileCheck2, FileText, Handshake, House, LayoutGrid, ListChecks, Plus, Settings, Store, Users, Wallet, AlertCircle } from "lucide-react";
+import { notFound } from "next/navigation";
 import "./preview.css";
 
 const navigation = [ [House,"Início"], [Users,"Contatos"], [Users,"Clientes"], [FileText,"Propostas"], [FileCheck2,"Contratos"], [ListChecks,"Briefings"], [BriefcaseBusiness,"Projetos"], [Wallet,"Financeiro"], [Store,"Fornecedores"] ] as const;
 export default function PreviewInicio() {
+ if(process.env.NODE_ENV!=="development")notFound();
  return <div className="ux-preview">
   <aside className="ux-sidebar"><div className="ux-brand"><Compass size={25}/> Norte<span>Arq</span></div><strong>Débora Ribeiro · Arquitetura</strong><small><b>Profissional</b> · teste grátis, 8 dias</small><div className="ux-notifications"><Bell size={18}/> Notificações <i>3</i></div><nav>{navigation.map(([Icon,label])=><div key={label} className={label==="Início"?"selected":""}><Icon size={19}/>{label}</div>)}</nav><div className="ux-sidebar-bottom"><div><Settings size={18}/>Configurações</div><div><CircleHelp size={18}/>Ajuda</div><div><LayoutGrid size={18}/>Plano e assinatura</div><footer><span className="ux-avatar">DR</span> Débora Ribeiro</footer></div></aside>
   <main className="ux-main">

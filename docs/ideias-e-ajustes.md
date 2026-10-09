@@ -128,13 +128,15 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
-- [ ] **Fornecedores e entradas:** conferido no site em 09/10 (computador e celular): cadastro, arquivar e lista.
-      Falta: escolha e cadastro rápido de fornecedor dentro de Nova entrada e Nova despesa, e a máscara de dinheiro.
+- [x] **Fornecedores e entradas (09/10):** conferido no site: cadastro, arquivar, exclusão bloqueada quando usado,
+      cadastro rápido dentro de Nova entrada, escolha em Nova despesa e máscara de dinheiro (1234,5 → 1.234,50).
+- [x] **Perfil Colaborador (09/10):** sem Financeiro, Fornecedores, Propostas e Contratos no menu; página de
+      fornecedores bloqueada; no projeto vê "Alterar prazo" e não vê "Encerrar".
 - [x] **Situação e prazos (09/10):** conferido no site, computador e celular: prazo da etapa, pausar e retomar.
       Migração 0047 aplicada nesse dia (estava publicada no código sem estar no banco).
 - [ ] **Nova tela Início:** prévia em `/preview-inicio` (somente desenvolvimento) aguardando sua aprovação.
-- [ ] **Situação e prazos de projetos, restante:** encerramento, reabertura, agenda de atrasos e a visão do
-      cliente em projeto pausado (pausar, retomar e prazo já conferidos em 09/10).
+- [x] **Situação e prazos de projetos, restante (09/10):** encerrar, reabrir, histórico, agenda de atrasos e
+      próximos dias, e o cliente vendo o aviso de projeto pausado pelo link.
 - [ ] **Financeiro:** conferir computador e celular, abas, busca, seletor de mês, cadastro e pagamento de
       despesa, cancelamento com motivo e recebimento manual com recibo; conferir conta Asaas conectada e
       desconectada. A prévia local está em `/preview-financeiro` (somente desenvolvimento).
