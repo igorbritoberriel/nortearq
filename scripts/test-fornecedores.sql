@@ -56,9 +56,16 @@ do $$ begin
  exception when insufficient_privilege then null; end;
 end $$;
 reset role;
--- Rodar após 0050: a exclusão não pode apagar fornecedores vinculados.
+-- A exclusão é feita pelo servidor com chave administrativa: o usuário comum não exclui direto.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0049-4000-8000-000000000011',true);
+do $$ begin
+ begin
+  delete from fornecedores where id='00000000-0049-4000-8000-000000000021';
+  raise exception 'usuario_excluiu_direto';
+ exception when insufficient_privilege then null; end;
+end $$;
+reset role;
 do $$ begin
  begin
   delete from fornecedores where id='00000000-0049-4000-8000-000000000021';
@@ -68,4 +75,3 @@ do $$ begin
  delete from fornecedores where id='00000000-0049-4000-8000-000000000022';
  if exists(select 1 from fornecedores where id='00000000-0049-4000-8000-000000000022') then raise exception 'nao_excluiu_sem_vinculos'; end if;
 end $$;
-reset role;
