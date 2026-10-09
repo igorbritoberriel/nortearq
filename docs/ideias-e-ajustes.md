@@ -134,7 +134,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       fornecedores bloqueada; no projeto vê "Alterar prazo" e não vê "Encerrar".
 - [x] **Situação e prazos (09/10):** conferido no site, computador e celular: prazo da etapa, pausar e retomar.
       Migração 0047 aplicada nesse dia (estava publicada no código sem estar no banco).
-- [ ] **Nova tela Início:** prévia em `/preview-inicio` (somente desenvolvimento) aguardando sua aprovação.
+- [x] **Nova tela Início (09/10):** aprovada pelo Igor e feita com os dados reais: lista única por prioridade
+      (urgente, hoje, pendências) com nome e botão de ação, esperando o cliente, entregas da semana e financeiro
+      do mês. Conferida no computador, no celular e como Colaborador.
+- [ ] **Vídeos explicativos** (pedido do Igor, 09/10/2026): série de 12 vídeos curtos (1 a 3 min) na ordem do
+      fluxo, gravados no Clipchamp com escritório de demonstração; roteiros escritos pelo assistente a partir do
+      manual; vídeos no YouTube (não listados) dentro da página Ajuda. Começar pelos roteiros dos 3 primeiros.
 - [x] **Situação e prazos de projetos, restante (09/10):** encerrar, reabrir, histórico, agenda de atrasos e
       próximos dias, e o cliente vendo o aviso de projeto pausado pelo link.
 - [ ] **Financeiro:** conferir computador e celular, abas, busca, seletor de mês, cadastro e pagamento de

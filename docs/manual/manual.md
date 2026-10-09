@@ -78,10 +78,22 @@ proposta e de contrato e, para o Dono, o plano).
 Para mudar o fim do link, use **Mudar o endereço do formulário** em Minha marca. Atenção: o endereço antigo
 para de funcionar, então atualize a bio do Instagram e os links que você já mandou.
 
-**Painel inicial:** só o que pede ação. "Precisa de você" (pedidos de orçamento em aberto, cliente esperando
-proposta, proposta aprovada sem contrato, revisão além do limite sem decisão, briefing respondido, ajuste
-pedido, contrato para enviar, etapa em revisão), "Esperando o cliente" e
-"Financeiro" (valores a receber), com a pendência mais antiga em destaque.
+**Tela Início (o seu dia):** mostra só o que pede ação, com o nome do cliente e um botão que leva direto
+para resolver. No topo, um resumo: quantas tarefas urgentes, para hoje, pendências e o que espera o cliente.
+- **Para fazer**, em três grupos:
+  - **Urgente:** parcela atrasada (botão Cobrar), etapa com prazo vencido e despesa vencida.
+  - **Vence hoje:** etapa com entrega planejada para hoje e despesa que vence hoje.
+  - **Pendências**, da mais antiga para a mais nova: pedido de orçamento, briefing respondido, cliente sem
+    proposta, proposta com ajuste pedido, proposta aprovada sem contrato, contrato para enviar, revisão
+    pedida e revisão além do limite (cortesia ou aditivo).
+  - Aparecem oito tarefas; as outras ficam em "Ver mais".
+- **Esperando o cliente:** proposta, assinatura, aprovação de etapa e aditivo, com há quantos dias foi enviado.
+  A partir de 7 dias aparece **Lembrar cliente**.
+- **Entregas da semana:** etapas com prazo (atrasadas, de hoje e dos próximos 7 dias). Só aparece quando
+  alguma etapa tem prazo; etapa com o cliente não vira tarefa do escritório.
+- **Financeiro do mês** (Dono e Administrador): recebido no mês (contratos e outras entradas), a receber,
+  em atraso e despesas a pagar.
+- Projetos pausados, entregues ou encerrados não geram tarefas. O Colaborador vê só projetos e prazos, sem valores.
 
 **Primeiros passos** (dono e administrador, no topo do painel até tudo estar feito): dados do escritório no
 contrato, um modelo de proposta, o primeiro cliente, o primeiro briefing e a primeira proposta enviados.
