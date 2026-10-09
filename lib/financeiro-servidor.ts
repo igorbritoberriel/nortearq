@@ -12,13 +12,13 @@ export async function carregarFinanceiro(db: SupabaseClient, escritorioId: strin
   const passo = 1000;
   for (let offset = 0; ; offset += passo) {
     const { data, error } = await db.from("pagamentos")
-      .select("id,contrato_id,descricao,valor,vencimento,pago_em,asaas_cobranca_id,asaas_checkout_id,asaas_forma,baixa:pagamentos_eventos!pagamentos_baixa_fk(forma),contrato:contratos!inner(status,cliente:clientes(nome),proposta:propostas(titulo,meio_escolhido))")
+      .select("id,contrato_id,descricao,valor,vencimento,pago_em,asaas_cobranca_id,asaas_checkout_id,asaas_forma,asaas_link,baixa:pagamentos_eventos!pagamentos_baixa_fk(forma),contrato:contratos!inner(status,cliente:clientes(nome,telefone),proposta:propostas(titulo,meio_escolhido))")
       .eq("escritorio_id", escritorioId).eq("contrato.status", "assinado")
       .or(`pago_em.is.null,pago_em.gte.${inicio}`).order("id").range(offset, offset + passo - 1);
     if (error) throw new Error("Não foi possível carregar os recebimentos. Tente novamente.");
     for (const row of data ?? []) {
-      const p = row as unknown as { id: string; contrato_id: string; descricao: string; valor: number; vencimento: string | null; pago_em: string | null; asaas_cobranca_id: string | null; asaas_checkout_id: string | null; asaas_forma: string | null; baixa: { forma: string | null } | null; contrato: { cliente: { nome: string } | null; proposta: { titulo: string; meio_escolhido: string | null } | null } };
-      pagamentos.push({ id: p.id, contratoId: p.contrato_id, cliente: p.contrato.cliente?.nome ?? "Cliente", projeto: p.contrato.proposta?.titulo ?? "Projeto", descricao: p.descricao, valor: Number(p.valor), vencimento: p.vencimento, pagoEm: p.pago_em, forma: p.baixa?.forma ?? p.asaas_forma ?? p.contrato.proposta?.meio_escolhido ?? null, asaas: !!(p.asaas_cobranca_id || p.asaas_checkout_id), checkout: !!p.asaas_checkout_id });
+      const p = row as unknown as { id: string; contrato_id: string; descricao: string; valor: number; vencimento: string | null; pago_em: string | null; asaas_cobranca_id: string | null; asaas_checkout_id: string | null; asaas_forma: string | null; asaas_link: string | null; baixa: { forma: string | null } | null; contrato: { cliente: { nome: string; telefone: string | null } | null; proposta: { titulo: string; meio_escolhido: string | null } | null } };
+      pagamentos.push({ id: p.id, contratoId: p.contrato_id, cliente: p.contrato.cliente?.nome ?? "Cliente", projeto: p.contrato.proposta?.titulo ?? "Projeto", descricao: p.descricao, valor: Number(p.valor), vencimento: p.vencimento, pagoEm: p.pago_em, forma: p.baixa?.forma ?? p.asaas_forma ?? p.contrato.proposta?.meio_escolhido ?? null, asaas: !!(p.asaas_cobranca_id || p.asaas_checkout_id), checkout: !!p.asaas_checkout_id, telefone: p.contrato.cliente?.telefone ?? null, link: p.asaas_link });
     }
     if ((data?.length ?? 0) < passo) break;
     if (offset >= 49000) throw new Error("Este volume de recebimentos precisa de um relatório específico. Fale com o suporte.");

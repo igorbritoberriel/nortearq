@@ -1,15 +1,16 @@
 import { dataValida, somarMesesCalendario } from "./formatacao";
 import type { Fornecedor } from "./fornecedores";
+import type { DadosPix } from "./pix";
 
 export const CATEGORIAS_DESPESA = { fornecedor: "Fornecedor", servico: "Serviço contratado", escritorio: "Escritório", software: "Software e assinatura", deslocamento: "Deslocamento", imposto: "Imposto e taxa", outros: "Outros" } as const;
 export type CategoriaDespesa = keyof typeof CATEGORIAS_DESPESA;
 export const CATEGORIAS_ENTRADA = { rt: "RT — indicação de clientes a fornecedores", servico: "Serviço avulso", aporte: "Aporte / investimento dos sócios", emprestimo: "Empréstimo recebido", reembolso: "Reembolso", outros: "Outras entradas" } as const;
 export type CategoriaEntrada = keyof typeof CATEGORIAS_ENTRADA;
 export type Entrada = { id: string; descricao: string; origem: string | null; categoria: CategoriaEntrada; valor: number; recebido_em: string; observacao: string | null };
-export type Recebivel = { id: string; contratoId: string; cliente: string; projeto: string; descricao: string; valor: number; vencimento: string | null; pagoEm: string | null; forma: string | null; asaas: boolean; checkout: boolean };
+export type Recebivel = { id: string; contratoId: string; cliente: string; projeto: string; descricao: string; valor: number; vencimento: string | null; pagoEm: string | null; forma: string | null; asaas: boolean; checkout: boolean; telefone?: string | null; link?: string | null };
 export type Despesa = { id: string; descricao: string; fornecedor: string | null; categoria: CategoriaDespesa; valor: number; vencimento: string; pago_em: string | null; observacao: string | null };
 export type SaldoAsaas = { ativo: boolean; teste: boolean; saldo: number | null; aLiberar: number | null; taxas: number | null; erro: boolean; atualizadoEm: string | null };
-export type DadosFinanceiro = { mes: string; hoje: string; recebiveis: Recebivel[]; despesas: Despesa[]; entradas?: Entrada[]; fornecedores?: Fornecedor[]; asaas: SaldoAsaas; podeEditar: boolean; somenteLeitura: boolean };
+export type DadosFinanceiro = { mes: string; hoje: string; recebiveis: Recebivel[]; despesas: Despesa[]; entradas?: Entrada[]; fornecedores?: Fornecedor[]; asaas: SaldoAsaas; podeEditar: boolean; somenteLeitura: boolean; cobrar?: { escritorio: string; pix: DadosPix | null; cobrancaAtiva: boolean } };
 export type SituacaoRecebivel = "pago" | "atraso" | "pendente";
 export const centavos = (n: number) => Math.round(n * 100);
 export const somaValores = (valores: number[]) => valores.reduce((s, n) => s + centavos(n), 0) / 100;

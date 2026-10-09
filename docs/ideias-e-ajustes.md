@@ -36,6 +36,11 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
 
 ## Para conversar / decidir
+- [ ] **RRT assistida** (ideia do Igor, 09/10/2026). O CAU não tem integração pública e a RRT é ato pessoal da
+      arquiteta (SICCAU com gov.br), então nada de emitir pelo sistema. Proposta: (1) tarefa "Emitir a RRT de Fulano"
+      no Início quando o contrato é assinado; (2) quadro "Dados para a RRT" no projeto, com botão de copiar cada dado
+      e atalho para o SICCAU; (3) registrar o número e o PDF, e o cliente vê "RRT nº ..." no projeto. Depois, ART do
+      CREA para engenheiros. Aguardando o Igor aprovar a prévia.
 - [ ] **Estratégia de lançamento** (decidida pelo Igor em 03/10/2026: não abrir agora). Proposta em 3 fases,
       aguardando aprovação dos detalhes:
       A) piloto fechado com a esposa até cumprir o "critério de pronto";
@@ -184,6 +189,9 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Cobrar no WhatsApp pelo Financeiro** (09/10/2026, ideia do Igor): botão em cada parcela não paga de Contas a
+      receber, com a mesma mensagem do contrato (função única em `lib/cobrar.ts`). Ainda possível depois: o mesmo
+      atalho na ficha do cliente e "Cobrar" do Início abrindo direto o WhatsApp.
 - [x] **Vencimentos ajustáveis** (09/10/2026, pedido do Igor, seguindo o padrão dos sistemas de cobrança): na
       proposta, "parcelas do saldo vencem todo dia X"; no contrato, "Alterar vencimento" de parcela não paga, com
       mover as próximas, histórico, atualização da cobrança no Asaas (testado no sandbox: o link continua o mesmo)

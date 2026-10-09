@@ -15,7 +15,8 @@ import {
   type PagamentoComBaixa,
 } from "@/lib/pagamentos";
 import { dataCurta, reais } from "@/lib/propostas";
-import { pixCopiaECola, type DadosPix } from "@/lib/pix";
+import { type DadosPix } from "@/lib/pix";
+import { mensagemCobranca } from "@/lib/cobrar";
 
 // Pagamentos do contrato (RN-01.16), protegidos:
 // - registrar pagamento pede data, forma e confirmação; depois disso fica travado;
@@ -146,15 +147,16 @@ export function Pagamentos({ pagamentos, eventos, souDono, hoje, site, cliente, 
                     className="botao botao-fantasma botao-pequeno"
                     href={linkWhatsapp(
                       cliente.telefone,
-                      `Olá, ${primeiroNome}! Aqui é do ${escritorio}. Lembrete da parcela "${p.descricao}" de ${reais(p.valor)}${
-                        p.vencimento ? `, com vencimento em ${dataCurta(p.vencimento)}` : ""
-                      }.${
-                        p.asaas_link
-                          ? `\n\nAcesse o pagamento neste link: ${p.asaas_link}`
-                          : pix && !cobrancaAtiva
-                            ? `\n\nPix copia e cola:\n${pixCopiaECola(pix, p.valor, p.descricao)}`
-                            : ""
-                      }`,
+                      mensagemCobranca({
+                        cliente: cliente.nome,
+                        escritorio,
+                        descricao: p.descricao,
+                        valor: p.valor,
+                        vencimento: p.vencimento,
+                        link: p.asaas_link,
+                        pix,
+                        cobrancaAtiva,
+                      }),
                     )}
                     target="_blank"
                     rel="noopener noreferrer"

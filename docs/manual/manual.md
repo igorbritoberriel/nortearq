@@ -368,6 +368,8 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
   O gráfico compara entradas confirmadas e despesas pagas nos cinco meses até o mês selecionado.
 - **Contas a receber:** todas as pendências, independentemente do vencimento, e os pagamentos confirmados
   no mês escolhido. Busque pelo cliente ou projeto e filtre por situação.
+- **Cobrar no WhatsApp:** em cada parcela não paga, direto na lista, quando o cliente tem WhatsApp na ficha. Abre a
+  conversa com a mesma mensagem do contrato (valor, vencimento e o link de pagamento do Asaas ou o Pix copia e cola).
 - **Registrar pagamento:** disponível para recebimentos manuais; gera o mesmo recibo do contrato.
   Cobranças ligadas ao Asaas são confirmadas automaticamente. Para abrir o recibo ou estornar, use **Ver contrato**.
 - **Despesas:** todas as pendências e as despesas pagas no mês escolhido. Em **Nova despesa**, informe descrição,
