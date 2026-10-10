@@ -59,6 +59,7 @@ export type Servico = {
   id: string;
   nome: string;
   tem_briefing: boolean;
+  tipo_briefing: "arquitetura" | "interiores" | "reforma" | null;
   ativo: boolean;
   ordem: number;
 };
@@ -108,7 +109,7 @@ export const obterSessaoArquiteto = cache(async (): Promise<SessaoArquiteto | nu
 export async function listarServicos(): Promise<Servico[]> {
   const supabase = await criarClienteServidor();
   if (!supabase) return [];
-  const { data } = await supabase.from("servicos").select("id, nome, tem_briefing, ativo, ordem").order("ordem");
+  const { data } = await supabase.from("servicos").select("id, nome, tem_briefing, tipo_briefing, ativo, ordem").order("ordem");
   return (data ?? []) as Servico[];
 }
 

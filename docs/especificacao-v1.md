@@ -261,7 +261,12 @@ estilo.
   documentos), rotina e prioridades, limite de investimento.
 
 **Regras**
-- **RN-02.1** ✅ O cliente só vê os blocos dos serviços contratados que têm briefing.
+- **RN-02.1** ✅ O cliente só vê os blocos dos serviços contratados que têm briefing. Por padrão isso é
+  automático (pelos serviços do cliente), mas o arquiteto pode escolher manualmente quais blocos
+  (arquitetura/interiores/reforma) e, em interiores, quais ambientes enviar, na hora de gerar o link; dá para
+  ajustar depois enquanto o cliente não responder (0052, 0053). Em Configurações → Serviços, cada serviço com
+  briefing tem um "Bloco do briefing" explícito: o sistema sugere pelo nome, mas o arquiteto escolhe —
+  importante para escritórios além da Débora, com nomes de serviço diferentes.
 - **RN-02.2** 🟡 Por padrão, o briefing detalhado é enviado **depois do contrato** (o preliminar já filtrou
   antes). Nas configurações, o arquiteto pode escolher enviar antes da proposta.
 - **RN-02.3** ✅ Salvamento automático: o cliente pode parar e continuar depois pelo mesmo link.

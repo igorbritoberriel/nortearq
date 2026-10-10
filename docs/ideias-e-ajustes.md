@@ -8,6 +8,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 (fonte em `docs/plano/plano-de-fases.html`; atualizado a cada fase concluída).
 
 ## Depende de você (Igor)
+- [ ] **Falar com a Débora sobre o contrato assinado bagunçado** (09/10/2026): o contrato PROJETO ARQUITETÔNICO do
+      cliente Manoel José Cabral Bisneto já foi assinado (08/10/2026) com os entregáveis quebrados em frases soltas
+      (ela colou um texto com cada linha visual virando um item). Você decide com ela se conversa com o cliente,
+      faz um aditivo ou deixa como está; o sistema não altera sozinho um contrato já assinado. Pontuação duplicada
+      (";;") já corrigida para os próximos contratos. Ela também precisa colar "um entregável por linha de verdade"
+      nas próximas propostas (inclusive na do PROJETO INTERIORES do mesmo cliente, ainda rascunho).
 - [ ] **Empresa e conta central** (decidido em 03/10/2026): empresa **Berriel Labs Tecnologia Ltda.** (um nome
       para todos os SaaS; NorteArq é o primeiro produto), e-mail central **contas@berriellabs.com.br** dono de todas
       as contas. Passos, na ordem:
@@ -36,11 +42,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
 
 ## Para conversar / decidir
-- [ ] **RRT assistida** (ideia do Igor, 09/10/2026). O CAU não tem integração pública e a RRT é ato pessoal da
-      arquiteta (SICCAU com gov.br), então nada de emitir pelo sistema. Proposta: (1) tarefa "Emitir a RRT de Fulano"
-      no Início quando o contrato é assinado; (2) quadro "Dados para a RRT" no projeto, com botão de copiar cada dado
-      e atalho para o SICCAU; (3) registrar o número e o PDF, e o cliente vê "RRT nº ..." no projeto. Depois, ART do
-      CREA para engenheiros. Aguardando o Igor aprovar a prévia.
 - [ ] **Estratégia de lançamento** (decidida pelo Igor em 03/10/2026: não abrir agora). Proposta em 3 fases,
       aguardando aprovação dos detalhes:
       A) piloto fechado com a esposa até cumprir o "critério de pronto";
@@ -189,6 +190,26 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Briefing personalizado por cliente** (10/10/2026, pedido do Igor): na ficha do cliente, antes de gerar o
+      link de Briefing, o arquiteto escolhe quais blocos (Arquitetura, Interiores, Reforma) e, em Interiores,
+      quais ambientes vão — vem pré-marcado pelos serviços contratados, mas dá pra ajustar. Dá pra mudar depois
+      ("Ajustar o que vai no briefing") enquanto o cliente não respondeu; depois, só reabrindo. Pensando em
+      outros arquitetos (não só a Débora): em Configurações → Serviços, cada serviço com briefing tem um campo
+      explícito "Bloco do briefing" (sugerido pelo nome, mas corrigível) em vez de uma adivinhação silenciosa.
+      Migrações 0052 e 0053. Conferido com navegador automático (escritório e cliente de teste, apagados
+      depois): pré-marcação certa, geração do link, resumo, ajuste do bloco em Configurações salvando e
+      persistindo depois de recarregar — sem erros de tela.
+- [x] **Entregáveis bagunçados no contrato, pontuação duplicada** (09/10/2026, achado pelo Igor no contrato do
+      Manoel José Cabral Bisneto, escritório da Débora): quando cada entregável da proposta já termina com ";",
+      o contrato somava outro "; " e dobrava a pontuação. Corrigido no banco (migração 0051,
+      `renderizar_contrato`, aplicada direto pelo pooler porque o token da Management API está sem permissão).
+      Continua pendente a causa raiz (ver "Depende de você"): o texto que a Débora colou tem frases quebradas em
+      duas linhas, viram dois entregáveis separados — só ela corrigindo a proposta resolve isso.
+- [x] **Máscara de dinheiro travava com ponto decimal** (09/10/2026, achado pelo Igor conferindo o Financeiro):
+      ao digitar o ponto para os centavos (ex.: 224.95), o cursor ficava antes da vírgula criada e os dígitos
+      seguintes entravam no lugar errado, embaralhando o valor. Corrigido em `components/InputMascara.tsx`.
+      Confirmado: não precisa digitar vírgula nem ponto (200 → 200,00 sozinho); mantido o padrão "digita o valor
+      normal" em vez do padrão de banco (centavos primeiro), decisão do Igor.
 - [x] **Olho para esconder valores financeiros** (09/10/2026, ideia do Igor; prévia aprovada): botão em formato
       de olho ao lado do título "Financeiro" (e "Financeiro de [mês]" no Início), sempre escondido por padrão,
       que desfoca (blur) os totais — cartões, gráfico de entradas e saídas e saldo do Asaas. A escolha é lembrada

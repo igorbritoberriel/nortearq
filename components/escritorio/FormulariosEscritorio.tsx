@@ -6,6 +6,7 @@ import { Aviso, Campo } from "@/components/Campo";
 import { salvarBriefing, salvarMarca, salvarPrecoAgenda, salvarServicos } from "@/app/app/acoes";
 import type { EstadoFormulario } from "@/lib/formulario";
 import type { Escritorio, Servico } from "@/lib/escritorio";
+import { blocoDoServico } from "@/lib/briefing";
 import { InputMascara } from "@/components/InputMascara";
 
 // Formulários de configuração do escritório. No assistente inicial recebem "proximo"
@@ -153,6 +154,7 @@ export function FormServicos({ servicos, proximo, rotuloBotao = "Salvar", voltar
               <th scope="col">Oferece</th>
               <th scope="col">Serviço</th>
               <th scope="col">Tem briefing</th>
+              <th scope="col">Bloco do briefing</th>
             </tr>
           </thead>
           <tbody>
@@ -184,6 +186,20 @@ export function FormServicos({ servicos, proximo, rotuloBotao = "Salvar", voltar
                     defaultChecked={marcado(`briefing_${s.id}`, s.tem_briefing)}
                   />
                 </td>
+                <td>
+                  <select
+                    name={`bloco_${s.id}`}
+                    aria-label={`Bloco do briefing de ${s.nome}`}
+                    defaultValue={v?.[`bloco_${s.id}`] ?? s.tipo_briefing ?? blocoDoServico(s.nome)}
+                    className={erro[`bloco_${s.id}`] ? "com-erro" : ""}
+                  >
+                    <option value="">—</option>
+                    <option value="arquitetura">Arquitetura</option>
+                    <option value="interiores">Interiores</option>
+                    <option value="reforma">Reforma</option>
+                  </select>
+                  {erro[`bloco_${s.id}`] && <p className="campo-erro">{erro[`bloco_${s.id}`]}</p>}
+                </td>
               </tr>
             ))}
             <tr className="tabela-servicos-novo">
@@ -206,13 +222,24 @@ export function FormServicos({ servicos, proximo, rotuloBotao = "Salvar", voltar
                   defaultChecked={marcado("novo_briefing", true)}
                 />
               </td>
+              <td>
+                <select name="novo_bloco" aria-label="Bloco do briefing do novo serviço" defaultValue={v?.novo_bloco ?? ""} className={erro.novo_bloco ? "com-erro" : ""}>
+                  <option value="">—</option>
+                  <option value="arquitetura">Arquitetura</option>
+                  <option value="interiores">Interiores</option>
+                  <option value="reforma">Reforma</option>
+                </select>
+                {erro.novo_bloco && <p className="campo-erro">{erro.novo_bloco}</p>}
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
       <p className="campo-ajuda">
         Serviço desmarcado some do formulário do cliente, mas continua no histórico. &quot;Tem briefing&quot; define
-        se o cliente responde perguntas sobre ele (Legalização normalmente não tem).
+        se o cliente responde perguntas sobre ele (Legalização normalmente não tem). O &quot;Bloco do briefing&quot;
+        decide quais perguntas entram quando o cliente contrata esse serviço; o sistema sugere pelo nome, mas você
+        pode trocar.
       </p>
       <Rodape enviando={enviando} rotulo={rotuloBotao} voltar={voltar} />
     </form>

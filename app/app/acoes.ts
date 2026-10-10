@@ -123,20 +123,29 @@ export async function salvarServicos(_anterior: EstadoFormulario, formData: Form
   if (!ctx) return { ...SEM_SUPABASE, valores };
   const { supabase, sessao } = ctx;
 
+  const BLOCOS_BRIEFING = ["arquitetura", "interiores", "reforma"] as const;
+  const blocoValido = (v: FormDataEntryValue | null) =>
+    (BLOCOS_BRIEFING as readonly string[]).includes(String(v ?? "")) ? (String(v) as (typeof BLOCOS_BRIEFING)[number]) : null;
+
   const ids = formData.getAll("servico_id").filter((v): v is string => typeof v === "string");
   const servicos = ids.map((id) => ({
     id,
     nome: String(formData.get(`nome_${id}`) ?? "").trim(),
     ativo: formData.get(`ativo_${id}`) === "on",
     tem_briefing: formData.get(`briefing_${id}`) === "on",
+    bloco: blocoValido(formData.get(`bloco_${id}`)),
   }));
   const novoNome = String(formData.get("novo_nome") ?? "").trim();
+  const novoBriefing = formData.get("novo_briefing") === "on";
+  const novoBloco = blocoValido(formData.get("novo_bloco"));
 
   const erros: Record<string, string> = {};
   for (const s of servicos) {
     if (s.nome.length < 2 || s.nome.length > 60) erros[`nome_${s.id}`] = "Use de 2 a 60 caracteres.";
+    if (s.tem_briefing && !s.bloco) erros[`bloco_${s.id}`] = "Escolha o bloco (arquitetura, interiores ou reforma).";
   }
   if (novoNome && novoNome.length < 2) erros.novo_nome = "Use pelo menos 2 caracteres.";
+  if (novoNome && novoBriefing && !novoBloco) erros.novo_bloco = "Escolha o bloco (arquitetura, interiores ou reforma).";
   // Nomes repetidos (sem diferenciar maiúsculas): o banco também recusa.
   const vistos = new Map<string, string>();
   for (const s of servicos) {
@@ -153,7 +162,7 @@ export async function salvarServicos(_anterior: EstadoFormulario, formData: Form
   for (const s of servicos) {
     const { error } = await supabase
       .from("servicos")
-      .update({ nome: s.nome, ativo: s.ativo, tem_briefing: s.tem_briefing })
+      .update({ nome: s.nome, ativo: s.ativo, tem_briefing: s.tem_briefing, tipo_briefing: s.tem_briefing ? s.bloco : null })
       .eq("id", s.id);
     if (error) {
       console.error("[servicos]", error.message);
@@ -165,7 +174,8 @@ export async function salvarServicos(_anterior: EstadoFormulario, formData: Form
     const { error } = await supabase.from("servicos").insert({
       escritorio_id: sessao.escritorio.id,
       nome: novoNome.slice(0, 60),
-      tem_briefing: formData.get("novo_briefing") === "on",
+      tem_briefing: novoBriefing,
+      tipo_briefing: novoBriefing ? novoBloco : null,
       ordem: ids.length + 1,
     });
     if (error) {

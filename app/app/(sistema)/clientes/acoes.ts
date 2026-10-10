@@ -177,16 +177,23 @@ export async function juntarClientes(destino: string, origem: string, senha: str
 }
 
 // Gera um link novo (o anterior do mesmo tipo deixa de valer) e devolve o endereço completo.
+// tipos/ambientes: só para o briefing (RN-02.1b) — o que o arquiteto escolheu enviar. Sem escolha, é automático.
 export async function gerarLink(
   clienteId: string,
   destino: DestinoLink,
+  tipos?: string[],
+  ambientes?: string[],
 ): Promise<{ link: string } | { erro: string }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
 
   // Briefing: cria a cópia das perguntas antes do link (RN-02.12). Se já existe, reaproveita.
   if (destino === "briefing") {
-    const { error } = await ctx.supabase.rpc("preparar_briefing", { p_cliente_id: clienteId });
+    const { error } = await ctx.supabase.rpc("preparar_briefing", {
+      p_cliente_id: clienteId,
+      p_tipos: tipos?.length ? tipos : null,
+      p_ambientes: ambientes?.length ? ambientes : null,
+    });
     if (error) {
       console.error("[clientes] preparar briefing", error.message);
       if (error.message.includes("limite_briefings")) {
@@ -203,6 +210,32 @@ export async function gerarLink(
   }
   revalidatePath(`/app/clientes/${clienteId}`);
   return { link: linkDoCliente(urlDoSite(), data as string, destino) };
+}
+
+// Troca os blocos/ambientes de um briefing já criado, enquanto o cliente não respondeu (RN-02.7).
+export async function ajustarEscopoBriefing(
+  briefingId: string,
+  clienteId: string,
+  tipos: string[],
+  ambientes: string[],
+): Promise<{ erro: string } | { ok: true }> {
+  const ctx = await contexto();
+  if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
+  const { error } = await ctx.supabase.rpc("ajustar_escopo_briefing", {
+    p_briefing_id: briefingId,
+    p_tipos: tipos,
+    p_ambientes: ambientes.length ? ambientes : null,
+  });
+  if (error) {
+    console.error("[clientes] ajustar escopo briefing", error.message);
+    return {
+      erro: error.message.includes("briefing_fechado")
+        ? "O cliente já respondeu: reabra o briefing antes de mudar o que foi pedido."
+        : "Não foi possível salvar o ajuste. Tente de novo.",
+    };
+  }
+  revalidatePath(`/app/clientes/${clienteId}`);
+  return { ok: true };
 }
 
 // ---------- Arquivar, excluir e anonimizar (migração 0026) ----------

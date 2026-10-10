@@ -60,7 +60,8 @@ hora e IP.
    logo (PNG, JPG ou WEBP até 2 MB) e cor principal. O cliente vê essa logo e essa cor no formulário, nos
    links e no portal.
 2. **Serviços:** Arquitetura, Interiores, Reforma e Legalização já vêm prontos. Dá para desmarcar, renomear,
-   criar outros e dizer se cada um tem briefing.
+   criar outros e dizer se cada um tem briefing. Para quem tem briefing, o "Bloco do briefing" decide quais
+   perguntas entram quando o cliente contrata esse serviço — o sistema sugere pelo nome, mas dá para trocar.
 3. **Faixa de preço e agenda:** valor mínimo (abaixo dele o pedido chega "fora do perfil"; em branco, todos
    chegam "a avaliar"), valor máximo (acima dele vem o aviso "acima da sua faixa") e a data em que pode
    começar um projeto novo (antes dela, aviso "prazo apertado").
@@ -204,12 +205,15 @@ terminou a configuração inicial.
 
 ## 6. Briefing, quiz de estilo e Perfil do Cliente ✅
 
-**Enviar:** na ficha do cliente, link de Briefing. Nesse momento o sistema guarda uma cópia das perguntas:
-mudar o modelo depois não mexe em briefing já enviado.
+**Enviar:** na ficha do cliente, link de Briefing. Antes de gerar o link, o escritório escolhe quais blocos
+(Arquitetura, Interiores, Reforma) e, em Interiores, quais ambientes vão no briefing — já vem marcado pelos
+serviços que o cliente contratou, mas dá para ajustar. Nesse momento o sistema guarda uma cópia das perguntas:
+mudar o modelo depois não mexe em briefing já enviado. Enquanto o cliente não respondeu, dá para voltar e
+"Ajustar o que vai no briefing"; depois de respondido, só reabrindo.
 
-**O que o cliente responde:** só os blocos dos serviços dele que têm briefing (Sua casa, Ambientes, Reforma),
-mais "Rotina e referências", que vale para todos. Em Interiores ele escolhe os ambientes (sala, quarto,
-cozinha, banheiro, varanda, home office) e cada um abre as próprias perguntas.
+**O que o cliente responde:** só os blocos escolhidos pelo escritório (Sua casa, Ambientes, Reforma), mais
+"Rotina e referências", que vale para todos. Em Interiores ele escolhe, entre os ambientes liberados (sala,
+quarto, cozinha, banheiro, varanda, home office), quais realmente entram no projeto dele.
 - **Salva sozinho:** dá para parar e continuar depois pelo mesmo link.
 - **Fotos e documentos:** JPG, PNG, WEBP ou PDF, até 10 MB cada e 20 por briefing.
 - **Quiz de estilo:** uma imagem por vez, "gosto" ou "não gosto", sem o nome do estilo (para não influenciar).

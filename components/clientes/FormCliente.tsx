@@ -1,12 +1,9 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
-import { Check, Copy, MessageCircle } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
-import { gerarLink } from "@/app/app/(sistema)/clientes/acoes";
-import { DESTINOS_LINK, ETAPAS_CLIENTE, type Cliente, type DestinoLink } from "@/lib/clientes";
-import { linkWhatsapp } from "@/lib/contatos";
+import { ETAPAS_CLIENTE, type Cliente } from "@/lib/clientes";
 import type { EstadoFormulario } from "@/lib/formulario";
 import { InputMascara } from "@/components/InputMascara";
 
@@ -129,135 +126,5 @@ export function FormCliente({
         </button>
       </div>
     </form>
-  );
-}
-
-// Gera o link sem login e abre o WhatsApp com a mensagem pronta (RG-7, RN-02.4).
-export function EnviarLink({
-  clienteId,
-  destino,
-  telefone,
-  cliente,
-  escritorio,
-  temLinkAtivo,
-  linkAtual = null,
-}: {
-  clienteId: string;
-  destino: DestinoLink;
-  telefone: string | null;
-  cliente: string;
-  escritorio: string;
-  temLinkAtivo: boolean;
-  linkAtual?: string | null; // endereço do link que ainda vale (reenviar sem gerar outro)
-}) {
-  const [pendente, iniciar] = useTransition();
-  const [link, setLink] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const [copiado, setCopiado] = useState(false);
-  const primeiroNome = cliente.split(" ")[0];
-  const mensagem = link ? DESTINOS_LINK[destino].mensagem(primeiroNome, escritorio, link) : "";
-
-  function gerar() {
-    setErro(null);
-    // Abre a aba já no clique: navegador de celular bloqueia janela aberta depois de esperar o servidor.
-    const aba = telefone ? window.open("", "_blank") : null;
-    iniciar(async () => {
-      const resultado = await gerarLink(clienteId, destino);
-      if ("erro" in resultado) {
-        aba?.close();
-        setErro(resultado.erro);
-        return;
-      }
-      setLink(resultado.link);
-      if (aba && telefone) {
-        aba.location.href = linkWhatsapp(
-          telefone,
-          DESTINOS_LINK[destino].mensagem(primeiroNome, escritorio, resultado.link),
-        );
-      }
-    });
-  }
-
-  // M4 da revisão de UX: com um link ainda valendo, reenviar o mesmo; gerar outro só se precisar.
-  if (linkAtual && !link) {
-    const texto = DESTINOS_LINK[destino].mensagem(primeiroNome, escritorio, linkAtual);
-    return (
-      <div className="enviar-link">
-        {telefone ? (
-          <a
-            className="botao botao-primario botao-pequeno"
-            href={linkWhatsapp(telefone, texto)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageCircle size={16} aria-hidden="true" />
-            Reenviar o mesmo link
-          </a>
-        ) : null}
-        <button
-          type="button"
-          className={`botao botao-pequeno ${telefone ? "botao-fantasma" : "botao-secundario"}`}
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(texto);
-              setCopiado(true);
-              setTimeout(() => setCopiado(false), 2000);
-            } catch {
-              window.prompt("Copie a mensagem:", texto);
-            }
-          }}
-        >
-          {copiado ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-          {copiado ? "Copiada" : "Copiar mensagem com o link"}
-        </button>
-        <button
-          type="button"
-          className="botao-link tabela-link campo-ajuda"
-          disabled={pendente}
-          onClick={() => {
-            if (window.confirm("Gerar um link novo? O link enviado antes deixa de funcionar.")) gerar();
-          }}
-        >
-          {pendente ? "Gerando..." : "Gerar link novo (desliga o anterior)"}
-        </button>
-        {erro && <Aviso tipo="erro">{erro}</Aviso>}
-      </div>
-    );
-  }
-
-  return (
-    <div className="enviar-link">
-      <button type="button" className="botao botao-primario botao-pequeno" onClick={gerar} disabled={pendente}>
-        <MessageCircle size={16} aria-hidden="true" />
-        {pendente ? "Gerando link..." : telefone ? "Gerar link e enviar no WhatsApp" : "Gerar link"}
-      </button>
-      {temLinkAtivo && !link && (
-        <p className="campo-ajuda">Gerar um link novo desativa o que você enviou antes.</p>
-      )}
-      {erro && <Aviso tipo="erro">{erro}</Aviso>}
-      {link && (
-        <div className="link-escritorio">
-          <code>{link}</code>
-          <div className="link-escritorio-acoes">
-            <button
-              type="button"
-              className="botao botao-secundario botao-pequeno"
-              onClick={async () => {
-                try {
-                  await navigator.clipboard.writeText(mensagem);
-                  setCopiado(true);
-                  setTimeout(() => setCopiado(false), 2000);
-                } catch {
-                  window.prompt("Copie a mensagem:", mensagem);
-                }
-              }}
-            >
-              {copiado ? <Check size={16} aria-hidden="true" /> : <Copy size={16} aria-hidden="true" />}
-              {copiado ? "Copiada" : "Copiar mensagem com o link"}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
   );
 }

@@ -3,8 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, FilePlus2, Hourglass, MessageCircle } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
-import { EnviarLink, FormCliente } from "@/components/clientes/FormCliente";
+import { FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
+import { EnviarBriefing } from "@/components/briefing/EnviarBriefing";
 import { RemoverCliente } from "@/components/clientes/RemoverCliente";
 import { pode } from "@/lib/permissoes";
 import { ClientesParecidos } from "@/components/clientes/ClientesParecidos";
@@ -101,7 +102,7 @@ export default async function ClientePage({
       : Promise.resolve({ data: null }),
     supabase
       .from("briefings")
-      .select("id, status, respondido_em")
+      .select("id, status, respondido_em, tipos, ambientes_definidos")
       .eq("cliente_id", id)
       .order("criado_em", { ascending: false })
       .limit(1)
@@ -331,12 +332,14 @@ export default async function ClientePage({
                   )}
                 </p>
               </div>
-              <EnviarLink
+              <EnviarBriefing
                 clienteId={cliente.id}
-                destino="briefing"
                 telefone={cliente.telefone}
                 cliente={cliente.nome}
                 escritorio={sessao.escritorio.nome}
+                servicosEscritorio={servicos}
+                clienteServicos={cliente.servicos}
+                briefing={briefing}
                 temLinkAtivo={linkAtivo("briefing")}
                 linkAtual={linkAtualBriefing}
               />

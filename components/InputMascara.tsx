@@ -12,7 +12,9 @@ function aplicar(el: HTMLInputElement, mascara: (v: string) => string, dinheiro 
   if (antes === depois) return;
   const posicao = el.selectionStart ?? antes.length;
   const caractere = dinheiro ? /[0-9,]/ : /[0-9A-Za-z]/;
-  const significativos = [...antes.slice(0, posicao)].filter((c) => caractere.test(c)).length;
+  // No dinheiro, o ponto digitado vira vírgula: conta como caractere significativo para o cursor não ficar antes dela.
+  const caractereAntes = dinheiro ? /[0-9,.]/ : caractere;
+  const significativos = [...antes.slice(0, posicao)].filter((c) => caractereAntes.test(c)).length;
   el.value = depois;
   let i = 0;
   for (let vistos = 0; i < depois.length && vistos < significativos; i++) {

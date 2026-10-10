@@ -130,3 +130,16 @@ export function formatarResposta(pergunta: Pick<PerguntaBriefing, "tipo">, valor
 export function ehPdf(caminho: string) {
   return caminho.endsWith(".pdf");
 }
+
+// Chute do bloco do briefing pelo nome do serviço ("Design de interiores" → interiores), só para
+// pré-marcar o campo em Configurações → Serviços. O arquiteto sempre pode escolher outro (0054).
+export function blocoDoServico(nome: string): Exclude<SecaoBriefing, "comum"> | "" {
+  const slug = nome
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+  if (slug.includes("interiores")) return "interiores";
+  if (slug.includes("reforma")) return "reforma";
+  if (slug.includes("arquitetura")) return "arquitetura";
+  return "";
+}
