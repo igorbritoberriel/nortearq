@@ -6,7 +6,7 @@ import { z } from "zod";
 import { LEGAL } from "@/lib/legal";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
-import { enviarEmail, modeloEmailAcesso } from "@/lib/email";
+import { enviarEmail, escaparHtml, modeloEmailAcesso } from "@/lib/email";
 import { destinoSeguro, errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 
 async function ipDaRequisicao() {
@@ -66,11 +66,16 @@ export async function cadastrar(_anterior: EstadoFormulario, formData: FormData)
     return { status: "erro", mensagem: "Confira os campos destacados.", erros: errosDe(resultado.error.issues), valores };
   }
 
-  const supabase = await criarClienteServidor();
-  if (!supabase) return { ...SEM_SUPABASE, valores };
+  const admin = criarClienteAdmin();
+  if (!admin) return { ...SEM_SUPABASE, valores };
 
   const { nome, escritorio, whatsapp, email: emailCadastro, senha: senhaCadastro } = resultado.data;
-  const { data, error } = await supabase.auth.signUp({
+  const { data: liberado } = await admin.rpc("registrar_envio_recuperacao", { p_email: `cadastro:${emailCadastro}` });
+  if (liberado === false) return { status: "erro", mensagem: traduzir("over_email_send_rate_limit", ""), valores };
+
+  // A conta nasce sem confirmação e o e-mail sai pelo NorteArq (em português, com a marca).
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: "signup",
     email: emailCadastro,
     password: senhaCadastro,
     options: {
@@ -83,18 +88,27 @@ export async function cadastrar(_anterior: EstadoFormulario, formData: FormData)
         whatsapp,
         aceite: { termos: LEGAL.versao, privacidade: LEGAL.versao, em: new Date().toISOString(), ip: await ipDaRequisicao() },
       },
-      emailRedirectTo: `${site()}/auth/confirmar?proximo=/app/onboarding`,
     },
   });
 
-  if (error) return { status: "erro", mensagem: traduzir(error.code, error.message), valores };
-
-  // Com confirmação de e-mail ligada, um e-mail já cadastrado volta sem identidades (e sem erro).
-  if (data.user && data.user.identities?.length === 0) {
-    return { status: "erro", mensagem: traduzir("user_already_exists", ""), valores };
+  if (error) {
+    const jaExiste = error.code === "email_exists" || error.code === "user_already_exists" || /already/i.test(error.message);
+    return { status: "erro", mensagem: traduzir(jaExiste ? "user_already_exists" : error.code, error.message), valores };
   }
 
-  if (data.session) redirect("/app/onboarding");
+  const url = `${site()}/auth/confirmar?token_hash=${encodeURIComponent(data.properties.hashed_token)}&type=signup&proximo=/app/onboarding`;
+  const textos = {
+    titulo: "Confirme seu e-mail",
+    texto: `Que bom ter você no NorteArq, ${escaparHtml(nome.split(" ")[0])}! Falta só confirmar o seu e-mail para começar a usar o sistema.`,
+    botao: "Confirmar e-mail",
+    rodape: "Se você não criou uma conta no NorteArq, ignore este e-mail.",
+  };
+  await enviarEmail({
+    para: emailCadastro,
+    assunto: "Confirme seu e-mail no NorteArq",
+    html: modeloEmailAcesso({ ...textos, url }),
+    texto: `${textos.titulo}\n\nQue bom ter você no NorteArq! Falta só confirmar o seu e-mail para começar a usar o sistema.\n\n${url}\n\n${textos.rodape}`,
+  });
 
   return {
     status: "sucesso",

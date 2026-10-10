@@ -36,6 +36,11 @@ export function EditarModeloProposta({
         <span className="campo-rotulo" id={`servicos-${modelo.id}`}>
           Usar automaticamente em propostas de
         </span>
+        {servicos.length === 0 && (
+          <p className="campo-ajuda">
+            Nenhum serviço cadastrado. Cadastre seus serviços em <a href="/app/configuracoes#servicos">Configurações → Serviços</a>.
+          </p>
+        )}
         <div className="lista-marcar" role="group" aria-labelledby={`servicos-${modelo.id}`}>
           {servicos.map((s) => (
             <label key={s.id} className="checagem">

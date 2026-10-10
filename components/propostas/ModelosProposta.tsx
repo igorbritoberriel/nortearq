@@ -180,6 +180,12 @@ export function SalvarComoModelo({
         <span className="campo-rotulo" id="modelo-servicos">
           Usar automaticamente em propostas de
         </span>
+        {servicos.length === 0 && (
+          <p className="campo-ajuda">
+            Nenhum serviço cadastrado. Cadastre seus serviços em <a href="/app/configuracoes#servicos">Configurações → Serviços</a> e
+            volte aqui.
+          </p>
+        )}
         <div className="lista-marcar" role="group" aria-labelledby="modelo-servicos">
           {servicos.map((s) => (
             <label key={s.id} className="checagem">

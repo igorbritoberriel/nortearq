@@ -163,8 +163,7 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
       3. Instalar o NorteArq no celular (Android: menu → "Instalar aplicativo"; iPhone: Safari → Compartilhar →
          "Adicionar à Tela de Início") e ver o ícone.
       4. Abrir o "Painel interno" logado com o seu e-mail (só aparece para você) e ver o relato de teste.
-- [ ] Ainda sem como testar no escritório de demonstração: perfil Administrador (falta um membro com esse papel);
-      contrato em rascunho com dado faltando; "Salvar como modelo" em proposta enviada; "Juntar com este" na ficha.
+- [ ] Perfil Administrador: testar quando houver um segundo membro com esse papel num escritório de teste.
 - [ ] Primeiro e-mail real de lembrete de etapa parada (3 e 7 dias): ainda não houve etapa esperando.
 - [ ] Miniaturas dos arquivos antigos da Débora: são geradas quando ela abrir o projeto.
 
@@ -185,6 +184,13 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **E-mails de acesso em português e testes restantes (10/10/2026):** confirmação de cadastro e troca de senha
+      saem pelo NorteArq (Resend), com a marca e limite de 1 por minuto / 5 por hora (migração 0054); testados de
+      ponta a ponta (cadastro de teste confirmado e apagado). Conferidos no escritório de demonstração: contrato com
+      dado faltando (aviso "falta preencher: registro no CAU ou CREA" e envio travado), "Salvar como modelo" em
+      proposta enviada e "Juntar com este" (com senha). Corrigidos: lista de serviços vazia no "Salvar como modelo"
+      (o escritório de demonstração não tinha serviços; agora tem os 4 padrão, e a tela avisa quando não há
+      serviço cadastrado) e o texto do "Juntar cadastros" que quebrava em linhas soltas. Dados de teste apagados.
 - [x] **Conferir na tela, rodada de 10/10/2026** (site real, escritório de demonstração): "Esqueci a senha"
       pedido sem erro; sininho abre o painel; "Relatar problema ou sugestão" está na página Ajuda; Configurações
       com "Modelos e textos prontos"; aviso de cliente repetido ("Parece que este cliente já está cadastrado") sem
