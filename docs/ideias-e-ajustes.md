@@ -153,21 +153,18 @@ Conferência automática de 04/10/2026 (conta de teste, computador e celular, 23
 ficha com "próximo passo", proposta em rascunho, contrato, projeto, configurações, formulário do escritório e as
 páginas do cliente (proposta, contrato, projeto, briefing, dúvidas frequentes) sem erros; 3 desalinhamentos
 corrigidos. Ficam para olhar com uso real os itens abaixo.
-- [ ] E-mails: ~~teste chegou na caixa de entrada~~ (confirmado em 03/10/2026). Falta: Resend mostrar
-      "Verified", testar "Esqueci a senha" e enviar uma etapa para aprovação para um e-mail seu.
-- [ ] Instalar o NorteArq no celular (Android: "Instalar aplicativo" no menu; iPhone: Safari → Compartilhar →
-      Adicionar à Tela de Início) e ver o ícone; ícone novo na aba do navegador.
-- [ ] Domínio novo: entrar por https://nortearq.com.br, gerar um link de briefing e ver se sai com nortearq.com.br;
-      testar "Esqueci a senha" (o e-mail deve trazer o link novo).
-- [ ] Ficha do cliente → "Exportar dados do cliente": baixar e abrir o arquivo de um cliente de teste.
-      Proposta enviada: "Salvar como modelo" embaixo da proposta.
-- [ ] Contrato em rascunho com dado do escritório faltando: caixa amarela com a lista e botão de enviar travado.
-      Configurações: seção "Modelos e textos prontos".
-- [ ] Logado no sistema: botão "Relatar problema ou sugestão" no menu (enviar um de teste) e o
-      "Painel interno" (só aparece para o seu e-mail). O e-mail de aviso só sai com o Resend configurado.
-- [ ] Sininho novo: número zera ao abrir, abas Não lidas/Todas, X para dispensar, Limpar lidas.
-- [ ] Cliente repetido: aviso ao cadastrar, "cadastrar mesmo assim" e "Juntar com este" na ficha.
-- [ ] Sistema logado como Administrador e como Colaborador (menu e telas de cada perfil).
+- [ ] **Depende do Igor (conferência de 10/10/2026):**
+      1. Ver se chegou no igorbritoberriel@gmail.com o e-mail de "Esqueci a senha" pedido às ~15h de 10/10 (olhar o
+         spam também) e se o link abre a tela de senha nova em nortearq.com.br.
+      2. Painel do Resend: confirmar "Verified" no domínio. A assinatura DKIM está publicada, mas o registro do
+         subdomínio de envio (send.nortearq.com.br) aponta para outro serviço (rmta.net), não para o do Resend; se o
+         Resend mostrar pendência nesse item, me avise que eu corrijo no Cloudflare. A chave do projeto só envia, não
+         consulta o painel.
+      3. Instalar o NorteArq no celular (Android: menu → "Instalar aplicativo"; iPhone: Safari → Compartilhar →
+         "Adicionar à Tela de Início") e ver o ícone.
+      4. Abrir o "Painel interno" logado com o seu e-mail (só aparece para você) e ver o relato de teste.
+- [ ] Ainda sem como testar no escritório de demonstração: perfil Administrador (falta um membro com esse papel);
+      contrato em rascunho com dado faltando; "Salvar como modelo" em proposta enviada; "Juntar com este" na ficha.
 - [ ] Primeiro e-mail real de lembrete de etapa parada (3 e 7 dias): ainda não houve etapa esperando.
 - [ ] Miniaturas dos arquivos antigos da Débora: são geradas quando ela abrir o projeto.
 
@@ -188,6 +185,11 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Conferir na tela, rodada de 10/10/2026** (site real, escritório de demonstração): "Esqueci a senha"
+      pedido sem erro; sininho abre o painel; "Relatar problema ou sugestão" está na página Ajuda; Configurações
+      com "Modelos e textos prontos"; aviso de cliente repetido ("Parece que este cliente já está cadastrado") sem
+      duplicar; "Exportar dados do cliente" baixa o arquivo completo (cliente, briefings, propostas, contratos,
+      projetos, links); link do formulário com nortearq.com.br. Corrigidos acentos quebrados na Central de Ajuda.
 - [x] **Financeiro, conferência no navegador (10/10/2026):** computador e celular, pelo escritório de
       demonstração (Playwright instalado e removido na hora). Abas, busca, seletor de mês, cadastro e
       pagamento de despesa, cancelamento com motivo, recebimento manual (Pix) com recibo gerado e estorno
