@@ -94,7 +94,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] **Piloto com a Débora: lista de tarefas** (sem prazo; decisão do Igor em 03/10/2026: acabando as tarefas,
       seguimos para os arquitetos parceiros). Clientes reais: o que está em andamento e o Luiz Cláudio.
       Teste completo pelo Igor, no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do cliente
-      com outro e-mail (eu passo o roteiro clique a clique):
+      com outro e-mail. Roteiro em PDF, uma etapa por página, com caixinha de marcar e espaço para observação:
+      `docs/piloto/Checklist-Piloto-NorteArq.pdf` (gerado por `docs/piloto/gerar_checklist_piloto.py`).
       - [ ] 1. Pedido de orçamento pelo formulário (celular)
       - [ ] 2. Virar cliente e montar a proposta; salvar como modelo
       - [ ] 3. Cliente aprova a proposta pelo link (celular)
