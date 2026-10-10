@@ -149,8 +149,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       manual; vídeos no YouTube (não listados) dentro da página Ajuda. Começar pelos roteiros dos 3 primeiros.
 - [x] **Situação e prazos de projetos, restante (09/10):** encerrar, reabrir, histórico, agenda de atrasos e
       próximos dias, e o cliente vendo o aviso de projeto pausado pelo link.
-- [ ] **Financeiro, conta Asaas conectada:** falta só esse pedaço (10/10/2026) — testei tudo o resto (ver "Feito").
-      Preciso de uma conta Asaas sandbox conectada a um escritório de teste para ver a tela com saldo de verdade.
 Conferência automática de 04/10/2026 (conta de teste, computador e celular, 23 telas): painel, menu do celular,
 ficha com "próximo passo", proposta em rascunho, contrato, projeto, configurações, formulário do escritório e as
 páginas do cliente (proposta, contrato, projeto, briefing, dúvidas frequentes) sem erros; 3 desalinhamentos
@@ -198,7 +196,9 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
       vem do código do sistema (não há esse estilo em lugar nenhum) nem trava nada — parece coisa do
       Chromium automatizado, não de um usuário de verdade. No celular, a tabela de contas a receber/despesas
       rola para o lado sem nenhuma seta ou sombra avisando (mesmo padrão em todo o sistema, não é só do
-      Financeiro); pode valer a pena melhorar um dia, mas não é urgente.
+      Financeiro); pode valer a pena melhorar um dia, mas não é urgente. Conta Asaas conectada também conferida
+      (computador e celular): selo "Teste", saldo, a liberar, taxas e aviso de ambiente de testes. O escritório de
+      demonstração ficou conectado à conta sandbox do projeto (chave em ASAAS_API_KEY do .env.local).
 - [x] **Briefing personalizado por cliente** (10/10/2026, pedido do Igor): na ficha do cliente, antes de gerar o
       link de Briefing, o arquiteto escolhe quais blocos (Arquitetura, Interiores, Reforma) e, em Interiores,
       quais ambientes vão — vem pré-marcado pelos serviços contratados, mas dá pra ajustar. Dá pra mudar depois
