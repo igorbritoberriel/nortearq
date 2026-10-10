@@ -667,3 +667,5 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Paguei e não baixou" (cliente) | O Asaas ainda não confirmou (boleto leva até 3 dias úteis) ou o pagamento foi por fora | Aguardar a confirmação, ou registrar à mão |
 | "Não consigo excluir o cliente" | Tem contrato assinado ou pagamento registrado | Arquivar |
 | "O cliente não consegue entrar no portal" | Não criou o acesso, ou esqueceu a senha | Mandar o link do projeto (o convite aparece nele); "Esqueci a senha" |
+| "O e-mail de nova senha não chegou" | Caiu no spam, ou pediu várias vezes seguidas (o sistema envia no máximo 1 por minuto e 5 por hora) | Olhar o spam e procurar por "Crie sua nova senha do NorteArq"; esperar 1 minuto e pedir de novo |
+| "Cliquei no link da nova senha e caiu no Início" | O NorteArq instalado como aplicativo abriu o link na tela inicial | O link já entrou na conta: no mesmo aparelho, abrir nortearq.com.br/redefinir-senha e criar a senha nova |

@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { LEGAL } from "@/lib/legal";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { enviarEmail, modeloEmailAcesso } from "@/lib/email";
 import { destinoSeguro, errosDe, SEM_SUPABASE, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 
 async function ipDaRequisicao() {
@@ -136,20 +138,36 @@ export async function recuperarSenha(_anterior: EstadoFormulario, formData: Form
     return { status: "erro", mensagem: "Confira o e-mail.", erros: errosDe(resultado.error.issues), valores };
   }
 
-  const supabase = await criarClienteServidor();
-  if (!supabase) return { ...SEM_SUPABASE, valores };
+  const admin = criarClienteAdmin();
+  if (!admin) return { ...SEM_SUPABASE, valores };
+  const emailPedido = resultado.data.email;
 
-  const { error } = await supabase.auth.resetPasswordForEmail(resultado.data.email, {
-    redirectTo: `${site()}/auth/confirmar?proximo=/redefinir-senha`,
-  });
-  if (error && (error.code === "over_email_send_rate_limit" || error.code === "over_request_rate_limit")) {
-    return { status: "erro", mensagem: traduzir(error.code, error.message), valores };
+  // O e-mail sai pelo NorteArq (em português, com a marca), não pelo modelo do Supabase.
+  const { data: liberado } = await admin.rpc("registrar_envio_recuperacao", { p_email: emailPedido });
+  if (liberado === false) return { status: "erro", mensagem: traduzir("over_email_send_rate_limit", ""), valores };
+
+  const { data } = await admin.auth.admin.generateLink({ type: "recovery", email: emailPedido });
+  const tokenHash = data?.properties?.hashed_token;
+  if (tokenHash) {
+    const url = `${site()}/auth/confirmar?token_hash=${encodeURIComponent(tokenHash)}&type=recovery&proximo=/redefinir-senha`;
+    const textos = {
+      titulo: "Crie sua nova senha",
+      texto: "Recebemos um pedido para trocar a senha da sua conta no NorteArq. Toque no botão abaixo para criar uma senha nova. Por segurança, o link vale por pouco tempo.",
+      botao: "Criar nova senha",
+      rodape: "Se você não pediu a troca de senha, ignore este e-mail. Sua senha atual continua a mesma.",
+    };
+    await enviarEmail({
+      para: emailPedido,
+      assunto: "Crie sua nova senha do NorteArq",
+      html: modeloEmailAcesso({ ...textos, url }),
+      texto: `${textos.titulo}\n\n${textos.texto}\n\n${url}\n\n${textos.rodape}`,
+    });
   }
 
   // Mesma resposta com ou sem conta: não revela quem é cliente do NorteArq.
   return {
     status: "sucesso",
-    mensagem: `Se houver uma conta com ${resultado.data.email}, você vai receber um link para criar uma nova senha.`,
+    mensagem: `Se houver uma conta com ${emailPedido}, você vai receber um link para criar uma nova senha.`,
   };
 }
 
