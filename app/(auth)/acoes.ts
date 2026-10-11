@@ -200,13 +200,16 @@ export async function redefinirSenha(_anterior: EstadoFormulario, formData: Form
   const supabase = await criarClienteServidor();
   if (!supabase) return SEM_SUPABASE;
 
-  const { error } = await supabase.auth.updateUser({ password: resultado.data.senha });
+  const { data, error } = await supabase.auth.updateUser({ password: resultado.data.senha });
   if (error) {
     const semSessao = error.name === "AuthSessionMissingError";
     return { status: "erro", mensagem: traduzir(semSessao ? "session_not_found" : error.code, error.message) };
   }
 
-  redirect("/app");
+  // Mesmo destino do login: arquiteto vai para o sistema, administrador sem escritório vai para /admin,
+  // cliente final vai para o portal.
+  const { data: membro, error: erroMembro } = await supabase.from("membros").select("id").eq("id", data.user.id).maybeSingle();
+  redirect(membro || erroMembro ? "/app" : ehAdminNorteArq(data.user.email) ? "/admin" : "/portal");
 }
 
 // ---------- Sair ----------
