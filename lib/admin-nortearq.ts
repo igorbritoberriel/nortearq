@@ -6,7 +6,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 // Configurável na Vercel: NORTEARQ_ADMINS="email1,email2".
 
 export function adminsNorteArq(): string[] {
-  return (process.env.NORTEARQ_ADMINS ?? "igorbritoberriel@gmail.com")
+  return (process.env.NORTEARQ_ADMINS ?? "igorbritoberriel@gmail.com,admin@nortearq.com.br")
     .split(",")
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
