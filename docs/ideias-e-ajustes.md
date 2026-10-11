@@ -175,8 +175,7 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
          certo, foi criado pela ligação automática do Resend em 03/10 e é a infraestrutura de envio dele.
          Sugestão (opcional, ajuda contra spam): criar no Cloudflare o registro TXT `_dmarc` com o valor
          `v=DMARC1; p=none; rua=mailto:igorbritoberriel@gmail.com`. Precisa de acesso ao Cloudflare (sem token aqui).
-      3. Instalar o NorteArq no celular (Android: menu → "Instalar aplicativo"; iPhone: Safari → Compartilhar →
-         "Adicionar à Tela de Início") e ver o ícone.
+      3. ~~Instalar o NorteArq no celular~~ feito pelo Igor (11/10/2026).
       4. ~~Ver o relato de teste no painel~~ feito em 11/10/2026: não havia nenhum relato no banco; criado um de teste
          (Dúvida, BERRIEL ESC) e conferido pela mesma consulta do /admin. Fica "novo" no painel até ser resolvido.
 - [ ] Perfil Administrador: testar quando houver um segundo membro com esse papel num escritório de teste.
