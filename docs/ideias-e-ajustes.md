@@ -111,7 +111,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
             (feito em 04/10/2026); chave Pix em Configurações; cláusula de multa no modelo de contrato dela
       - [ ] 11. Os 2 clientes reais andando sem erro que trave (atritos pelo "Relatar problema")
       Eu:
-      - [ ] 12. Painel interno sem erro grave pendente e tudo que aparecer corrigido
+      - [x] 12. Painel sem erro grave pendente (11/10/2026): os 7 erros estavam resolvidos; a maioria vinha do
+            computador de desenvolvimento (mesmo banco da produção). Agora só erros do site real entram no painel.
 - [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
       para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
       (pasta arquivos/ não expira): apagar também do R2 quando excluir ou anonimizar um cliente.
