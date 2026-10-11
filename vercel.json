@@ -1,4 +1,5 @@
 {
+  "regions": ["gru1"],
   "crons": [
     { "path": "/api/cron/assinatura", "schedule": "0 12 * * *" },
     { "path": "/api/cron/etapas", "schedule": "0 13 * * *" },
