@@ -67,3 +67,37 @@ export function ehErroDeControle(erro: unknown) {
   const digest = typeof erro === "object" && erro !== null && "digest" in erro ? String((erro as { digest: unknown }).digest) : "";
   return /^(NEXT_REDIRECT|NEXT_NOT_FOUND|NEXT_HTTP_ERROR_FALLBACK|DYNAMIC_SERVER_USAGE|BAILOUT_TO_CLIENT_SIDE_RENDERING)/.test(digest);
 }
+
+// Quem estava logado quando o erro aconteceu, a partir do cabeçalho "cookie" bruto da requisição.
+// Usado pelo instrumentation.ts (onRequestError não tem acesso a next/headers cookies()).
+export async function identificarUsuarioPorCookie(cabecalhoCookie: string | string[] | undefined) {
+  const semNinguem = { usuarioId: null as string | null, escritorioId: null as string | null };
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const chave = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !chave || !cabecalhoCookie) return semNinguem;
+
+    const cru = Array.isArray(cabecalhoCookie) ? cabecalhoCookie.join("; ") : cabecalhoCookie;
+    const cookies = cru
+      .split(";")
+      .map((parte) => parte.trim())
+      .filter(Boolean)
+      .map((parte) => {
+        const i = parte.indexOf("=");
+        return { name: parte.slice(0, i), value: decodeURIComponent(parte.slice(i + 1)) };
+      });
+
+    const { createServerClient } = await import("@supabase/ssr");
+    const supabase = createServerClient(url, chave, { cookies: { getAll: () => cookies, setAll: () => {} } });
+    const { data } = await supabase.auth.getUser();
+    const usuarioId = data.user?.id ?? null;
+    if (!usuarioId) return semNinguem;
+
+    const admin = criarClienteAdmin();
+    if (!admin) return { usuarioId, escritorioId: null };
+    const { data: membro } = await admin.from("membros").select("escritorio_id").eq("id", usuarioId).maybeSingle();
+    return { usuarioId, escritorioId: (membro?.escritorio_id as string | undefined) ?? null };
+  } catch {
+    return semNinguem;
+  }
+}
