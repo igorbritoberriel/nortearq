@@ -139,9 +139,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
       perguntas frequentes do cliente final (03/10/2026). A central de ajuda (menu Ajuda) e as perguntas
       frequentes do cliente já leem o manual direto. Falta: gerar o PDF depois da conferência visual.
-- [ ] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026). Lista pronta em
-      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, com sugestão e ordem para cada uma. Feitos: todos os itens.
-      Falta ainda a conferência visual no navegador (prints).
+- [x] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026; conferência visual em 11/10/2026).
+      `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, todas feitas. Conferência visual: 23 prints no computador
+      e no celular (escritório e cliente de teste), cobrindo as três listas — menu móvel sem empurrar conteúdo,
+      item atual destacado, "Obras" fora do menu, linha do tempo completa, busca nas listas, "Arquivar ou excluir"
+      por último. Nenhum problema novo de layout, cor ou espaçamento. Confirmado de novo o já conhecido: a tabela
+      de Contas a receber corta no celular sem indicar que rola (baixa prioridade, anotado em 10/10).
 - [ ] Adicional "+50 GB de espaço" (R$ 19/mês): somar ao limite do plano quando for contratado.
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 - [ ] **Melhorias no Painel interno → Visão de negócio** (ideia de 11/10/2026, a partir do pedido do Igor de um
