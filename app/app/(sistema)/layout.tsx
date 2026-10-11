@@ -8,7 +8,6 @@ import { diasDeTeste, obterSessaoArquiteto, podeGerirAssinatura } from "@/lib/es
 import { MENU_ARQUITETO } from "@/lib/navegacao";
 import { carregarNotificacoes } from "@/lib/notificacoes";
 import { PAGINA_EXIGE, pode } from "@/lib/permissoes";
-import { ehAdminNorteArq } from "@/lib/admin-nortearq";
 import { dataCurta } from "@/lib/propostas";
 import { Notificacoes } from "@/components/notificacoes/Notificacoes";
 import { MenuLateral } from "@/components/MenuLateral";
@@ -113,11 +112,7 @@ export default async function SistemaLayout({ children }: { children: React.Reac
         )}
         <nav aria-label="Funcionalidades">
           <MenuLateral
-            itens={[
-              ...menu.filter((item) => !["/app/configuracoes", "/app/ajuda"].includes(item.href)).map((item) => ({ href: item.href, rotulo: item.rotulo })),
-
-              ...(sessao && ehAdminNorteArq(sessao.email) ? [{ href: "/app/interno", rotulo: "Painel interno", classe: "app-interno" }] : []),
-            ]}
+            itens={menu.filter((item) => !["/app/configuracoes", "/app/ajuda"].includes(item.href)).map((item) => ({ href: item.href, rotulo: item.rotulo }))}
           />
         </nav>
         <nav className="app-solucoes" aria-label="Conta e suporte">

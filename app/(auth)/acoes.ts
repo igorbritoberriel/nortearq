@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { LEGAL } from "@/lib/legal";
+import { ehAdminNorteArq } from "@/lib/admin-nortearq";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { enviarEmail, escaparHtml, modeloEmailAcesso } from "@/lib/email";
@@ -136,10 +137,11 @@ export async function entrar(_anterior: EstadoFormulario, formData: FormData): P
   });
   if (error) return { status: "erro", mensagem: traduzir(error.code, error.message), valores };
 
-  // Arquiteto vai para o sistema; cliente final vai para o portal.
+  // Arquiteto vai para o sistema; cliente final vai para o portal; administrador do NorteArq sem
+  // escritório (não é membro de ninguém) vai para o painel de administrador.
   // Se a consulta falhar por um instante, vai para o sistema (que confere de novo), nunca para o portal por engano.
   const { data: membro, error: erroMembro } = await supabase.from("membros").select("id").eq("id", data.user.id).maybeSingle();
-  const padrao = membro || erroMembro ? "/app" : "/portal";
+  const padrao = membro || erroMembro ? "/app" : ehAdminNorteArq(data.user.email) ? "/admin" : "/portal";
   redirect(destinoSeguro(valores.proximo, padrao));
 }
 

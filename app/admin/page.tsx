@@ -5,11 +5,10 @@ import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { NOME_SITUACAO, type SituacaoEscritorio } from "@/lib/assinatura";
 import { PLANOS } from "@/lib/modulos";
 
-export const metadata: Metadata = { title: "Painel interno" };
+export const metadata: Metadata = { title: "Administrador" };
 
-// Painel interno do NorteArq (só administradores do NorteArq; o layout confere):
-// visão de negócio de todos os escritórios, relatos enviados pelo botão "Relatar problema ou sugestão"
-// e erros automáticos capturados pelo próprio sistema.
+// Painel de administrador do NorteArq: visão de negócio de todos os escritórios, relatos enviados
+// pelo botão "Relatar problema ou sugestão" e erros automáticos capturados pelo próprio sistema.
 
 const quando = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 const quandoData = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric", timeZone: "America/Sao_Paulo" });
@@ -23,12 +22,12 @@ type EscritorioBruto = {
   trial_ate: string | null; pago_ate: string | null; assinatura_cancelada_em: string | null; criado_em: string;
 };
 
-export default async function InternoPage() {
+export default async function AdminPage() {
   const admin = criarClienteAdmin();
   if (!admin) {
     return (
       <div className="pagina-app">
-        <h1>Painel interno</h1>
+        <h1>Administrador</h1>
         <p className="muted">Configure SUPABASE_SECRET_KEY para ver os relatos e os erros.</p>
       </div>
     );
@@ -81,8 +80,8 @@ export default async function InternoPage() {
 
   return (
     <div className="pagina-app pagina-larga">
-      <h1>Painel interno</h1>
-      <p className="muted">Só você vê esta página. Visão de negócio, relatos e erros de todos os escritórios.</p>
+      <h1>Administrador</h1>
+      <p className="muted">Visão de negócio, relatos e erros de todos os escritórios.</p>
 
       <section className="cartao secao-config">
         <h2 className="interno-titulo">Visão de negócio</h2>

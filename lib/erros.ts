@@ -54,11 +54,11 @@ async function avisarErroNovo(d: DadosErro) {
       linhas: [
         `<strong>Página:</strong> ${escaparHtml(d.caminho ?? "desconhecida")}`,
         `<strong>Mensagem:</strong> ${escaparHtml(d.mensagem.slice(0, 500))}`,
-        "Repetições do mesmo erro não geram outro e-mail: o painel interno mostra quantas vezes aconteceu.",
+        "Repetições do mesmo erro não geram outro e-mail: o painel de administrador mostra quantas vezes aconteceu.",
       ],
-      botao: { texto: "Abrir o painel interno", url: `${urlDoSite()}/app/interno` },
+      botao: { texto: "Abrir o painel de administrador", url: `${urlDoSite()}/admin` },
     }),
-    texto: `Erro novo ${local}\nPágina: ${d.caminho ?? "desconhecida"}\nMensagem: ${d.mensagem}\nPainel: ${urlDoSite()}/app/interno`,
+    texto: `Erro novo ${local}\nPágina: ${d.caminho ?? "desconhecida"}\nMensagem: ${d.mensagem}\nPainel: ${urlDoSite()}/admin`,
   });
 }
 

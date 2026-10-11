@@ -5,6 +5,7 @@ import { adminsNorteArq, ehAdminNorteArq } from "@/lib/admin-nortearq";
 import { enviarEmail, escaparHtml, modeloEmail } from "@/lib/email";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
+import { criarClienteServidor } from "@/lib/supabase/server";
 
 // "Relatar problema ou sugestão" (migração 0034): grava com a página em que a pessoa estava e avisa
 // quem administra o NorteArq por e-mail. No máximo 20 relatos por pessoa por dia.
@@ -56,26 +57,34 @@ export async function enviarRelato(dados: z.input<typeof esquema>): Promise<{ ok
         `<strong>Página:</strong> ${escaparHtml(d.caminho)}`,
         `<em>“${escaparHtml(d.texto)}”</em>`,
       ],
-      botao: { texto: "Abrir o painel interno", url: `${urlDoSite()}/app/interno` },
+      botao: { texto: "Abrir o painel de administrador", url: `${urlDoSite()}/admin` },
     }),
     texto: `${TIPOS[d.tipo]} de ${sessao.membro.nome} (${sessao.escritorio.nome})\nPágina: ${d.caminho}\n\n${d.texto}`,
   });
   return { ok: true };
 }
 
-// Painel interno: só quem administra o NorteArq.
+// Painel de administrador: só quem administra o NorteArq. A conta de admin não tem escritório
+// (não é membro de ninguém), por isso confere direto o e-mail logado em vez de obterSessaoArquiteto.
+async function ehEmailAdminLogado(): Promise<boolean> {
+  const supabase = await criarClienteServidor();
+  if (!supabase) return false;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return ehAdminNorteArq(user?.email);
+}
+
 export async function mudarSituacaoRelato(id: string, situacao: "visto" | "resolvido" | "novo"): Promise<boolean> {
-  const sessao = await obterSessaoArquiteto();
   const admin = criarClienteAdmin();
-  if (!sessao || !admin || !ehAdminNorteArq(sessao.email) || !z.uuid().safeParse(id).success) return false;
+  if (!admin || !(await ehEmailAdminLogado()) || !z.uuid().safeParse(id).success) return false;
   const { error } = await admin.from("relatos").update({ situacao, atualizado_em: new Date().toISOString() }).eq("id", id);
   return !error;
 }
 
 export async function marcarErroResolvido(id: string): Promise<boolean> {
-  const sessao = await obterSessaoArquiteto();
   const admin = criarClienteAdmin();
-  if (!sessao || !admin || !ehAdminNorteArq(sessao.email) || !z.uuid().safeParse(id).success) return false;
+  if (!admin || !(await ehEmailAdminLogado()) || !z.uuid().safeParse(id).success) return false;
   const { error } = await admin.from("erros_sistema").update({ resolvido_em: new Date().toISOString() }).eq("id", id);
   return !error;
 }
