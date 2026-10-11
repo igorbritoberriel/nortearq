@@ -164,13 +164,14 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] **Depende do Igor (conferência de 10/10/2026):**
       1. Ver se chegou no igorbritoberriel@gmail.com o e-mail de "Esqueci a senha" pedido às ~15h de 10/10 (olhar o
          spam também) e se o link abre a tela de senha nova em nortearq.com.br.
-      2. Painel do Resend: confirmar "Verified" no domínio. A assinatura DKIM está publicada, mas o registro do
-         subdomínio de envio (send.nortearq.com.br) aponta para outro serviço (rmta.net), não para o do Resend; se o
-         Resend mostrar pendência nesse item, me avise que eu corrijo no Cloudflare. A chave do projeto só envia, não
-         consulta o painel.
+      2. Painel do Resend: confirmar "Verified" no domínio. Conferido em 11/10/2026 por consulta de DNS: o DKIM
+         (resend._domainkey) está certo, mas send.nortearq.com.br continua apontando para send.forge.rmta.net, e não
+         para o Resend. Falta o valor exato que o Resend pede para esse registro (só aparece no painel dele) para
+         trocar no Cloudflare; não há token do Cloudflare no projeto.
       3. Instalar o NorteArq no celular (Android: menu → "Instalar aplicativo"; iPhone: Safari → Compartilhar →
          "Adicionar à Tela de Início") e ver o ícone.
-      4. Abrir o "Painel interno" logado com o seu e-mail (só aparece para você) e ver o relato de teste.
+      4. ~~Ver o relato de teste no painel~~ feito em 11/10/2026: não havia nenhum relato no banco; criado um de teste
+         (Dúvida, BERRIEL ESC) e conferido pela mesma consulta do /admin. Fica "novo" no painel até ser resolvido.
 - [ ] Perfil Administrador: testar quando houver um segundo membro com esse papel num escritório de teste.
 - [ ] Primeiro e-mail real de lembrete de etapa parada (3 e 7 dias): ainda não houve etapa esperando.
 - [ ] Miniaturas dos arquivos antigos da Débora: são geradas quando ela abrir o projeto.
