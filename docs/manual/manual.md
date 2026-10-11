@@ -204,7 +204,9 @@ terminou a configuração inicial.
   guarda dele (cadastro, pedido, briefing com perguntas e respostas, propostas, contratos com o aceite,
   projetos com etapas, aprovações, aditivos e pagamentos, links enviados). Arquivos e fotos vão listados pelo nome.
 - **Anonimizar** (só o Dono, com senha, LGPD): troca os dados pessoais por "removido", apaga as fotos do
-  briefing e o acesso ao portal. Contrato e valores ficam guardados (obrigação legal).
+  briefing e o acesso ao portal. Contrato e valores ficam guardados (obrigação legal). As fotos do briefing saem
+  também da cópia de segurança em até 30 dias. Já num cliente **excluído**, a cópia continua guardando os arquivos,
+  para dar para recuperar se foi engano.
 
 ## 6. Briefing, quiz de estilo e Perfil do Cliente ✅
 

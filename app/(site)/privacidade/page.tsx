@@ -94,6 +94,11 @@ export default function PrivacidadePage() {
             apagados, exceto o que a lei obrigar a guardar.
           </li>
           <li>Registros de acesso: pelo menos 6 meses (Marco Civil da Internet).</li>
+          <li>
+            Cópias de segurança: feitas todo dia, em armazenamento separado. As cópias do banco de dados ficam guardadas por
+            30 dias. Quando o escritório anonimiza um cliente a pedido dele, as fotos e os arquivos do briefing saem também
+            das cópias em até 30 dias.
+          </li>
         </ul>
 
         <h2>7. Cookies</h2>

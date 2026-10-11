@@ -4,6 +4,7 @@
 //    Fica em banco/AAAA-MM-DD/; a própria rotina apaga as pastas com mais de 30 dias.
 // 2. Arquivos do Supabase Storage (plantas, renders, fotos do briefing...): copia só os que ainda não estão no R2,
 //    em arquivos/<balde>/<caminho>. Arquivo no NorteArq nunca muda (versão nova = caminho novo).
+// 3. LGPD: arquivos de cliente anonimizado a pedido do titular (tabela backup_remover) saem da cópia 30 dias depois.
 //
 // Variáveis: SUPABASE_DB_URL, SUPABASE_URL, SUPABASE_SECRET_KEY, R2_ACCOUNT_ID, R2_ACCESS_KEY_ID,
 // R2_SECRET_ACCESS_KEY, R2_BUCKET. Precisa do pacote @aws-sdk/client-s3 e do pg_dump 17 no caminho.
@@ -120,6 +121,23 @@ for (const balde of baldes) {
   console.log(`${balde}: ${noStorage.length} arquivo(s), ${faltando.length} novo(s)`);
 }
 console.log(`arquivos novos copiados: ${novos} (${mb(bytes)})`);
+
+// ---------- 3. LGPD: arquivos de cliente anonimizado saem também da cópia ----------
+// Só os anotados em backup_remover (anonimização a pedido do titular), 30 dias depois do pedido.
+// Exclusão comum não entra: a cópia guarda esses arquivos para dar para recuperar.
+const rest = `${e.SUPABASE_URL.replace(/\/$/, "")}/rest/v1/backup_remover`;
+const limiteLgpd = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+const resL = await fetch(`${rest}?select=id,balde,caminho&pedido_em=lt.${encodeURIComponent(limiteLgpd)}&limit=5000`, { headers: cabecalhos });
+if (!resL.ok) throw new Error(`Lista de remoção (LGPD): ${resL.status} ${await resL.text()}`);
+const pedidos = await resL.json();
+const seguros = pedidos.filter((p) => p.balde && p.caminho && !p.caminho.includes("..") && !p.caminho.startsWith("/"));
+for (let i = 0; i < seguros.length; i += 1000) {
+  const lote = seguros.slice(i, i + 1000);
+  await r2.send(new DeleteObjectsCommand({ Bucket: e.R2_BUCKET, Delete: { Objects: lote.map((p) => ({ Key: `arquivos/${p.balde}/${p.caminho}` })) } }));
+  const resD = await fetch(`${rest}?id=in.(${lote.map((p) => p.id).join(",")})`, { method: "DELETE", headers: cabecalhos });
+  if (!resD.ok) throw new Error(`Lista de remoção (LGPD), ao limpar: ${resD.status} ${await resD.text()}`);
+}
+console.log(`arquivos de cliente anonimizado apagados da cópia: ${seguros.length}`);
 
 rmSync(temp, { recursive: true, force: true });
 console.log(`cópia de ${hoje} concluída`);

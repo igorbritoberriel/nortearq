@@ -325,6 +325,13 @@ export async function anonimizarCliente(id: string, senha: string): Promise<{ er
   await apagarArquivos(caminhos);
   // Login do portal do cliente deixa de existir.
   const admin = criarClienteAdmin();
+  // As mesmas fotos saem também da cópia de segurança, 30 dias depois (scripts/backup.mjs, migração 0058).
+  if (admin && caminhos.length) {
+    const { error: erroBackup } = await admin
+      .from("backup_remover")
+      .insert(caminhos.map((caminho) => ({ balde: "briefings", caminho, motivo: "anonimizado" })));
+    if (erroBackup) console.error("[clientes] anotar remoção da cópia", erroBackup.message);
+  }
   if (admin && usuario) await admin.auth.admin.deleteUser(usuario as string).catch(() => null);
   revalidatePath("/app", "layout");
   return { ok: true };

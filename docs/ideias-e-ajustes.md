@@ -130,10 +130,13 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       ("PROJETO ARQUITETÔNICO") está sem arquivos. Perguntar à Débora se excluiu e se quer de volta: eu restauro do
       backup para o projeto atual (como "só do escritório", para ela revisar). Desde 11/10, excluir cliente mostra
       quantos projetos e arquivos vão junto e sugere Arquivar.
-- [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
-      para ter o passo a passo pronto; (2) LGPD: hoje a cópia guarda para sempre os arquivos que saem do sistema. NÃO
-      apagar "tudo que sumiu" (o caso do Manoel mostrou o risco); proposta: apagar da cópia só os arquivos de cliente
-      **anonimizado a pedido do titular**, 30 dias depois. Aguardando o Igor confirmar a regra.
+- [ ] Cópia de segurança, depois: ensaio de restauração completa num projeto Supabase de teste, uma vez, para ter o
+      passo a passo pronto.
+- [x] **LGPD na cópia de segurança** (11/10/2026, regra escolhida pelo Igor): só os arquivos de cliente **anonimizado
+      a pedido do titular** saem também da cópia, 30 dias depois. A anonimização anota os arquivos na tabela
+      backup_remover (migração 0058, só o servidor acessa) e o backup diário apaga os vencidos. Exclusão comum continua
+      guardada na cópia (dá para recuperar, como no caso do Manoel). Testado com arquivo fictício (o de 31 dias saiu, o
+      recente ficou). Política de Privacidade e manual atualizados.
 - [x] **Tabelas e abas largas no celular** (11/10/2026): quando há conteúdo escondido para o lado, a borda esmaece
       (Financeiro, listas, comparativo de planos, tabelas do manual); some ao rolar até o fim.
 - [ ] **Controle fiscal automatizado da cobrança no CPF** (pedido do Igor, 03/10/2026; fazer junto com ele quando o
