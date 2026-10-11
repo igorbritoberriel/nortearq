@@ -626,6 +626,8 @@ p { margin: 0 0 1em; }
 .tabela-servicos input[type="checkbox"] { width: 18px; height: 18px; margin-top: 11px; accent-color: var(--cor-norte); cursor: pointer; }
 .tabela-servicos input:not([type]) { width: 100%; min-width: 160px; padding: 9px 10px; border: 1px solid var(--cor-borda); border-radius: 8px; font: inherit; }
 .tabela-servicos-novo input:not([type]) { border-style: dashed; }
+.tabela-servicos select { padding: 9px 8px; border: 1px solid var(--cor-borda); border-radius: 8px; background: #fff; font: inherit; font-size: 0.9rem; color: var(--cor-texto); }
+.tabela-servicos select:focus-visible { outline: 2px solid var(--cor-norte); outline-offset: 1px; }
 
 /* Opções (rádio) */
 .opcoes { border: 0; padding: 0; margin: 0 0 12px; display: grid; gap: 10px; }

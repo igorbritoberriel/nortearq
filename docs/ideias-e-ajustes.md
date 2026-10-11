@@ -97,15 +97,21 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       Teste completo pelo Igor, no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do cliente
       com outro e-mail. Roteiro em PDF, uma etapa por página, com caixinha de marcar e espaço para observação:
       `docs/piloto/Checklist-Piloto-NorteArq.pdf` (gerado por `docs/piloto/gerar_checklist_piloto.py`).
-      - [ ] 1. Pedido de orçamento pelo formulário (celular)
-      - [ ] 2. Virar cliente e montar a proposta; salvar como modelo
-      - [ ] 3. Cliente aprova a proposta pelo link (celular)
-      - [ ] 4. Gerar o contrato e o cliente assinar (celular); convite do portal
-      - [ ] 5. Briefing com o quiz de estilo respondido pelo cliente; Perfil do Cliente
-      - [ ] 6. Etapa com arquivo enviada; e-mail chega ao cliente; cliente pede revisão
-      - [ ] 7. Reenviar a etapa e o cliente aprovar
-      - [ ] 8. Aditivo criado e respondido pelo cliente; pagamento registrado e recibo
-      - [ ] 9. "Esqueci a senha" (e-mail chega e funciona)
+      - [x] 1 a 9 feitos em 11/10/2026 por teste automático no site real (escritório "Escritório Teste
+            Automático", cliente fictício, e-mails para endereços de teste do Resend), clicando nas telas no
+            computador e no celular: pedido pelo formulário, virar cliente, proposta + modelo, aprovação, contrato
+            (trava de dados faltando), assinatura, portal, briefing com quiz e foto, Perfil do Cliente, etapa com
+            arquivos, pedido de revisão, Rev02, aprovação, aditivo, pagamento, recibo e "Esqueci a senha" (com o
+            limite de pedidos). Nenhum erro de tela. Não exercitado de propósito: digitar senha (criar acesso ao
+            portal e senha nova), porque o assistente não digita senha no site real; a ligação da conta ao cliente
+            foi feita pelo mesmo caminho do botão. Corrigido na hora: CPF/CNPJ sem pontuação no contrato (migração
+            0055), "[a preencher]" no CPF do cliente antes da assinatura, "do contrato do contrato" no recibo,
+            "cobrança Asaas" no texto para o cliente final, botão "Enviando..." antes do clique na revisão da
+            proposta, campo numérico do briefing aceitando só vírgula, aviso "você ainda não tem modelos" que não
+            sumia e as caixinhas "Bloco do briefing" sem estilo.
+      - [ ] Sobras do teste (baixa prioridade): "Salvar dados" do contratado demora mais de 2 s; na ficha, "Gerar
+            o contrato" leva à proposta e pede um segundo clique. Apagar o "Escritório Teste Automático" (ele
+            entra nas contas do painel de administrador; a exclusão precisa da sua aprovação na hora).
       Débora:
       - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; ~~primeiro modelo de proposta~~
             (feito em 04/10/2026); chave Pix em Configurações; cláusula de multa no modelo de contrato dela

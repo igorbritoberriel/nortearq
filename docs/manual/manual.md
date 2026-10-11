@@ -298,7 +298,8 @@ o texto, inclusive os ajustes). **Depois de enviado, o texto não muda.**
 **Contrato sem lacunas:** o botão de enviar fica travado enquanto faltar algum dado que o texto usa (CPF/CNPJ,
 endereço, responsável ou registro do escritório; e-mail ou WhatsApp do cliente; valor do deslocamento) ou
 houver "[a preencher]" escrito à mão. A tela lista o que falta, com atalhos. CPF/CNPJ e endereço do cliente
-não travam: ele completa na hora de assinar. Se um campo não se aplica (ex.: sem registro no CAU), basta
+não travam: ele completa na hora de assinar (até lá, o texto mostra "(informado na assinatura)"). CPF e CNPJ
+saem no contrato já pontuados. Se um campo não se aplica (ex.: sem registro no CAU), basta
 tirá-lo do texto deste contrato.
 
 **O cliente assina pelo link:** lê o contrato, confere e corrige nome completo, CPF/CNPJ (os dígitos são

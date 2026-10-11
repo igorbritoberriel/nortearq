@@ -33,7 +33,10 @@ export function CampoPergunta({
             maxLength={30}
             className="pergunta-numero"
             value={(valor as string) ?? ""}
-            onChange={(e) => aoMudar(e.target.value.replace(/[^\d.,\s]/g, ""))}
+            onChange={(e) => {
+              const v = e.target.value.replace(/[^\d.,\s]/g, "");
+              aoMudar(/\d/.test(v) ? v : "");
+            }}
           />
         )}
       </div>

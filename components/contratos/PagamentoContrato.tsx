@@ -88,7 +88,7 @@ export function PagamentoContrato({ token, inicial }: { token: string; inicial: 
           if (r.info) setInfo(r.info); if (r.erro) setErro(r.erro);
         })}>{pendente ? "Preparando..." : "Ir para pagamento"}</button>
       </>}
-      {assinado && !info.cobranca_ativa && <p className="campo-ajuda">O escritório não está com a cobrança Asaas ativa. Combine o pagamento com o escritório; os dados de Pix também ficam no projeto.</p>}
+      {assinado && !info.cobranca_ativa && <p className="campo-ajuda">O pagamento é combinado direto com o escritório, que informa como pagar cada parcela.</p>}
       {erro && <Aviso tipo="erro">{erro}</Aviso>}
     </section>
   );

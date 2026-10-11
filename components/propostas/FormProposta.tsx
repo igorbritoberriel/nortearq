@@ -84,7 +84,10 @@ export function FormProposta({
   const [deslocObs, setDeslocObs] = useState(proposta.deslocamento_obs ?? "");
   const [validade, setValidade] = useState(String(proposta.validade_dias));
 
-  const [pendente, iniciar] = useTransition();
+  const [gravando, iniciar] = useTransition();
+  // Separado do salvamento: ao abrir a revisão, o botão de envio não pode aparecer como "Enviando...".
+  const [enviando, iniciarEnvio] = useTransition();
+  const pendente = gravando || enviando;
   const [mensagem, setMensagem] = useState<{ tipo: "erro" | "sucesso"; texto: string } | null>(null);
   const [erros, setErros] = useState<Record<string, string>>({});
   const [link, setLink] = useState<string | null>(null);
@@ -218,7 +221,7 @@ export function FormProposta({
     }
     // Abre a aba já no clique: navegador de celular bloqueia janela aberta depois de esperar o servidor.
     const aba = cliente.telefone ? window.open("", "_blank") : null;
-    iniciar(async () => {
+    iniciarEnvio(async () => {
       if (!(await salvar())) {
         setPrevia(false);
         return void aba?.close();
@@ -707,7 +710,7 @@ export function FormProposta({
               </button>
               <button type="button" className="botao botao-primario" onClick={enviar} disabled={pendente}>
                 <MessageCircle size={18} aria-hidden="true" />
-                {pendente ? "Enviando..." : cliente.telefone ? "Enviar no WhatsApp" : "Enviar e gerar link"}
+                {enviando ? "Enviando..." : cliente.telefone ? "Enviar no WhatsApp" : "Enviar e gerar link"}
               </button>
             </div>
           </div>

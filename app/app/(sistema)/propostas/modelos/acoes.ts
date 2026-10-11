@@ -80,6 +80,7 @@ export async function salvarComoModelo(
     return { status: "erro", mensagem: "Não foi possível salvar o modelo. Tente de novo.", valores };
   }
   revalidatePath("/app/propostas/modelos");
+  revalidatePath(`/app/propostas/${propostaId}`);
   return {
     status: "sucesso",
     mensagem: UUID.test(substituir)

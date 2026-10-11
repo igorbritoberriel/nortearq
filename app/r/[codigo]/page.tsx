@@ -112,8 +112,8 @@ export default async function ReciboPage({ params }: { params: Promise<{ codigo:
               </>
             )}{" "}
             a importância de <strong>{reais(valor)}</strong> (
-            {valorPorExtenso(valor)}), referente a <strong>{recibo.descricao}</strong> do contrato de prestação de serviços
-            firmado com {e.nome}.
+            {valorPorExtenso(valor)}), referente ao pagamento <strong>“{recibo.descricao}”</strong>, conforme o contrato de
+            prestação de serviços firmado com {e.nome}.
           </p>
 
           <dl className="recibo-dados">

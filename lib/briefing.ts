@@ -124,6 +124,7 @@ export function formatarResposta(pergunta: Pick<PerguntaBriefing, "tipo">, valor
   if (!respondida(valor)) return null;
   if (Array.isArray(valor)) return valor.join(", ");
   if (pergunta.tipo === "sim_nao") return valor === "sim" ? "Sim" : "Não";
+  if (pergunta.tipo === "numero" && !/\d/.test(valor as string)) return null;
   return valor as string;
 }
 
