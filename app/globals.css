@@ -682,7 +682,7 @@ p { margin: 0 0 1em; }
 .contato-meio { margin: 2px 0 0; font-size: 0.92rem; }
 .contato-selos { display: grid; justify-items: end; gap: 4px; font-size: 0.82rem; color: var(--cor-texto-suave); }
 .selo-novo { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 999px; background: var(--cor-areia); color: #fff; }
-.selo-status { font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #eceae4; color: var(--cor-texto); }
+.selo-status { display: inline-block; font-size: 0.8rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; background: #eceae4; color: var(--cor-texto); white-space: nowrap; }
 .selo-compativel { background: #e3f1e8; color: var(--cor-sucesso); }
 .selo-fora_do_perfil { background: #f9e5e3; color: var(--cor-erro); }
 .selo-a_avaliar, .selo-novo-status { background: #fbf0dc; color: #8a5a00; }
