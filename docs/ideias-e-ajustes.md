@@ -176,10 +176,11 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] **Depende do Igor (conferência de 10/10/2026):**
       1. Ver se chegou no igorbritoberriel@gmail.com o e-mail de "Esqueci a senha" pedido às ~15h de 10/10 (olhar o
          spam também) e se o link abre a tela de senha nova em nortearq.com.br.
-      2. Painel do Resend: confirmar "Verified" no domínio. Conferido em 11/10/2026 por consulta de DNS: o DKIM
-         (resend._domainkey) está certo, mas send.nortearq.com.br continua apontando para send.forge.rmta.net, e não
-         para o Resend. Falta o valor exato que o Resend pede para esse registro (só aparece no painel dele) para
-         trocar no Cloudflare; não há token do Cloudflare no projeto.
+      2. ~~Painel do Resend: confirmar "Verified"~~ resolvido em 11/10/2026 sem precisar do painel: o Resend aceitou um
+         envio de teste de avisos@nortearq.com.br (ele recusa domínio não verificado). O send.forge.rmta.net, com SPF
+         certo, foi criado pela ligação automática do Resend em 03/10 e é a infraestrutura de envio dele.
+         Sugestão (opcional, ajuda contra spam): criar no Cloudflare o registro TXT `_dmarc` com o valor
+         `v=DMARC1; p=none; rua=mailto:igorbritoberriel@gmail.com`. Precisa de acesso ao Cloudflare (sem token aqui).
       3. Instalar o NorteArq no celular (Android: menu → "Instalar aplicativo"; iPhone: Safari → Compartilhar →
          "Adicionar à Tela de Início") e ver o ícone.
       4. ~~Ver o relato de teste no painel~~ feito em 11/10/2026: não havia nenhum relato no banco; criado um de teste
