@@ -113,8 +113,10 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
             banco fica em São Paulo; agora roda em São Paulo (gru1, vercel.json) e as telas ficaram 3 a 4 vezes mais
             rápidas (Início 2,7 s → 0,7 s; Projeto 3,5 s → 0,9 s; salvar dados 3,5 s → 0,9 s). Na ficha, "Gerar o
             contrato" agora gera direto, sem passar pela proposta.
-      - [ ] Apagar o "Escritório Teste Automático" no fim desta rodada de correções (ele entra nas contas do
-            painel de administrador; a exclusão precisa da aprovação do Igor na hora).
+      - [x] Escritórios de teste fora das contas (11/10/2026, opção escolhida pelo Igor): apagar foi barrado porque o
+            histórico de pagamentos é imutável (mesmo de teste). Agora existe a marca "escritório de teste" (migração
+            0057, só o administrador muda) e o painel de administrador não conta esses escritórios. Marcados: "Escritório
+            Teste Automático" e "Est?dio Ana Teste". Arquivos de teste e a conta da Ana Teste foram apagados.
       Débora:
       - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; ~~primeiro modelo de proposta~~
             (feito em 04/10/2026); chave Pix em Configurações; cláusula de multa no modelo de contrato dela

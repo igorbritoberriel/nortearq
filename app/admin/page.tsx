@@ -32,10 +32,14 @@ export default async function AdminPage() {
       </div>
     );
   }
-  const { data: escritoriosBrutos } = await admin
-    .from("escritorios")
-    .select("id, nome, plano, plano_escolhido, periodo, trial_ate, pago_ate, assinatura_cancelada_em, criado_em")
-    .order("criado_em", { ascending: false });
+  const [{ data: escritoriosBrutos }, { count: deTeste }] = await Promise.all([
+    admin
+      .from("escritorios")
+      .select("id, nome, plano, plano_escolhido, periodo, trial_ate, pago_ate, assinatura_cancelada_em, criado_em")
+      .eq("teste", false)
+      .order("criado_em", { ascending: false }),
+    admin.from("escritorios").select("id", { count: "exact", head: true }).eq("teste", true),
+  ]);
   const escritorios = (escritoriosBrutos ?? []) as EscritorioBruto[];
   const [situacoes, contagemClientes, contagemProjetos] = await Promise.all([
     Promise.all(escritorios.map((e) => admin.rpc("situacao_escritorio", { p_escritorio: e.id }))),
@@ -84,7 +88,10 @@ export default async function AdminPage() {
       <p className="muted">Visão de negócio, relatos e erros de todos os escritórios.</p>
 
       <section className="cartao secao-config">
-        <h2 className="interno-titulo">Visão de negócio</h2>
+        <h2 className="interno-titulo">
+          Visão de negócio
+          {!!deTeste && <small className="muted"> · {deTeste} {deTeste === 1 ? "escritório de teste fica" : "escritórios de teste ficam"} de fora</small>}
+        </h2>
         <div className="interno-resumo">
           <div className="interno-resumo-item">
             <strong>{escritorios.length}</strong>
