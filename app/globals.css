@@ -1579,6 +1579,16 @@ p { margin: 0 0 1em; }
 .interno-tipo-sugestao { background: #e8eef6; color: var(--cor-norte); }
 .interno-tipo-duvida { background: #fbf0dc; color: #8a5a00; }
 
+/* Painel interno: visão de negócio (todos os escritórios) */
+.interno-resumo { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.interno-resumo-item { padding: 14px 16px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: var(--cor-superficie); }
+.interno-resumo-item strong { display: block; font-size: 1.6rem; font-weight: 700; line-height: 1.2; color: var(--cor-norte); font-variant-numeric: tabular-nums; }
+.interno-resumo-item small { color: var(--cor-texto-suave); }
+.interno-situacao-teste { background: #e8eef6; color: var(--cor-norte); }
+.interno-situacao-ativo { background: #e3f1e8; color: var(--cor-sucesso); }
+.interno-situacao-tolerancia { background: #fbf0dc; color: #8a5a00; }
+.interno-situacao-leitura, .interno-situacao-suspenso { background: #fdecea; color: var(--cor-erro); }
+
 /* ---------- Revisão de UX, lote 3 (03/10/2026) ---------- */
 /* M12: item atual do menu */
 .app-lateral nav a.ativo { background: rgba(255, 255, 255, 0.14); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--cor-areia); }
