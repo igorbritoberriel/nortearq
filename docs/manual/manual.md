@@ -303,7 +303,7 @@ saem no contrato já pontuados. Se um campo não se aplica (ex.: sem registro no
 tirá-lo do texto deste contrato.
 
 **O cliente assina pelo link:** lê o contrato, confere e corrige nome completo, CPF/CNPJ (os dígitos são
-verificados) e endereço do imóvel, marca que leu e concorda e clica **Assinar contrato**. Ficam registrados
+verificados; o CNPJ com letras, emitido pela Receita desde julho de 2026, também é aceito) e endereço do imóvel, marca que leu e concorda e clica **Assinar contrato**. Ficam registrados
 data, hora, IP, navegador e um **código de verificação**. Os dois lados recebem e-mail de confirmação.
 
 **Ao assinar, sozinho:** o projeto é criado com as etapas padrão e as revisões e visitas da proposta, as

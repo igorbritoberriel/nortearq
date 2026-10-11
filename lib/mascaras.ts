@@ -1,14 +1,16 @@
 // Máscaras dos campos de documento e telefone: a pontuação entra sozinha enquanto a pessoa digita.
-// Só visual: o servidor continua guardando só os números (CPF, CNPJ e WhatsApp).
+// Só visual: o servidor guarda sem pontuação (CPF e WhatsApp só números; CNPJ números e letras).
 // Nenhuma máscara acrescenta pontuação no fim, para o "apagar" funcionar normalmente.
 
 const soDigitos = (v: string) => v.replace(/\D/g, "");
 
-// CPF 000.000.000-00 ou CNPJ 00.000.000/0000-00, decidido pela quantidade de números.
+// CPF 000.000.000-00 ou CNPJ 00.000.000/0000-00, decidido pela quantidade de caracteres. Letra só
+// existe no CNPJ alfanumérico (julho de 2026): com letra, já usa o formato de CNPJ.
 export function mascaraDocumento(valor: string) {
-  const d = soDigitos(valor).slice(0, 14);
-  const grupos = d.length <= 11 ? [3, 3, 3, 2] : [2, 3, 3, 4, 2];
-  const separadores = d.length <= 11 ? [".", ".", "-"] : [".", ".", "/", "-"];
+  const d = valor.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 14);
+  const cpf = d.length <= 11 && !/[A-Z]/.test(d);
+  const grupos = cpf ? [3, 3, 3, 2] : [2, 3, 3, 4, 2];
+  const separadores = cpf ? [".", ".", "-"] : [".", ".", "/", "-"];
   let resultado = "", inicio = 0;
   for (let i = 0; i < grupos.length && inicio < d.length; i++) {
     if (i) resultado += separadores[i - 1];

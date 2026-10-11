@@ -1,4 +1,4 @@
-import { documentoValido } from "./contratos";
+import { documentoValido, normalizarDocumento } from "./contratos";
 // Pix copia e cola (BR Code estático, padrão EMV do Banco Central) para o cliente pagar uma parcela.
 // O dinheiro vai direto para a chave do escritório; o pagamento não passa pelo NorteArq.
 
@@ -27,12 +27,12 @@ function limpar(texto: string, max: number) {
 // Chave no formato que o Banco Central exige para cada tipo. null = chave inválida.
 export function normalizarChave(tipo: TipoPix, chave: string): string | null {
   const c = chave.trim();
-  const digitos = c.replace(/\D/g, "");
-  if (tipo === "cpf") return digitos.length === 11 && documentoValido(c) ? digitos : null;
-  if (tipo === "cnpj") return digitos.length === 14 && documentoValido(c) ? digitos : null;
+  const doc = normalizarDocumento(c);
+  if (tipo === "cpf") return /^\d{11}$/.test(doc) && documentoValido(c) ? doc : null;
+  if (tipo === "cnpj") return doc.length === 14 && documentoValido(c) ? doc : null;
   if (tipo === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c) && c.length <= 77 ? c.toLowerCase() : null;
   if (tipo === "telefone") {
-    const n = digitos.replace(/^55(?=\d{10,11}$)/, "");
+    const n = c.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "");
     return n.length === 10 || n.length === 11 ? `+55${n}` : null;
   }
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(c) ? c.toLowerCase() : null;

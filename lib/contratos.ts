@@ -71,22 +71,27 @@ export const CAMPOS_CONTRATO: { campo: string; descricao: string }[] = [
   { campo: "{{data}}", descricao: "Data do aceite, por extenso" },
 ];
 
-// Validação dos dígitos do CPF/CNPJ (o banco confere só o tamanho).
+// CPF: 11 números. CNPJ: 14 caracteres; desde julho de 2026 os 12 primeiros podem ter letras (CNPJ
+// alfanumérico) e os 2 últimos, os dígitos verificadores, continuam números. Guardado sem pontuação.
+export const normalizarDocumento = (valor: string) => valor.toUpperCase().replace(/[^0-9A-Z]/g, "");
+
+// Validação dos dígitos do CPF/CNPJ (o banco confere só o formato). No CNPJ, cada caractere vale o
+// código dele menos 48 (0–9 continuam 0–9; A = 17, B = 18…), regra da Receita para o alfanumérico.
 export function documentoValido(valor: string) {
-  if (!/^[\d.\/\-\s]+$/.test(valor)) return false;
-  const d = valor.replace(/\D/g, "");
-  if (/^(\d)\1+$/.test(d)) return false;
+  if (!/^[0-9A-Za-z.\/\-\s]+$/.test(valor)) return false;
+  const d = normalizarDocumento(valor);
+  if (/^(.)\1+$/.test(d)) return false;
   const digito = (base: string, pesos: number[]) => {
-    const soma = pesos.reduce((s, peso, i) => s + Number(base[i]) * peso, 0);
+    const soma = pesos.reduce((s, peso, i) => s + (base.charCodeAt(i) - 48) * peso, 0);
     const resto = soma % 11;
     return resto < 2 ? 0 : 11 - resto;
   };
-  if (d.length === 11) {
+  if (/^\d{11}$/.test(d)) {
     const p1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
     const p2 = [11, ...p1];
     return digito(d, p1) === Number(d[9]) && digito(d, p2) === Number(d[10]);
   }
-  if (d.length === 14) {
+  if (/^[0-9A-Z]{12}\d{2}$/.test(d)) {
     const p1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     const p2 = [6, ...p1];
     return digito(d, p1) === Number(d[12]) && digito(d, p2) === Number(d[13]);
@@ -96,8 +101,8 @@ export function documentoValido(valor: string) {
 
 export function formatarDocumento(valor: string | null) {
   if (!valor) return null;
-  const d = valor.replace(/\D/g, "");
-  if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-  if (d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+  const d = normalizarDocumento(valor);
+  if (/^\d{11}$/.test(d)) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+  if (d.length === 14) return d.replace(/(.{2})(.{3})(.{3})(.{4})(.{2})/, "$1.$2.$3/$4-$5");
   return valor;
 }

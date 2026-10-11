@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { documentoValido } from "@/lib/contratos";
+import { documentoValido, normalizarDocumento } from "@/lib/contratos";
 import { dataValida } from "@/lib/formatacao";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -387,7 +387,7 @@ const esquemaDados = z.object({
     z
       .string()
       .refine(documentoValido, "Informe um CPF ou CNPJ válido.")
-      .transform((v) => v.replace(/\D/g, ""))
+      .transform(normalizarDocumento)
       .nullable(),
   ),
   endereco: opcional(200),

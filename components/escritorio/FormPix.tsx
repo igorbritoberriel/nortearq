@@ -22,7 +22,7 @@ const EXEMPLO: Record<TipoPix, string> = {
 function CampoChave({ tipo, valor }: { tipo: TipoPix | ""; valor: string }) {
   const comum = { id: "pix_chave", name: "pix_chave", placeholder: tipo ? EXEMPLO[tipo] : "Escolha o tipo de chave", disabled: !tipo };
   if (tipo === "cpf" || tipo === "cnpj") {
-    return <InputMascara mascara="documento" inputMode="numeric" maxLength={tipo === "cpf" ? 14 : 18} defaultValue={valor} {...comum} />;
+    return <InputMascara mascara="documento" inputMode={tipo === "cpf" ? "numeric" : "text"} autoCapitalize="characters" maxLength={tipo === "cpf" ? 14 : 18} defaultValue={valor} {...comum} />;
   }
   // Guardado como +55DDDNÚMERO; na tela, só (DDD) número, como a pessoa digita.
   if (tipo === "telefone") return <InputMascara mascara="telefone" type="tel" inputMode="tel" defaultValue={valor.replace(/^\+55/, "")} {...comum} />;

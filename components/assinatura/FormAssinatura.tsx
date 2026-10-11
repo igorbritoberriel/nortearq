@@ -77,7 +77,7 @@ export function FormAssinatura({
           ajuda="O sistema de pagamento exige para emitir a cobrança."
           erro={estado.erros?.documento}
         >
-          <InputMascara mascara="documento" id="assinatura-documento" name="documento" inputMode="numeric" defaultValue={v.documento} />
+          <InputMascara mascara="documento" id="assinatura-documento" name="documento" autoCapitalize="characters" defaultValue={v.documento} />
         </Campo>
       )}
       {documentoAtual && <input type="hidden" name="documento" value={documentoAtual} />}

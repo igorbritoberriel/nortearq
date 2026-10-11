@@ -6,7 +6,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { modulosLiberados } from "@/lib/assinatura";
 import { pode } from "@/lib/permissoes";
-import { documentoValido } from "@/lib/contratos";
+import { documentoValido, normalizarDocumento } from "@/lib/contratos";
 import { CAMPOS_FORNECEDOR, SEGMENTOS_FORNECEDOR, type Fornecedor } from "@/lib/fornecedores";
 import { errosDe, valoresDe, type EstadoFormulario } from "@/lib/formulario";
 type Resultado = EstadoFormulario & { fornecedor?: Fornecedor };
@@ -17,7 +17,7 @@ async function contexto() {
 }
 const schema=z.object({
   id:z.uuid(), editar:z.enum(["sim","nao"]), nome:z.string().trim().min(2,"Informe o nome.").max(120),
-  documento:z.string().trim().refine(s=>!s||documentoValido(s),"Informe um CPF ou CNPJ válido.").transform(s=>s.replace(/\D/g,"")),
+  documento:z.string().trim().refine(s=>!s||documentoValido(s),"Informe um CPF ou CNPJ válido.").transform(normalizarDocumento),
   contato:z.string().trim().max(120), telefone:z.string().transform(s=>s.replace(/\D/g,"")).refine(s=>!s||/^\d{10,13}$/.test(s),"Informe um telefone válido."),
   email:z.string().trim().max(254).refine(s=>!s||z.email().safeParse(s).success,"Informe um e-mail válido."),
   segmento:z.string().trim().max(80), segmento_outro:z.string().trim().max(80).optional(), observacoes:z.string().trim().max(1000),

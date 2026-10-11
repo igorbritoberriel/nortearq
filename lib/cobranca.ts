@@ -3,6 +3,7 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID }
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { planejarCobrancas, type MeioPagamento, type ParcelaCobranca } from "./condicoes-pagamento";
 import { hojeBrasilia } from "./assinatura";
+import { normalizarDocumento } from "./contratos";
 
 // Cobrança integrada (nível 3, migração 0038): cada parcela vira uma cobrança na conta Asaas do PRÓPRIO
 // arquiteto (Pix, boleto ou cartão, o cliente escolhe), com split de R$ 0,99 para a carteira do NorteArq.
@@ -106,7 +107,7 @@ async function garantirCliente(chave: string, c: ClienteCobranca) {
     method: "POST",
     body: JSON.stringify({
       name: c.nome,
-      cpfCnpj: c.documento?.replace(/\D/g, ""),
+      cpfCnpj: c.documento ? normalizarDocumento(c.documento) : undefined,
       email: c.email ?? undefined,
       mobilePhone: c.telefone?.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "") || undefined,
       externalReference: c.id,
@@ -146,7 +147,7 @@ export async function gerarCobranca(
   if (!escritorio?.cobranca_ativa) return { erro: "A cobrança automática não está ativa." };
   const cliente = (p.contrato as unknown as { cliente: ClienteCobranca | null } | null)?.cliente;
   if (!cliente) return { erro: "Cliente não encontrado." };
-  if (!cliente.documento || cliente.documento.replace(/\D/g, "").length < 11) {
+  if (!cliente.documento || normalizarDocumento(cliente.documento).length < 11) {
     return { erro: "Cadastre o CPF ou CNPJ do cliente na ficha dele: o Asaas exige para gerar a cobrança." };
   }
   const { data: cred } = await admin.from("cobranca_credenciais").select("chave_cifrada, carteira_id").eq("escritorio_id", p.escritorio_id).maybeSingle();

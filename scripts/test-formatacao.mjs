@@ -27,7 +27,7 @@ function carregar(arquivo) {
 
 const { lerNumero, dataValida, somarMesesCalendario } = carregar("lib/formatacao.ts");
 const { mascaraDocumento, mascaraDinheiro, finalizarDinheiro, mascaraTelefone } = carregar("lib/mascaras.ts");
-const { documentoValido } = carregar("lib/contratos.ts");
+const { documentoValido, formatarDocumento, normalizarDocumento } = carregar("lib/contratos.ts");
 const { lerReais, dataCurta } = carregar("lib/propostas.ts");
 const { normalizarChave } = carregar("lib/pix.ts");
 const { InputMascara } = carregar("components/InputMascara.tsx");
@@ -57,9 +57,21 @@ assert.equal(mascaraDocumento("1234"), "123.4");
 assert.equal(mascaraDocumento(cpf), "529.982.247-25");
 assert.equal(mascaraDocumento(cnpj), "11.222.333/0001-81");
 for (const d of [cpf, cnpj, mascaraDocumento(cpf), mascaraDocumento(cnpj)]) assert.ok(documentoValido(d));
-for (const d of ["11111111111", "00000000000000", "52998224724", "11222333000182", `abc${cpf}`]) assert.equal(documentoValido(d), false);
+for (const d of ["11111111111", "00000000000000", "52998224724", "11222333000182", `abc${cpf}`, "1234567890A"]) assert.equal(documentoValido(d), false);
 assert.equal(normalizarChave("cpf", "111.111.111-11"), null);
 assert.equal(normalizarChave("cpf", mascaraDocumento(cpf)), cpf);
+
+// CNPJ alfanumérico (exemplo oficial da Receita: 12.ABC.345/01DE-35).
+const alfa = "12ABC34501DE35";
+for (const d of [alfa, "12.ABC.345/01DE-35", "12abc34501de35"]) assert.ok(documentoValido(d), d);
+for (const d of ["12ABC34501DE36", "12ABC34501DEAB", "AAAAAAAAAAAAAA"]) assert.equal(documentoValido(d), false, d);
+assert.equal(mascaraDocumento("12abc34501de35"), "12.ABC.345/01DE-35");
+assert.equal(mascaraDocumento("12A"), "12.A");
+assert.equal(formatarDocumento(alfa), "12.ABC.345/01DE-35");
+assert.equal(formatarDocumento(cnpj), "11.222.333/0001-81");
+assert.equal(normalizarDocumento("12.abc.345/01de-35"), alfa);
+assert.equal(normalizarChave("cnpj", "12.ABC.345/01DE-35"), alfa);
+assert.equal(normalizarChave("cpf", alfa), null);
 assert.equal(mascaraTelefone("11912345678"), "(11) 91234-5678");
 
 let digitado = "";
