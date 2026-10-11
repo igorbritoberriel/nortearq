@@ -84,8 +84,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       colocar em NEXT_PUBLIC_ASAAS_INDICACAO; (2) primeiro teste real com dinheiro (uma parcela pequena paga por Pix
       numa conta Asaas de arquiteto de verdade, para ver o split de R$ 0,99 cair na conta do NorteArq); (3) página
       pública "Tarifas" no site; (4) quando abrir a ME, migrar para subcontas (cadastro do arquiteto dentro do NorteArq).
-- [ ] Débora: acrescentar no modelo de contrato dela a cláusula de multa de 2% e juros de 1% ao mês (os modelos
-      existentes não mudam sozinhos) e cadastrar a chave Pix em Configurações.
+- [x] **Cláusula de atraso nos modelos da Débora** (11/10/2026): ela tem 5 modelos. "Design de interiores" e
+      "Projeto de interiores" não tinham nenhuma proteção contra atraso: acrescentada a cláusula padrão (multa de 2%
+      + juros de 1% ao mês). "Projeto Arquitetônico" e "Arquitetura e Interiores" já tinham proteção, só que com
+      IPCA + Taxa Legal (art. 406 do CC) — mais elaborada, parece revisada por advogado; não mexi, a pedido do Igor,
+      para não conflitar. Vale só para contratos novos: os já enviados/assinados mantêm o texto de quando saíram.
+      Falta dela: cadastrar a própria chave Pix em Configurações (intransferível, item 10 do piloto).
 - [ ] **Piloto com a Débora: lista de tarefas** (sem prazo; decisão do Igor em 03/10/2026: acabando as tarefas,
       seguimos para os arquitetos parceiros). Clientes reais: o que está em andamento e o Luiz Cláudio.
       Teste completo pelo Igor, no escritório de teste dele (igorbritoberriel@gmail.com), fazendo o papel do cliente
