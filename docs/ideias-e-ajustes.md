@@ -8,12 +8,6 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 (fonte em `docs/plano/plano-de-fases.html`; atualizado a cada fase concluída).
 
 ## Depende de você (Igor)
-- [ ] **Falar com a Débora sobre o contrato assinado bagunçado** (09/10/2026): o contrato PROJETO ARQUITETÔNICO do
-      cliente Manoel José Cabral Bisneto já foi assinado (08/10/2026) com os entregáveis quebrados em frases soltas
-      (ela colou um texto com cada linha visual virando um item). Você decide com ela se conversa com o cliente,
-      faz um aditivo ou deixa como está; o sistema não altera sozinho um contrato já assinado. Pontuação duplicada
-      (";;") já corrigida para os próximos contratos. Ela também precisa colar "um entregável por linha de verdade"
-      nas próximas propostas (inclusive na do PROJETO INTERIORES do mesmo cliente, ainda rascunho).
 - [ ] **Empresa e conta central** (decidido em 03/10/2026): empresa **Berriel Labs Tecnologia Ltda.** (um nome
       para todos os SaaS; NorteArq é o primeiro produto), e-mail central **contas@berriellabs.com.br** dono de todas
       as contas. Passos, na ordem:
@@ -206,6 +200,10 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Contrato do Manoel (encerrado em 11/10/2026, decisão do Igor):** o contrato PROJETO ARQUITETÔNICO assinado em
+      08/10 está completo; só a linha de entregáveis tem ";;" e dois itens quebrados no meio (texto colado com quebra
+      de linha). Nada se perdeu, cliente assinou e ninguém reclamou: sem aditivo. A proposta PROJETO INTERIORES do
+      mesmo cliente já foi aprovada com os entregáveis certos e o contrato dela vai sair limpo.
 - [x] **Painel interno → Visão de negócio (11/10/2026):** pedido do Igor por um painel de administrador do
       NorteArq separado do painel de cada escritório (não misturar com Clientes/Financeiro do seu próprio
       escritório de testes). Novo bloco no topo do Painel interno, só para administradores do NorteArq:
