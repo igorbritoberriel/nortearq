@@ -49,7 +49,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          quinzenal, depoimento e divulgação (termo de parceria simples); no fim, preço de fundador travado;
       C) abertura ao mercado com os casos de sucesso.
       Para a fase B o sistema precisa de: conta patrocinada (90 dias, sem cobrança), botão "relatar
-      problema ou sugestão", aviso automático de erros e um painel interno de uso.
+      problema ou sugestão" (feito), aviso automático de erros (feito) e um painel interno de uso
+      (feito em 11/10/2026: "Visão de negócio" no Painel interno). Falta só a conta patrocinada.
 - [ ] **Agente de parcerias (marketing do NorteArq)** (ideia do Igor, 03/10/2026), para a fase B:
       1) o assistente define os perfis ideais de arquiteto patrocinado e monta a lista de candidatos;
       2) um agente com todo o conhecimento do NorteArq conversa com cada um como o marketing da empresa,
@@ -133,6 +134,13 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       Falta ainda a conferência visual no navegador (prints).
 - [ ] Adicional "+50 GB de espaço" (R$ 19/mês): somar ao limite do plano quando for contratado.
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
+- [ ] **Melhorias no Painel interno → Visão de negócio** (ideia de 11/10/2026, a partir do pedido do Igor de um
+      painel de administrador do NorteArq separado do painel do escritório):
+      - [ ] Selo "Teste grátis" quebra em duas linhas na coluna Situação da tabela (cosmético, não atrapalha).
+      - [ ] Quando o primeiro escritório pagar de verdade: conferir se a receita mensal estimada bate (hoje sempre
+            R$ 0,00, ninguém paga ainda).
+      - [ ] Possível depois: gráfico de crescimento (escritórios/mês), uso de armazenamento por escritório,
+            destaque para quem está perto de virar teste expirado.
 
 ## Conferir na tela (feito e testado no banco, falta ver no navegador)
 - [x] **Fornecedores e entradas (09/10):** conferido no site: cadastro, arquivar, exclusão bloqueada quando usado,
@@ -184,6 +192,15 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Painel interno → Visão de negócio (11/10/2026):** pedido do Igor por um painel de administrador do
+      NorteArq separado do painel de cada escritório (não misturar com Clientes/Financeiro do seu próprio
+      escritório de testes). Novo bloco no topo do Painel interno, só para administradores do NorteArq:
+      total de escritórios, quantos em teste grátis, pagando ou parados (leitura/suspenso), receita mensal
+      estimada e total de clientes/projetos ativos de todos os escritórios juntos; abaixo, uma tabela com
+      cada escritório (plano, situação, clientes, projetos ativos, desde quando). Conferido no site real:
+      4 escritórios, 10 clientes e 5 projetos ativos somados corretamente. Corrigido também, no mesmo dia,
+      o "visitante" errado nos erros automáticos de servidor (não tentava descobrir quem estava logado).
+      Pendências pequenas em "A fazer" → "Melhorias no Painel interno".
 - [x] **E-mails de acesso em português e testes restantes (10/10/2026):** confirmação de cadastro e troca de senha
       saem pelo NorteArq (Resend), com a marca e limite de 1 por minuto / 5 por hora (migração 0054); testados de
       ponta a ponta (cadastro de teste confirmado e apagado). Conferidos no escritório de demonstração: contrato com
