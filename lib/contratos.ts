@@ -47,29 +47,104 @@ export const COLUNAS_CONTRATO =
   "id, proposta_id, cliente_id, corpo, conteudo, status, enviado_em, enviado_por, assinado_em, aceite_nome, aceite_documento, aceite_endereco, aceite_ip, aceite_navegador, codigo_verificacao, cancelado_em, modelo_id, criado_em";
 
 // Campos automáticos do modelo (RN-01.12): preenchidos pelo banco na hora do aceite.
-export const CAMPOS_CONTRATO: { campo: string; descricao: string }[] = [
-  { campo: "{{cliente.nome}}", descricao: "Nome completo do cliente" },
-  { campo: "{{cliente.documento}}", descricao: "CPF ou CNPJ do cliente" },
-  { campo: "{{cliente.endereco}}", descricao: "Endereço do imóvel" },
-  { campo: "{{cliente.email}}", descricao: "E-mail do cliente" },
-  { campo: "{{cliente.telefone}}", descricao: "WhatsApp do cliente" },
-  { campo: "{{escritorio.nome}}", descricao: "Nome do escritório" },
-  { campo: "{{escritorio.documento}}", descricao: "CPF ou CNPJ do escritório" },
-  { campo: "{{escritorio.endereco}}", descricao: "Endereço do escritório" },
-  { campo: "{{escritorio.responsavel}}", descricao: "Quem assina pelo escritório" },
-  { campo: "{{escritorio.registro}}", descricao: "Registro no CAU ou CREA" },
-  { campo: "{{proposta.escopo}}", descricao: "Serviços, escopo e entregáveis" },
-  { campo: "{{proposta.nao_incluido}}", descricao: "O que não está incluído" },
-  { campo: "{{proposta.prazo}}", descricao: "Prazo" },
-  { campo: "{{proposta.valor_total}}", descricao: "Valor total" },
-  { campo: "{{proposta.parcelas}}", descricao: "Lista de parcelas" },
-  { campo: "{{proposta.forma_pagamento}}", descricao: "Observações de pagamento" },
-  { campo: "{{proposta.revisoes}}", descricao: "Revisões incluídas" },
-  { campo: "{{proposta.visitas}}", descricao: "Visitas incluídas" },
-  { campo: "{{proposta.deslocamento}}", descricao: "Regra de deslocamento das visitas" },
-  { campo: "{{proposta.data_aprovacao}}", descricao: "Data em que o cliente aprovou a proposta" },
-  { campo: "{{data}}", descricao: "Data do aceite, por extenso" },
+// No banco o texto guarda {{campo}}; na tela a arquiteta vê e digita [Etiqueta] em português.
+export type GrupoCampo = "cliente" | "escritorio" | "proposta";
+export const GRUPOS_CAMPO: Record<GrupoCampo, string> = {
+  cliente: "Do cliente",
+  escritorio: "Do seu escritório",
+  proposta: "Da proposta",
+};
+
+export const CAMPOS_CONTRATO: { campo: string; etiqueta: string; grupo: GrupoCampo; outros?: string[] }[] = [
+  { campo: "{{cliente.nome}}", etiqueta: "Nome do cliente", grupo: "cliente" },
+  { campo: "{{cliente.documento}}", etiqueta: "CPF ou CNPJ do cliente", grupo: "cliente", outros: ["CPF do cliente", "CNPJ do cliente"] },
+  { campo: "{{cliente.endereco}}", etiqueta: "Endereço do imóvel", grupo: "cliente" },
+  { campo: "{{cliente.email}}", etiqueta: "E-mail do cliente", grupo: "cliente" },
+  { campo: "{{cliente.telefone}}", etiqueta: "WhatsApp do cliente", grupo: "cliente" },
+  { campo: "{{escritorio.nome}}", etiqueta: "Nome do escritório", grupo: "escritorio" },
+  { campo: "{{escritorio.documento}}", etiqueta: "CPF ou CNPJ do escritório", grupo: "escritorio", outros: ["CNPJ do escritório", "CPF do escritório"] },
+  { campo: "{{escritorio.endereco}}", etiqueta: "Endereço do escritório", grupo: "escritorio" },
+  { campo: "{{escritorio.responsavel}}", etiqueta: "Quem assina", grupo: "escritorio" },
+  { campo: "{{escritorio.registro}}", etiqueta: "Registro no CAU", grupo: "escritorio", outros: ["Registro no CAU ou CREA", "Registro no CREA", "CAU"] },
+  { campo: "{{proposta.escopo}}", etiqueta: "O que foi contratado", grupo: "proposta", outros: ["Escopo"] },
+  { campo: "{{proposta.nao_incluido}}", etiqueta: "O que não está incluído", grupo: "proposta" },
+  { campo: "{{proposta.prazo}}", etiqueta: "Prazo", grupo: "proposta" },
+  { campo: "{{proposta.valor_total}}", etiqueta: "Valor total", grupo: "proposta" },
+  { campo: "{{proposta.parcelas}}", etiqueta: "Parcelas", grupo: "proposta" },
+  { campo: "{{proposta.forma_pagamento}}", etiqueta: "Observações de pagamento", grupo: "proposta" },
+  { campo: "{{proposta.revisoes}}", etiqueta: "Revisões incluídas", grupo: "proposta" },
+  { campo: "{{proposta.visitas}}", etiqueta: "Visitas incluídas", grupo: "proposta" },
+  { campo: "{{proposta.deslocamento}}", etiqueta: "Regra de deslocamento", grupo: "proposta" },
+  { campo: "{{proposta.data_aprovacao}}", etiqueta: "Data da aprovação da proposta", grupo: "proposta" },
+  { campo: "{{data}}", etiqueta: "Data do aceite", grupo: "proposta" },
 ];
+
+const chaveEtiqueta = (t: string) =>
+  t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+const PELA_ETIQUETA = new Map(
+  CAMPOS_CONTRATO.flatMap((c) => [c.etiqueta, ...(c.outros ?? [])].map((e) => [chaveEtiqueta(e), c.campo] as const)),
+);
+// "[a preencher]" é a marca de lacuna que trava o envio do contrato: não é etiqueta, mas também não é erro.
+const NAO_E_ETIQUETA = new Set([chaveEtiqueta("a preencher")]);
+
+// {{cliente.nome}} → [Nome do cliente], para mostrar na tela.
+export function paraEtiquetas(corpo: string) {
+  return CAMPOS_CONTRATO.reduce((t, c) => t.split(c.campo).join(`[${c.etiqueta}]`), corpo);
+}
+
+// [Nome do cliente] → {{cliente.nome}}, para guardar. Aceita maiúsculas, acentos e espaços diferentes.
+export function paraCampos(texto: string) {
+  return texto.replace(/\[([^\[\]\n]{1,60})\]/g, (inteiro, dentro: string) => PELA_ETIQUETA.get(chaveEtiqueta(dentro)) ?? inteiro);
+}
+
+// Prévia do modelo "como o cliente vai ler": dados do escritório reais, cliente e proposta de exemplo.
+// Cada trecho automático vem marcado para a tela destacar; o que falta preencher vem como "falta".
+export type TrechoPrevia = { texto: string; automatico?: boolean; falta?: boolean };
+export function previaDoModelo(
+  corpo: string,
+  e: { nome: string; documento: string | null; endereco: string | null; responsavel: string | null; registro_profissional: string | null },
+): TrechoPrevia[] {
+  const hoje = new Date();
+  const dataCurta = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo" }).format(hoje);
+  const dataLonga = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Sao_Paulo" }).format(hoje);
+  const exemplos: Record<string, string | null> = {
+    "{{cliente.nome}}": "Mariana Souza",
+    "{{cliente.documento}}": "529.982.247-25",
+    "{{cliente.endereco}}": "Av. Atlântica, 2000, apto 501, Rio de Janeiro/RJ",
+    "{{cliente.email}}": "mariana@exemplo.com",
+    "{{cliente.telefone}}": "(21) 98888-7777",
+    "{{escritorio.nome}}": e.nome,
+    "{{escritorio.documento}}": formatarDocumento(e.documento),
+    "{{escritorio.endereco}}": e.endereco,
+    "{{escritorio.responsavel}}": e.responsavel,
+    "{{escritorio.registro}}": e.registro_profissional,
+    "{{proposta.escopo}}": "• Interiores: Projeto de interiores da sala, cozinha e dois quartos.\n  Entregáveis: Planta de layout; Projeto 3D; Detalhamento de marcenaria",
+    "{{proposta.nao_incluido}}": "Nada além do descrito na cláusula 1ª.",
+    "{{proposta.prazo}}": "60 dias úteis após a validação do briefing",
+    "{{proposta.valor_total}}": "R$ 18.000,00",
+    "{{proposta.parcelas}}": "• Entrada, na assinatura do contrato: R$ 5.400,00\n• Parcela 1 de 3 (mensal): R$ 4.200,00\n• Parcela 2 de 3 (mensal): R$ 4.200,00\n• Parcela 3 de 3 (mensal): R$ 4.200,00",
+    "{{proposta.forma_pagamento}}": "",
+    "{{proposta.revisoes}}": "2",
+    "{{proposta.visitas}}": "2",
+    "{{proposta.deslocamento}}": "As despesas de deslocamento para as visitas estão incluídas nos honorários.",
+    "{{proposta.data_aprovacao}}": dataCurta,
+    "{{data}}": dataLonga,
+  };
+  return corpo.split(/(\{\{[a-z_.]+\}\})/g).flatMap((parte): TrechoPrevia[] => {
+    if (!(parte in exemplos)) return parte ? [{ texto: parte }] : [];
+    const valor = exemplos[parte];
+    if (valor === "") return [];
+    return valor ? [{ texto: valor, automatico: true }] : [{ texto: "falta preencher", automatico: true, falta: true }];
+  });
+}
+
+// Textos entre colchetes que não são etiqueta conhecida (ex.: [Nome do clinte]), para avisar antes de salvar.
+export function etiquetasDesconhecidas(texto: string) {
+  const achadas = [...texto.matchAll(/\[([^\[\]\n]{1,60})\]/g)]
+    .map((m) => m[1])
+    .filter((d) => /[a-zà-ú]/i.test(d) && !PELA_ETIQUETA.has(chaveEtiqueta(d)) && !NAO_E_ETIQUETA.has(chaveEtiqueta(d)));
+  return [...new Set(achadas)];
+}
 
 // CPF: 11 números. CNPJ: 14 caracteres; desde julho de 2026 os 12 primeiros podem ter letras (CNPJ
 // alfanumérico) e os 2 últimos, os dígitos verificadores, continuam números. Guardado sem pontuação.

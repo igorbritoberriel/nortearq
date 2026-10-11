@@ -27,7 +27,20 @@ function carregar(arquivo) {
 
 const { lerNumero, dataValida, somarMesesCalendario } = carregar("lib/formatacao.ts");
 const { mascaraDocumento, mascaraDinheiro, finalizarDinheiro, mascaraTelefone } = carregar("lib/mascaras.ts");
-const { documentoValido, formatarDocumento, normalizarDocumento } = carregar("lib/contratos.ts");
+const { documentoValido, formatarDocumento, normalizarDocumento, paraEtiquetas, paraCampos, etiquetasDesconhecidas, CAMPOS_CONTRATO, previaDoModelo } = carregar("lib/contratos.ts");
+
+// Etiquetas do contrato: {{campo}} no banco, [Etiqueta] na tela, ida e volta sem perder nada.
+const modeloTeste = "CONTRATANTE: {{cliente.nome}}, CPF {{cliente.documento}}. Valor {{proposta.valor_total}} em {{data}}. [a preencher]";
+assert.equal(paraEtiquetas(modeloTeste), "CONTRATANTE: [Nome do cliente], CPF [CPF ou CNPJ do cliente]. Valor [Valor total] em [Data do aceite]. [a preencher]");
+assert.equal(paraCampos(paraEtiquetas(modeloTeste)), modeloTeste);
+const todos = CAMPOS_CONTRATO.map((c) => c.campo).join(" ");
+assert.equal(paraCampos(paraEtiquetas(todos)), todos);
+assert.equal(paraCampos("[nome do  CLIENTE] [CPF do cliente] [Endereco do imovel] [CAU]"), "{{cliente.nome}} {{cliente.documento}} {{cliente.endereco}} {{escritorio.registro}}");
+assert.deepEqual(etiquetasDesconhecidas("[Nome do clinte] [Nome do cliente] [a preencher] [ ] [1]"), ["Nome do clinte"]);
+assert.equal(paraCampos("[Nome do clinte]"), "[Nome do clinte]");
+const previa = previaDoModelo("A {{cliente.nome}} B {{escritorio.registro}} C {{proposta.forma_pagamento}}", { nome: "Esc", documento: null, endereco: null, responsavel: null, registro_profissional: null });
+assert.deepEqual(previa.map((t) => t.texto), ["A ", "Mariana Souza", " B ", "falta preencher", " C "]);
+assert.ok(previa[3].falta && previa[1].automatico && !previa[0].automatico);
 const { lerReais, dataCurta } = carregar("lib/propostas.ts");
 const { normalizarChave } = carregar("lib/pix.ts");
 const { InputMascara } = carregar("components/InputMascara.tsx");

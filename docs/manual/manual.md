@@ -283,14 +283,21 @@ data, hora e IP; o escritório é avisado.
 
 ## 8. Contratos e aceite eletrônico ✅
 
-**Gerar:** na proposta aprovada, "Próximo passo: o contrato". O texto sai do **modelo de contrato** do
-serviço, já preenchido com os dados do cliente, do escritório e da proposta.
+**Gerar:** na ficha do cliente, com a proposta aprovada, "Gerar o contrato". O texto sai do **tipo de contrato**
+do serviço, já preenchido com os dados do cliente, do escritório e da proposta.
 
-**Modelos de contrato** (Contratos → Modelos): um padrão (não se apaga) e outros por tipo de projeto (ex.:
-um pronto para Interiores), cada um ligado a serviços. Os **dados do escritório no contrato** (CPF/CNPJ,
-endereço, responsável, registro no CAU/CREA) valem para todos os modelos. Campos automáticos como
-`{{cliente.nome}}`, `{{proposta.valor_total}}`, `{{proposta.parcelas}}`, `{{proposta.revisoes}}`,
-`{{proposta.deslocamento}}` e `{{data}}` (a lista completa aparece no editor).
+**Seu contrato** (Contratos → Modelos): o contrato já vem pronto e a tela mostra como o cliente vai ler, com os
+trechos automáticos destacados (com dados de exemplo). Só é preciso preencher, uma vez, **Seus dados no
+contrato** (CPF/CNPJ, endereço, quem assina e registro no CAU/CREA); se faltar algum, a tela avisa "Quase pronto".
+Em **Tipos de contrato** ficam o padrão (não se apaga) e outros por tipo de projeto (ex.: um pronto para
+Interiores), cada um ligado a serviços: o sistema escolhe sozinho pelo serviço da proposta.
+
+**Mudar o texto** (opcional): em "Quero mudar alguma coisa no texto". Os dados automáticos aparecem em português
+entre colchetes, como **[Nome do cliente]**, **[CPF ou CNPJ do cliente]**, **[Valor total]**, **[Parcelas]**,
+**[Revisões incluídas]** e **[Data do aceite]**. Dá para clicar nos botões ao lado (separados em "do cliente", "do
+seu escritório" e "da proposta") ou digitar a etiqueta. Quem tem contrato do advogado cola o texto e troca o nome
+do cliente por [Nome do cliente], o valor por [Valor total] e assim por diante. Etiqueta escrita errada (ex.:
+[Nome do clinte]) gera aviso antes de salvar; se for texto normal entre colchetes, dá para salvar assim mesmo.
 
 **Antes de enviar:** o texto pode ser ajustado (até 60 mil caracteres) e o modelo pode ser trocado (substitui
 o texto, inclusive os ajustes). **Depois de enviado, o texto não muda.**
@@ -649,6 +656,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Mudei o briefing e o cliente vê o antigo" | Briefing já enviado guarda a própria cópia das perguntas | Normal: a mudança vale para os próximos briefings |
 | "O cliente quer corrigir o briefing" | Briefing enviado não é editado pelo cliente | Perfil do Cliente → Reabrir para o cliente |
 | "Não consigo editar a proposta" | Proposta enviada fica fechada | Criar nova versão (o mesmo link mostra a nova) |
+| "Apareceu [Nome do clinte] (com colchetes) no contrato do cliente" | Etiqueta escrita errada no texto do contrato e salva com "Salvar assim mesmo" | Seu contrato → "Quero mudar alguma coisa no texto": corrigir a etiqueta igual ao botão. Contrato já enviado não muda: gerar de novo antes do aceite |
 | "Não consigo enviar a proposta" | Sem valor total ou serviço, ou parcelas manuais com soma diferente do total | Preencher; ajustar as parcelas |
 | "O cliente quer pagar em outro dia" | A data foi combinada depois do contrato | Contrato → Pagamentos → **Alterar vencimento** (com "mover as próximas"); depois **Avisar o cliente no WhatsApp**. Para os próximos clientes, escolher "todo dia X" na proposta |
 | "Não aparece Alterar vencimento" | Parcela já paga, sem data (use Definir vencimento) ou paga no cartão parcelado | No cartão, as datas seguem o cartão do cliente; para mudar, cancelar a cobrança no Asaas e gerar de novo |

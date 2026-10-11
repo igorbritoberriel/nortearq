@@ -2,11 +2,12 @@
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import { Aviso, Campo } from "@/components/Campo";
-import { CAMPOS_CONTRATO } from "@/lib/contratos";
+import { CAMPOS_CONTRATO, GRUPOS_CAMPO, etiquetasDesconhecidas, paraCampos, paraEtiquetas, type GrupoCampo } from "@/lib/contratos";
 import type { EstadoFormulario } from "@/lib/formulario";
 import { InputMascara } from "@/components/InputMascara";
 
-// Texto do contrato com os {{campos}} automáticos (RN-01.12). Clicar num campo insere no cursor.
+// Texto do contrato (RN-01.12). Na tela os dados automáticos aparecem como [Nome do cliente]; no banco
+// continuam {{cliente.nome}}. A arquiteta pode clicar nos botões ou digitar a etiqueta entre colchetes.
 export function EditorContrato({
   texto,
   salvar,
@@ -16,23 +17,47 @@ export function EditorContrato({
   salvar: (corpo: string) => Promise<{ ok: true } | { erro: string }>;
   ajuda?: string;
 }) {
-  const [corpo, setCorpo] = useState(texto);
+  const original = paraEtiquetas(texto);
+  const [corpo, setCorpo] = useState(original);
+  const [salvo, setSalvo] = useState(original);
   const [mensagem, setMensagem] = useState<{ tipo: "erro" | "sucesso"; texto: string } | null>(null);
+  const [desconhecidas, setDesconhecidas] = useState<string[]>([]);
   const [pendente, iniciar] = useTransition();
   const area = useRef<HTMLTextAreaElement>(null);
-  const alterado = corpo !== texto;
+  const alterado = corpo !== salvo;
 
-  function inserir(campo: string) {
+  function inserir(etiqueta: string) {
     const el = area.current;
     if (!el) return;
+    const trecho = `[${etiqueta}]`;
     const inicio = el.selectionStart;
-    const novo = corpo.slice(0, inicio) + campo + corpo.slice(el.selectionEnd);
-    setCorpo(novo);
+    setCorpo(corpo.slice(0, inicio) + trecho + corpo.slice(el.selectionEnd));
+    setDesconhecidas([]);
     requestAnimationFrame(() => {
       el.focus();
-      el.setSelectionRange(inicio + campo.length, inicio + campo.length);
+      el.setSelectionRange(inicio + trecho.length, inicio + trecho.length);
     });
   }
+
+  function gravar(mesmoComAviso: boolean) {
+    const erradas = etiquetasDesconhecidas(corpo);
+    if (erradas.length && !mesmoComAviso) {
+      setDesconhecidas(erradas);
+      setMensagem(null);
+      return;
+    }
+    iniciar(async () => {
+      const r = await salvar(paraCampos(corpo));
+      setDesconhecidas([]);
+      if ("erro" in r) setMensagem({ tipo: "erro", texto: r.erro });
+      else {
+        setSalvo(corpo);
+        setMensagem({ tipo: "sucesso", texto: "Texto salvo." });
+      }
+    });
+  }
+
+  const grupos = Object.keys(GRUPOS_CAMPO) as GrupoCampo[];
 
   return (
     <div className="editor-contrato">
@@ -49,38 +74,48 @@ export function EditorContrato({
             onChange={(e) => {
               setCorpo(e.target.value);
               setMensagem(null);
+              setDesconhecidas([]);
             }}
             spellCheck
           />
+          <p className="editor-dica">
+            Tem um contrato pronto do seu advogado? Cole aqui e troque o nome do cliente por <strong>[Nome do cliente]</strong>,
+            o valor por <strong>[Valor total]</strong>, e assim por diante. Onde estiver entre colchetes, o sistema troca pelos
+            dados de cada cliente.
+          </p>
         </div>
-        <aside className="editor-campos" aria-label="Campos automáticos">
-          <strong>Campos automáticos</strong>
-          <p className="campo-ajuda">Clique para inserir no texto. O sistema troca pelos dados reais.</p>
-          <ul>
-            {CAMPOS_CONTRATO.map((c) => (
-              <li key={c.campo}>
-                <button type="button" className="botao-link" onClick={() => inserir(c.campo)} title={c.descricao}>
-                  <code>{c.campo}</code>
-                </button>
-                <small className="muted">{c.descricao}</small>
-              </li>
-            ))}
-          </ul>
+        <aside className="editor-campos" aria-label="Dados para colocar no texto">
+          <strong>Colocar um dado no texto</strong>
+          <p className="campo-ajuda">Clique no texto onde quer o dado e depois no botão. Ou digite a etiqueta entre colchetes.</p>
+          {grupos.map((g) => (
+            <div key={g} className={`editor-grupo editor-grupo-${g}`}>
+              <span className="editor-grupo-titulo">{GRUPOS_CAMPO[g]}</span>
+              <div className="editor-etiquetas">
+                {CAMPOS_CONTRATO.filter((c) => c.grupo === g).map((c) => (
+                  <button key={c.campo} type="button" className="editor-etiqueta" onClick={() => inserir(c.etiqueta)}>
+                    [{c.etiqueta}]
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </aside>
       </div>
+      {desconhecidas.length > 0 && (
+        <Aviso tipo="erro">
+          {desconhecidas.length === 1 ? "Esta etiqueta não existe: " : "Estas etiquetas não existem: "}
+          <strong>{desconhecidas.map((d) => `[${d}]`).join(", ")}</strong>. Confira se está escrita igual a um dos botões ao lado. Se
+          for texto normal do contrato, pode salvar assim mesmo.
+        </Aviso>
+      )}
       <div className="form-rodape">
         {alterado && <span className="campo-ajuda">Alterações não salvas</span>}
-        <button
-          type="button"
-          className="botao botao-primario"
-          disabled={pendente || !alterado}
-          onClick={() =>
-            iniciar(async () => {
-              const r = await salvar(corpo);
-              setMensagem("erro" in r ? { tipo: "erro", texto: r.erro } : { tipo: "sucesso", texto: "Texto salvo." });
-            })
-          }
-        >
+        {desconhecidas.length > 0 && (
+          <button type="button" className="botao botao-secundario" disabled={pendente} onClick={() => gravar(true)}>
+            Salvar assim mesmo
+          </button>
+        )}
+        <button type="button" className="botao botao-primario" disabled={pendente || !alterado} onClick={() => gravar(false)}>
           {pendente ? "Salvando..." : "Salvar texto"}
         </button>
       </div>
@@ -113,7 +148,7 @@ export function FormDadosContratado({
             mascara="documento"
             id="documento"
             name="documento"
-            inputMode="numeric"
+            autoCapitalize="characters"
             placeholder="00.000.000/0000-00"
             defaultValue={valor("documento")}
           />

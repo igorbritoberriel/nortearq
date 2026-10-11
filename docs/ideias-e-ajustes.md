@@ -207,6 +207,14 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **"Seu contrato" mais simples (11/10/2026, pedido do Igor, preview aprovado):** a tela Contratos → Modelos
+      abre mostrando "Pronto para usar" (ou "Quase pronto" com o que falta), a prévia como o cliente lê (trechos
+      automáticos destacados, com dados de exemplo), "Seus dados no contrato" e "Tipos de contrato". O editor fica em
+      "Quero mudar alguma coisa no texto" e mostra os dados como [Nome do cliente], [Valor total] etc. (em português,
+      entre colchetes, com botões por grupo e aviso de etiqueta errada); no banco continuam {{campo}}, então
+      modelos e contratos antigos funcionam igual. O mesmo editor vale no rascunho de cada contrato. Testado no
+      computador e no celular com o escritório de teste (salvou {{campo}} certo, avisou "[Nome do clinte]").
+      Corrigido junto: o CPF/CNPJ do contratado ainda abria só o teclado numérico (CNPJ com letras).
 - [x] **Contrato do Manoel (encerrado em 11/10/2026, decisão do Igor):** o contrato PROJETO ARQUITETÔNICO assinado em
       08/10 está completo; só a linha de entregáveis tem ";;" e dois itens quebrados no meio (texto colado com quebra
       de linha). Nada se perdeu, cliente assinou e ninguém reclamou: sem aditivo. A proposta PROJETO INTERIORES do

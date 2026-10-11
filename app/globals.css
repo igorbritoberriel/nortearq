@@ -1016,10 +1016,55 @@ p { margin: 0 0 1em; }
 .editor-contrato-grade { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 20px; }
 @media (max-width: 900px) { .editor-contrato-grade { grid-template-columns: 1fr; } }
 .editor-contrato textarea { font-family: var(--fonte); font-size: 0.92rem; line-height: 1.6; }
-.editor-campos ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; max-height: 560px; overflow: auto; }
-.editor-campos li { display: grid; }
-.editor-campos code { font-size: 0.8rem; color: var(--cor-norte); background: #eef2f7; padding: 1px 6px; border-radius: 4px; }
-.editor-campos small { font-size: 0.78rem; }
+.editor-campos { display: grid; gap: 12px; align-content: start; }
+.editor-campos .campo-ajuda { margin: 0; }
+.editor-grupo { display: grid; gap: 6px; }
+.editor-grupo-titulo { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.editor-etiquetas { display: flex; flex-wrap: wrap; gap: 6px; }
+.editor-etiqueta { font: inherit; font-size: 0.82rem; font-weight: 600; padding: 7px 10px; min-height: 34px; border: 0; border-radius: 7px; cursor: pointer; text-align: left; }
+.editor-etiqueta:focus-visible { outline: 2px solid var(--cor-norte); outline-offset: 2px; }
+.editor-grupo-cliente .editor-grupo-titulo { color: var(--cor-norte); }
+.editor-grupo-cliente .editor-etiqueta { background: #e8eef6; color: var(--cor-norte); }
+.editor-grupo-escritorio .editor-grupo-titulo { color: #7a5313; }
+.editor-grupo-escritorio .editor-etiqueta { background: #f6ead3; color: #7a5313; }
+.editor-grupo-proposta .editor-grupo-titulo { color: #2f6b47; }
+.editor-grupo-proposta .editor-etiqueta { background: #e3f1e8; color: #2f6b47; }
+.editor-dica { margin: 10px 0 0; padding: 10px 14px; border-radius: 8px; background: #f3f6fa; color: #33465c; font-size: 0.86rem; line-height: 1.5; }
+
+/* Seu contrato: tela inicial com prévia; o editor fica em "Quero mudar alguma coisa no texto". */
+.contrato-pronto-grade { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; margin-top: 16px; }
+@media (max-width: 1100px) { .contrato-pronto-grade { grid-template-columns: 1fr; } }
+/* Editando o texto, o editor ganha a largura toda e os quadros da lateral descem. */
+.contrato-pronto-grade:has(.contrato-personalizar[open]) { grid-template-columns: 1fr; }
+.contrato-pronto-grade:has(.contrato-personalizar[open]) .contrato-lateral { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: start; }
+.contrato-lateral { display: grid; gap: 20px; min-width: 0; }
+.contrato-lateral .secao-config { margin: 0; }
+.contrato-pronto { display: grid; gap: 16px; min-width: 0; }
+.contrato-status { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--raio); background: #e3f1e8; color: #1f5a3a; }
+.contrato-status svg { flex: none; margin-top: 1px; }
+.contrato-status strong { display: block; font-size: 1.05rem; }
+.contrato-status p { margin: 2px 0 0; font-size: 0.92rem; color: #2e4f3d; }
+.contrato-status-falta { background: #fbf0dc; color: #8a5a00; }
+.contrato-status-falta p { color: #6e4a07; }
+.previa-legenda { margin: 0; font-size: 0.88rem; color: var(--cor-texto-suave); }
+.previa-amostra { display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border-radius: 4px; background: #f6ead3; border: 1px solid #e5cd9f; }
+.contrato-lateral .form-linha { grid-template-columns: 1fr; }
+.contrato-lateral input { min-width: 0; width: 100%; box-sizing: border-box; }
+.previa-modelo { max-height: 520px; overflow: auto; padding: 20px 22px; border: 1px solid var(--cor-borda); border-radius: var(--raio); background: #fcfbf8; font-size: 0.92rem; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.previa-modelo:focus-visible { outline: 2px solid var(--cor-norte); outline-offset: 2px; }
+.previa-auto { background: #f6ead3; color: inherit; border-radius: 4px; padding: 1px 4px; }
+.previa-falta { background: #fdecea; color: var(--cor-erro); border-radius: 4px; padding: 1px 4px; font-weight: 600; }
+.contrato-personalizar { border-top: 1px solid var(--cor-borda); padding-top: 14px; }
+.contrato-personalizar > summary { cursor: pointer; font-weight: 600; color: var(--cor-norte); padding: 6px 0; min-height: 32px; }
+.contrato-personalizar[open] > summary { margin-bottom: 12px; }
+.contrato-personalizar > .contato-alerta { margin-bottom: 14px; }
+.contrato-config-modelo { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--cor-borda); }
+.contrato-config-modelo h2 { font-size: 1.05rem; }
+.contrato-dados-lista { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 8px; font-size: 0.92rem; }
+.contrato-dados-lista li { display: flex; align-items: center; gap: 8px; }
+.contrato-dados-lista svg { color: var(--cor-sucesso); flex: none; }
+.contrato-dado-falta { color: #a5541f; }
+.contrato-dado-falta svg { color: #a5541f; }
 .pagamentos { list-style: none; margin: 0 0 8px; padding: 0; }
 .pagamentos li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--cor-borda); }
 .pagamentos .checagem { margin: 0; }
