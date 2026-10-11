@@ -136,7 +136,7 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Limite por arquivo de 200 MB quando o armazenamento do Supabase for pago (hoje 50 MB).
 - [ ] **Melhorias no Painel interno → Visão de negócio** (ideia de 11/10/2026, a partir do pedido do Igor de um
       painel de administrador do NorteArq separado do painel do escritório):
-      - [ ] Selo "Teste grátis" quebra em duas linhas na coluna Situação da tabela (cosmético, não atrapalha).
+      - [x] Selo "Teste grátis" quebrava em duas linhas na coluna Situação da tabela. Corrigido (11/10/2026).
       - [ ] Quando o primeiro escritório pagar de verdade: conferir se a receita mensal estimada bate (hoje sempre
             R$ 0,00, ninguém paga ainda).
       - [ ] Possível depois: gráfico de crescimento (escritórios/mês), uso de armazenamento por escritório,
