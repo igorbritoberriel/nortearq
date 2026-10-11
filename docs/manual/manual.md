@@ -8,9 +8,10 @@ Fonte única do manual. Atualizada a cada entrega (regra no CLAUDE.md). Daqui sa
 A central de ajuda (menu **Ajuda**) e as perguntas frequentes do cliente leem este arquivo direto. Trechos só
 para o suporte ficam entre `<!-- suporte -->` e `<!-- /suporte -->` e não aparecem para os arquitetos.
 
-O PDF é gerado a partir deste texto. O antigo `Manual-NorteArq.pdf` (01/10/2026) está desatualizado.
+O PDF é gerado a partir deste texto com `python docs/manual/gerar_manual.py`: `Manual-NorteArq.pdf` (para
+arquitetos, sem os trechos de suporte) e `Manual-NorteArq-Suporte.pdf` (completo), na pasta "app - arquitetura".
 
-Situação de cada capítulo: ✅ escrito · 🟡 parcial · ⬜ a escrever (o PDF completo sai depois da revisão de UX).
+Situação de cada capítulo: ✅ escrito · 🟡 parcial · ⬜ a escrever.
 
 | # | Capítulo | Situação |
 |---|---|---|

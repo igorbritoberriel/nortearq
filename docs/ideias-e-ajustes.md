@@ -135,10 +135,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
          guarda tudo no Google Drive (pasta por ano e mês, manter 5 anos) e manda o resumo ao Igor.
       3. **Fica com o Igor** (uns 5 minutos por mês): lançar no Carnê-Leão Web com o login gov.br e pagar a guia, se
          houver. Nos primeiros meses, conferir os números com o contador.
-- [ ] **Manual completo do NorteArq** (aprovado em 03/10/2026). Fonte: `docs/manual/manual.md`, atualizada a
-      cada entrega (regra no CLAUDE.md). Os 15 capítulos estão escritos, com 26 dúvidas no "Como resolver" e as
-      perguntas frequentes do cliente final (03/10/2026). A central de ajuda (menu Ajuda) e as perguntas
-      frequentes do cliente já leem o manual direto. Falta: gerar o PDF depois da conferência visual.
+- [x] **Manual completo do NorteArq** (PDF gerado em 11/10/2026). Fonte: `docs/manual/manual.md`, atualizada a
+      cada entrega (regra no CLAUDE.md). PDFs na pasta "app - arquitetura": `Manual-NorteArq.pdf` (26 páginas, para
+      arquitetos, sem os trechos de suporte, pode ir para parceiros) e `Manual-NorteArq-Suporte.pdf` (27 páginas,
+      completo). Capa, sumário com páginas, 15 capítulos e o "Como resolver". O gerador antigo (texto de 01/10 fixo no
+      código) foi trocado por um que lê o manual.md; regenerar no fim de cada lote que mexer no manual.
+      Os vídeos ficam para quando as telas pararem de mudar (decisão do Igor, 11/10/2026).
 - [x] **Revisão completa de UX/UI do sistema** (pedido do Igor, 03/10/2026; conferência visual em 11/10/2026).
       `docs/revisao-ux.md`: 8 altas, 17 médias e 6 baixas, todas feitas. Conferência visual: 23 prints no computador
       e no celular (escritório e cliente de teste), cobrindo as três listas — menu móvel sem empurrar conteúdo,

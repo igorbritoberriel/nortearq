@@ -19,6 +19,9 @@ do que estiver pendente e mova para "Feito" o que for concluído.
 
 **Manual: `docs/manual/manual.md`.** Toda entrega que muda o que o usuário vê ou faz atualiza o capítulo
 correspondente e, se couber, o "Como resolver" (dúvida do cliente → causa → o que fazer), no mesmo commit.
+No fim de cada lote que mexeu no manual, gerar de novo os PDFs (`python docs/manual/gerar_manual.py`): saem
+`Manual-NorteArq.pdf` (arquitetos) e `Manual-NorteArq-Suporte.pdf` (completo) na pasta "app - arquitetura",
+sempre no mesmo lugar, e avisar o Igor no resumo que o manual foi atualizado.
 
 ## Produto
 - Promessa: "Seu cliente explica o que quer sozinho. Você só projeta."
