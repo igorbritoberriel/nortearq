@@ -75,6 +75,12 @@ export default async function ClientePage({
   const cliente = linha as Cliente;
   // Arquivar/excluir (0026): com contrato assinado ou pagamento, só arquivar.
   const { data: registroLegal } = await supabase.rpc("cliente_tem_registro_legal", { p_cliente: id });
+  // Excluir apaga também os projetos e os arquivos deles: a confirmação mostra quantos.
+  const { data: projetosDoCliente } = await supabase.from("projetos").select("id").eq("cliente_id", id);
+  const idsProjetos = (projetosDoCliente ?? []).map((p) => p.id as string);
+  const { count: arquivosDoCliente } = idsProjetos.length
+    ? await supabase.from("arquivos").select("id", { count: "exact", head: true }).in("projeto_id", idsProjetos)
+    : { count: 0 };
   // Outros cadastros com o mesmo CPF/CNPJ, e-mail ou WhatsApp (para juntar).
   const { data: parecidosBrutos } = cliente.anonimizado_em
     ? { data: [] }
@@ -492,6 +498,8 @@ export default async function ClientePage({
               arquivado={!!cliente.arquivado_em}
               anonimizado={!!cliente.anonimizado_em}
               temRegistroLegal={!!registroLegal}
+              projetos={idsProjetos.length}
+              arquivos={arquivosDoCliente ?? 0}
               podeExcluir={pode(papel, "excluir_cliente")}
               dono={pode(papel, "anonimizar_cliente")}
             />

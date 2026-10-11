@@ -13,6 +13,8 @@ export function RemoverCliente({
   arquivado,
   anonimizado,
   temRegistroLegal,
+  projetos,
+  arquivos,
   podeExcluir,
   dono,
 }: {
@@ -21,6 +23,8 @@ export function RemoverCliente({
   arquivado: boolean;
   anonimizado: boolean;
   temRegistroLegal: boolean;
+  projetos: number;
+  arquivos: number;
   podeExcluir: boolean; // dono ou administrador
   dono: boolean;
 }) {
@@ -65,6 +69,16 @@ export function RemoverCliente({
               <p>
                 <strong>Excluir de vez?</strong> Apaga o cliente, propostas, briefing, fotos e links. Não dá para desfazer.
               </p>
+              {projetos > 0 && (
+                <p className="excluir-alerta">
+                  <strong>
+                    Atenção: apaga também {projetos === 1 ? "o projeto" : `os ${projetos} projetos`} deste cliente
+                    {arquivos > 0 && ` e ${arquivos === 1 ? "1 arquivo" : `${arquivos} arquivos`} (plantas, pranchas, renders)`}.
+                  </strong>{" "}
+                  Se a ideia é recomeçar com o mesmo cliente, não exclua: use <strong>Arquivar</strong> ou crie uma nova
+                  proposta na própria ficha.
+                </p>
+              )}
               <Campo id="confirmar-exclusao" rotulo="Para confirmar, digite a sua senha do NorteArq">
                 <input
                   id="confirmar-exclusao"

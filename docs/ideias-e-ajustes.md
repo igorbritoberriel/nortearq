@@ -82,8 +82,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       quando abrir a ME.
 - [ ] Cobrança automática, pendências: (1) Igor mandar o link de indicação do Asaas (menu → Indicar amigo) para eu
       colocar em NEXT_PUBLIC_ASAAS_INDICACAO; (2) primeiro teste real com dinheiro (uma parcela pequena paga por Pix
-      numa conta Asaas de arquiteto de verdade, para ver o split de R$ 0,99 cair na conta do NorteArq); (3) página
-      pública "Tarifas" no site; (4) quando abrir a ME, migrar para subcontas (cadastro do arquiteto dentro do NorteArq).
+      numa conta Asaas de arquiteto de verdade, para ver o split de R$ 0,99 cair na conta do NorteArq); (3) ~~página
+      pública "Tarifas" no site~~ feita em 11/10/2026 (nortearq.com.br/tarifas, link no rodapé e em Preços); (4) quando
+      abrir a ME, migrar para subcontas (cadastro do arquiteto dentro do NorteArq).
 - [x] **Cláusula de atraso nos modelos da Débora** (11/10/2026): ela tem 5 modelos. "Design de interiores" e
       "Projeto de interiores" não tinham nenhuma proteção contra atraso: acrescentada a cláusula padrão (multa de 2%
       + juros de 1% ao mês). "Projeto Arquitetônico" e "Arquitetura e Interiores" já tinham proteção, só que com
@@ -122,9 +123,19 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       Eu:
       - [x] 12. Painel sem erro grave pendente (11/10/2026): os 7 erros estavam resolvidos; a maioria vinha do
             computador de desenvolvimento (mesmo banco da produção). Agora só erros do site real entram no painel.
+- [ ] **Arquivos do Manoel (achado de 11/10/2026, depende do Igor falar com a Débora):** a cópia de segurança guarda 30
+      arquivos de um projeto do Manoel Cabral que não existe mais no sistema (cadastro antigo excluído entre 05 e 07/10;
+      excluir apaga projeto e arquivos): 7 pranchas em PDF (plantas baixa exec. e humanizada, elétrica, hidráulica,
+      levantamento, demolir e construir), "LAYOUT PLANTA HUMANIZADA" e o render "FACHADA CINZA". O projeto atual dele
+      ("PROJETO ARQUITETÔNICO") está sem arquivos. Perguntar à Débora se excluiu e se quer de volta: eu restauro do
+      backup para o projeto atual (como "só do escritório", para ela revisar). Desde 11/10, excluir cliente mostra
+      quantos projetos e arquivos vão junto e sugere Arquivar.
 - [ ] Cópia de segurança, depois: (1) ensaio de restauração completa num projeto Supabase de teste, uma vez,
-      para ter o passo a passo pronto; (2) LGPD: arquivos de cliente excluído/anonimizado continuam na cópia
-      (pasta arquivos/ não expira): apagar também do R2 quando excluir ou anonimizar um cliente.
+      para ter o passo a passo pronto; (2) LGPD: hoje a cópia guarda para sempre os arquivos que saem do sistema. NÃO
+      apagar "tudo que sumiu" (o caso do Manoel mostrou o risco); proposta: apagar da cópia só os arquivos de cliente
+      **anonimizado a pedido do titular**, 30 dias depois. Aguardando o Igor confirmar a regra.
+- [x] **Tabelas e abas largas no celular** (11/10/2026): quando há conteúdo escondido para o lado, a borda esmaece
+      (Financeiro, listas, comparativo de planos, tabelas do manual); some ao rolar até o fim.
 - [ ] **Controle fiscal automatizado da cobrança no CPF** (pedido do Igor, 03/10/2026; fazer junto com ele quando o
       primeiro escritório começar a pagar):
       1. **Relatório financeiro no painel interno** (só o Igor vê), alimentado pelo aviso de pagamento do Asaas que

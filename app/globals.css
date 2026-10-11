@@ -317,6 +317,11 @@ p { margin: 0 0 1em; }
 .adicionais { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linha); }
 .adicionais li { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 20px 0; border-bottom: 1px solid var(--linha); }
 .adicionais strong { font-size: 1.1rem; }
+.adicionais li > span { flex: 1 1 320px; line-height: 1.55; }
+.adicionais span strong { font-size: inherit; }
+.adicionais li > strong { white-space: nowrap; }
+.lista-tarifas { margin: 0 0 32px; padding-left: 20px; display: grid; gap: 10px; line-height: 1.6; }
+.zona-sub a, .zona .estreito p a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 
 /* Lista de espera (formulário em cartão claro) */
 .lista-cartao { background: var(--creme); color: var(--tinta); padding: clamp(24px, 4vw, 40px); border-radius: 24px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); }
@@ -618,6 +623,11 @@ p { margin: 0 0 1em; }
 
 /* Serviços */
 .tabela-rolagem-app { overflow-x: auto; }
+.excluir-alerta { margin: 8px 0 12px; padding: 10px 12px; border-radius: 8px; background: #fdecea; color: #7f1d18; font-size: 0.9rem; line-height: 1.5; }
+/* Conteúdo escondido para o lado: a borda esmaece (components/IndicadorRolagem.tsx marca os lados). */
+[data-rola-direita="1"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent); }
+[data-rola-esquerda="1"] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 56px), transparent); }
+[data-rola-direita="1"][data-rola-esquerda="1"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent); mask-image: linear-gradient(to right, transparent, #000 56px, #000 calc(100% - 56px), transparent); }
 .tabela-servicos { width: 100%; border-collapse: collapse; }
 .tabela-servicos th { font-size: 0.8rem; font-weight: 600; text-align: left; color: var(--cor-texto-suave); padding: 0 8px 8px; }
 .tabela-servicos td { padding: 6px 8px; border-top: 1px solid var(--cor-borda); vertical-align: top; }

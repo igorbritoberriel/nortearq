@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bodoni_Moda, Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { CapturaErros } from "@/components/erros/CapturaErros";
+import { IndicadorRolagem } from "@/components/IndicadorRolagem";
 import "./globals.css";
 
 // Títulos com contraste de revista de arquitetura, texto limpo e rótulos de prancha técnica.
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={`${fonteTexto.variable} ${fonteTitulo.variable} ${fonteTecnica.variable}`}>
       <body>
         <CapturaErros />
+        <IndicadorRolagem />
         {children}
       </body>
     </html>

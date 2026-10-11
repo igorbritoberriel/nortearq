@@ -196,8 +196,10 @@ terminou a configuração inicial.
 
 **Arquivar, excluir e anonimizar**
 - **Arquivar:** some da lista, nada é apagado; desarquivar traz de volta.
-- **Excluir** (dono ou administrador, com senha): apaga o cliente e os arquivos dele. Não é possível se houver
-  contrato assinado ou pagamento registrado: nesse caso, arquivar.
+- **Excluir** (dono ou administrador, com senha): apaga o cliente e os arquivos dele, **inclusive os projetos e
+  todas as plantas, pranchas e renders** (a confirmação mostra quantos). Não é possível se houver contrato assinado
+  ou pagamento registrado: nesse caso, arquivar. Para recomeçar com o mesmo cliente, não exclua: arquive ou faça
+  uma nova proposta na própria ficha.
 - **Exportar dados do cliente** (dono e administrador, LGPD): baixa um arquivo com tudo o que o escritório
   guarda dele (cadastro, pedido, briefing com perguntas e respostas, propostas, contratos com o aceite,
   projetos com etapas, aprovações, aditivos e pagamentos, links enviados). Arquivos e fotos vão listados pelo nome.
@@ -362,7 +364,8 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
   Asaas (no nome dele ou do escritório), gera uma **chave de API sem permissão de saque** e cola no NorteArq,
   aceitando a taxa de serviço.
 - **Tarifas:** a do Asaas (Pix, boleto ou cartão, pela tabela da conta dele) + **R$ 0,99 por parcela paga** de taxa
-  NorteArq, descontada sozinha no pagamento. Parcela não paga não tem taxa.
+  NorteArq, descontada sozinha no pagamento. Parcela não paga não tem taxa. Pix direto na chave do escritório não
+  tem taxa do NorteArq. Tudo explicado na página pública **Tarifas** (nortearq.com.br/tarifas).
 - Parcelas que vencem nos próximos 10 dias ganham a cobrança sozinhas, todo dia; dá para gerar na hora pelo botão
   **Gerar cobrança**. O Asaas exige o **CPF ou CNPJ do cliente** na ficha.
 - O cliente vê **Pagar agora (Pix, boleto ou cartão)** no projeto, no portal e nos lembretes por e-mail.
@@ -644,6 +647,7 @@ revisões usadas, aditivos para aprovar ou recusar, aprovações externas e paga
 | "Não consigo convidar alguém para a equipe" | O e-mail já tem conta em outro escritório, as 5 vagas estão ocupadas, ou o plano não tem equipe | Pedir outro e-mail; cancelar convites parados; plano Escritório |
 | "O convite diz que não pode ser aceito" | A pessoa já tem escritório no NorteArq | Cancelar o convite e convidar com outro e-mail |
 | "Não consigo cadastrar o cliente" | CPF/CNPJ já usado por outro cliente do escritório | Abrir o cadastro existente (aparece no aviso) |
+| "Sumiram as plantas/arquivos do projeto" | O cadastro do cliente foi excluído (excluir apaga projetos e arquivos), por exemplo para "recomeçar" | Falar com o suporte: a cópia de segurança guarda os arquivos e dá para restaurar no projeto atual |
 | "Diz que já existe uma etapa/modelo com esse nome" | Nomes não repetem no mesmo projeto/escritório | Usar o nome sugerido (ex.: "Anteprojeto (2)") |
 | "Minha colaboradora não vê propostas nem pedidos" | É a regra do perfil Colaborador | Mudar o perfil para Administrador (só o Dono) |
 | "Não consigo enviar arquivo" | Arquivo acima de 50 MB ou espaço do plano acabou | Reduzir o arquivo; apagar arquivos sem uso; mudar de plano |

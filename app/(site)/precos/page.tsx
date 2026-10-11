@@ -79,6 +79,10 @@ export default function PrecosPage() {
               </li>
             ))}
           </ul>
+          <p className="zona-sub">
+            Quanto custa receber dos seus clientes (Pix direto ou cobrança automática): veja as{" "}
+            <Link href="/tarifas">tarifas</Link>.
+          </p>
         </div>
       </section>
 
