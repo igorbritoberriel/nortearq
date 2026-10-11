@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, FilePlus2, Hourglass, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, FilePlus2, FileSignature, Hourglass, MessageCircle } from "lucide-react";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import { FormCliente } from "@/components/clientes/FormCliente";
 import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
@@ -18,6 +18,7 @@ import { formatarReais, formatarWhatsapp, linkWhatsapp, type Contato } from "@/l
 import { listarServicos, obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { criarProposta } from "../../propostas/acoes";
+import { gerarContrato } from "../../contratos/acoes";
 import { linkDoProjeto } from "../../projetos/acoes";
 import { salvarCliente } from "../acoes";
 
@@ -182,7 +183,7 @@ export default async function ClientePage({
   const ultimaProposta = propostas[0];
   const statusProposta = ultimaProposta ? statusVisivel(ultimaProposta) : null;
   const contratoAtual = contratos[0];
-  const proximo: { texto: string; href?: string; acao?: "proposta"; rotulo?: string; esperando?: boolean } | null = (() => {
+  const proximo: { texto: string; href?: string; acao?: "proposta" | "contrato"; rotulo?: string; esperando?: boolean } | null = (() => {
     if (cliente.anonimizado_em || cliente.arquivado_em) return null;
     const projeto = projetoDoCliente
       ? {
@@ -225,7 +226,7 @@ export default async function ClientePage({
     if (statusProposta === "enviada") return { texto: "Aguardando o cliente responder a proposta.", href, rotulo: "Ver a proposta", esperando: true };
     if (statusProposta === "ajuste_pedido") return { texto: "O cliente pediu ajustes na proposta: crie uma nova versão.", href, rotulo: "Ver o pedido de ajuste" };
     if (statusProposta === "expirada") return { texto: "A proposta expirou sem resposta: crie uma nova versão.", href, rotulo: "Abrir a proposta" };
-    if (statusProposta === "aprovada") return { texto: "Proposta aprovada! Próximo passo: gerar o contrato.", href, rotulo: "Gerar o contrato" };
+    if (statusProposta === "aprovada") return { texto: "Proposta aprovada! Próximo passo: gerar o contrato.", acao: "contrato", rotulo: "Gerar o contrato" };
     return null;
   })();
 
@@ -277,6 +278,12 @@ export default async function ClientePage({
             <form action={criarProposta.bind(null, cliente.id)}>
               <button type="submit" className="botao botao-primario botao-pequeno">
                 <FilePlus2 size={16} aria-hidden="true" /> {proximo.rotulo}
+              </button>
+            </form>
+          ) : proximo.acao === "contrato" && ultimaProposta ? (
+            <form action={gerarContrato.bind(null, ultimaProposta.id)}>
+              <button type="submit" className="botao botao-primario botao-pequeno">
+                <FileSignature size={16} aria-hidden="true" /> {proximo.rotulo}
               </button>
             </form>
           ) : (

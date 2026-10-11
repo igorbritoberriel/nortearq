@@ -109,9 +109,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
             "cobrança Asaas" no texto para o cliente final, botão "Enviando..." antes do clique na revisão da
             proposta, campo numérico do briefing aceitando só vírgula, aviso "você ainda não tem modelos" que não
             sumia e as caixinhas "Bloco do briefing" sem estilo.
-      - [ ] Sobras do teste (baixa prioridade): "Salvar dados" do contratado demora mais de 2 s; na ficha, "Gerar
-            o contrato" leva à proposta e pede um segundo clique. Apagar o "Escritório Teste Automático" (ele
-            entra nas contas do painel de administrador; a exclusão precisa da sua aprovação na hora).
+      - [x] Sobras do teste (11/10/2026): a lentidão era geral. O servidor da Vercel rodava em Washington (iad1) e o
+            banco fica em São Paulo; agora roda em São Paulo (gru1, vercel.json) e as telas ficaram 3 a 4 vezes mais
+            rápidas (Início 2,7 s → 0,7 s; Projeto 3,5 s → 0,9 s; salvar dados 3,5 s → 0,9 s). Na ficha, "Gerar o
+            contrato" agora gera direto, sem passar pela proposta.
+      - [ ] Apagar o "Escritório Teste Automático" no fim desta rodada de correções (ele entra nas contas do
+            painel de administrador; a exclusão precisa da aprovação do Igor na hora).
       Débora:
       - [ ] 10. Link novo do formulário na bio e no WhatsApp; app instalado no celular; ~~primeiro modelo de proposta~~
             (feito em 04/10/2026); chave Pix em Configurações; cláusula de multa no modelo de contrato dela
