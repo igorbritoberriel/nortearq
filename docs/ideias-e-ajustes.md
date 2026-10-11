@@ -168,8 +168,9 @@ ficha com "próximo passo", proposta em rascunho, contrato, projeto, configuraç
 páginas do cliente (proposta, contrato, projeto, briefing, dúvidas frequentes) sem erros; 3 desalinhamentos
 corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] **Depende do Igor (conferência de 10/10/2026):**
-      1. Ver se chegou no igorbritoberriel@gmail.com o e-mail de "Esqueci a senha" pedido às ~15h de 10/10 (olhar o
-         spam também) e se o link abre a tela de senha nova em nortearq.com.br.
+      1. ~~Ver se chegou o e-mail de "Esqueci a senha"~~ o pedido de 10/10 não tinha passado pela tela do site (sem
+         registro no limite de envio). Refeito em 11/10/2026 pela tela: chegou na caixa de entrada (não foi pro spam),
+         com a marca, em menos de 1 minuto. Fluxo confirmado de ponta a ponta.
       2. ~~Painel do Resend: confirmar "Verified"~~ resolvido em 11/10/2026 sem precisar do painel: o Resend aceitou um
          envio de teste de avisos@nortearq.com.br (ele recusa domínio não verificado). O send.forge.rmta.net, com SPF
          certo, foi criado pela ligação automática do Resend em 03/10 e é a infraestrutura de envio dele.
