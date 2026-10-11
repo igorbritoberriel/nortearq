@@ -20,6 +20,12 @@ export type DadosErro = {
 
 export async function registrarErro(d: DadosErro) {
   try {
+    // Fora da Vercel (computador de desenvolvimento) o banco é o mesmo da produção: só mostra no terminal,
+    // para o painel de administrador e os e-mails terem apenas erros do site real.
+    if (!process.env.VERCEL) {
+      console.error(`[erro:${d.origem}]`, d.caminho, d.mensagem);
+      return;
+    }
     const admin = criarClienteAdmin();
     if (!admin) {
       console.error(`[erro:${d.origem}]`, d.caminho, d.mensagem);
