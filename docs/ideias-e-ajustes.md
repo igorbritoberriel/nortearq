@@ -70,6 +70,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Banco de imagens padrão do quiz: comprar licença ou usar fotos próprias/de parceiros (direitos autorais).
 - [ ] Liberar a próxima etapa só depois do pagamento? (RN-01.17; hoje só avisa)
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
+- [ ] **Financeiro somado quando o cliente tem mais de um projeto** (a partir da reclamação da Débora sobre o
+      Manoel, 13/10/2026): hoje cada projeto tem seu próprio contrato e parcelamento, mostrado separado na ficha do
+      cliente e no portal (correto, porque os contratos são diferentes), mas não existe um "total que este cliente
+      deve" somando os projetos dele na mesma tela. Vale a pena somar? Onde: na ficha do cliente (para a arquiteta),
+      no portal (para o cliente final), ou nos dois? (A ficha já foi corrigida em 13/10 para listar todos os
+      projetos, não só o mais recente — isso era um bug separado, já resolvido.)
 
 ## A fazer
 - [ ] Asaas: concluir a aprovação dos documentos e da conta bancária no painel do Asaas (necessário para sacar).
@@ -223,6 +229,15 @@ corrigidos. Ficam para olhar com uso real os itens abaixo.
 - [ ] Módulo 06, Adicionais: página do arquiteto, IA, loja de modelos, rede de indicação.
 
 ## Feito
+- [x] **Ficha do cliente só mostrava 1 projeto (achado em 13/10/2026, reclamação da Débora sobre o Manoel):**
+      o cliente já é um só cadastro por CPF/CNPJ (o Manoel tem PROJETO ARQUITETÔNICO e PROJETO INTERIORES no mesmo
+      cadastro, e o portal dele já lista os dois juntos), mas a ficha do cliente em `/app/clientes/[id]` buscava só o
+      projeto mais recente (`limit(1)`) — por isso a Débora só via e só tinha o botão de um dos dois; o outro ela só
+      achava indo em Projetos e buscando pelo nome do cliente. Corrigido: a ficha agora lista todos os projetos do
+      cliente, cada um com o próprio botão "Abrir o projeto". O "próximo passo" no topo da ficha passou a seguir o
+      projeto que estiver esperando o cliente (etapa em revisão ou aguardando aprovação), e só cai no mais recente
+      quando nenhum dos projetos estiver esperando nada. Financeiro continua por projeto (cada contrato tem seu
+      próprio parcelamento) — ainda não existe um total somado dos dois na mesma tela; avaliar se vale a pena.
 - [x] **"Seu contrato" mais simples (11/10/2026, pedido do Igor, preview aprovado):** a tela Contratos → Modelos
       abre mostrando "Pronto para usar" (ou "Quase pronto" com o que falta), a prévia como o cliente lê (trechos
       automáticos destacados, com dados de exemplo), "Seus dados no contrato" e "Tipos de contrato". O editor fica em

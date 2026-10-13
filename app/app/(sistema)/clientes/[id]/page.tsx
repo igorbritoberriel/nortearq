@@ -92,7 +92,7 @@ export default async function ClientePage({
       });
   const parecidos = (parecidosBrutos ?? []) as { id: string; nome: string; motivo: string }[];
 
-  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: projetoDoCliente }] =
+  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: listaProjetos }] =
     await Promise.all([
     listarServicos(),
     supabase
@@ -130,11 +130,15 @@ export default async function ClientePage({
       .from("projetos")
       .select("id, nome, etapas(status, nome, aprovada_em)")
       .eq("cliente_id", id)
-      .order("criado_em", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .order("criado_em", { ascending: false }),
   ]);
-  const etapasProjeto = ((projetoDoCliente?.etapas ?? []) as { status: string; nome: string; aprovada_em: string | null }[]);
+  type ProjetoComEtapas = { id: string; nome: string; etapas: { status: string; nome: string; aprovada_em: string | null }[] };
+  // Um cliente pode ter mais de um projeto (ex.: arquitetura e interiores). Mostra todos na ficha;
+  // o "próximo passo" segue o que estiver esperando o cliente, senão o mais recente.
+  const projetos = (listaProjetos ?? []) as ProjetoComEtapas[];
+  const projetoDoCliente =
+    projetos.find((p) => p.etapas.some((e) => e.status === "revisao" || e.status === "aguardando_aprovacao")) ?? projetos[0] ?? null;
+  const etapasProjeto = (projetoDoCliente?.etapas ?? []) as { status: string; nome: string; aprovada_em: string | null }[];
   const contratos = (listaContratos ?? []) as { id: string; status: StatusContrato; assinado_em: string | null }[];
   const propostas = (listaPropostas ?? []) as {
     id: string;
@@ -304,22 +308,24 @@ export default async function ClientePage({
 
       <div className="ficha">
         <div className="ficha-principal">
-          {projetoDoCliente && (
+          {projetos.length > 0 && (
             <section className="cartao secao-config">
-              <h2>Projeto</h2>
-              <div className="ficha-link">
-                <div>
-                  <strong>{projetoDoCliente.nome}</strong>
-                  <p className="campo-ajuda">
-                    {etapasProjeto.filter((e) => e.status === "aprovada").length} de {etapasProjeto.length} etapas aprovadas
-                    {etapasProjeto.some((e) => e.status === "aguardando_aprovacao") && " · etapa esperando o cliente"}
-                    {etapasProjeto.some((e) => e.status === "revisao") && " · revisão pedida"}
-                  </p>
+              <h2>{projetos.length > 1 ? "Projetos" : "Projeto"}</h2>
+              {projetos.map((projeto) => (
+                <div className="ficha-link" key={projeto.id}>
+                  <div>
+                    <strong>{projeto.nome}</strong>
+                    <p className="campo-ajuda">
+                      {projeto.etapas.filter((e) => e.status === "aprovada").length} de {projeto.etapas.length} etapas aprovadas
+                      {projeto.etapas.some((e) => e.status === "aguardando_aprovacao") && " · etapa esperando o cliente"}
+                      {projeto.etapas.some((e) => e.status === "revisao") && " · revisão pedida"}
+                    </p>
+                  </div>
+                  <Link className="botao botao-secundario botao-pequeno" href={`/app/projetos/${projeto.id}`}>
+                    Abrir o projeto
+                  </Link>
                 </div>
-                <Link className="botao botao-secundario botao-pequeno" href={`/app/projetos/${projetoDoCliente.id}`}>
-                  Abrir o projeto
-                </Link>
-              </div>
+              ))}
             </section>
           )}
           <section className="cartao secao-config">
