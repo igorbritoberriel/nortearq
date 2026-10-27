@@ -398,8 +398,8 @@ cobrança Pix de visita extra.
 
 | | **Briefing** | **Profissional** ⭐ | **Escritório** |
 |---|---|---|---|
-| Preço mensal | R$ 49 | R$ 97 | R$ 197 |
-| Preço anual (2 meses grátis) | R$ 490 | R$ 970 | R$ 1.970 |
+| Preço mensal | R$ 49 | R$ 79 | R$ 147 |
+| Preço anual (2 meses grátis) | R$ 490 | R$ 790 | R$ 1.470 |
 | Módulos | 00 + 02 | 00 + 01 + 02 + 03 | Todos |
 | Usuários | 1 | 1 | Até 5 |
 | Briefings por mês | 15 | Ilimitados | Ilimitados |
@@ -419,7 +419,7 @@ cobrança Pix de visita extra.
 **Referência de mercado:** Projete.app a partir de R$ 29 · Arquio de R$ 99,90 a R$ 179,90 · ARQCLAVE de
 R$ 97 a R$ 397 · REFRESHER gratuito.
 
-**Projeção (média de R$ 97):** 50 arquitetos ≈ R$ 4,8 mil/mês · 200 ≈ R$ 19,4 mil/mês · 500 ≈ R$ 48,5 mil/mês.
+**Projeção (média de R$ 79):** 50 arquitetos ≈ R$ 4 mil/mês · 200 ≈ R$ 15,8 mil/mês · 500 ≈ R$ 39,5 mil/mês.
 São cerca de 200 mil arquitetos registrados no CAU; 500 é menos de 0,3%.
 
 **Como vender:** arquiteta parceira como primeiro caso de sucesso · modelo de briefing grátis como isca ·

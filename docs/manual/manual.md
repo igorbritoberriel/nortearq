@@ -523,8 +523,8 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 
 | | Briefing | Profissional | Escritório |
 |---|---|---|---|
-| Mensal | R$ 49 | R$ 97 | R$ 197 |
-| Anual (2 meses grátis) | R$ 490 | R$ 970 | R$ 1.970 |
+| Mensal | R$ 49 | R$ 79 | R$ 147 |
+| Anual (2 meses grátis) | R$ 490 | R$ 790 | R$ 1.470 |
 | Pessoas | 1 | 1 | Até 5 |
 | Espaço para arquivos | 2 GB | 30 GB | 150 GB |
 | Pedidos, proposta, contrato, projeto | ❌ | ✅ | ✅ |

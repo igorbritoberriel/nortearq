@@ -54,9 +54,12 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       passa por aprovação, o texto do termo de parceria e como a assinatura acontece.
       Cuidados: Instagram e WhatsApp proíbem mensagens automáticas em massa (risco de bloqueio da conta);
       o primeiro contato deve ser personalizado e respeitar a LGPD (dado público e opção de não receber mais).
+- [x] **Preço competitivo** (decidido pelo Igor em 27/10/2026, contra o COP: R$ 89/mês até 4 pessoas ou
+      R$ 897/ano até 8): Profissional R$ 97 → **R$ 79/mês**; Escritório R$ 197 → **R$ 147/mês**; Briefing
+      continua R$ 49. `lib/modulos.ts`, manual (PDFs regenerados) e especificação atualizados.
 - [ ] **Preço de lançamento** (proposta de 03/10/2026, aguardando aprovação): piloto grátis da esposa em
-      troca de depoimento; "Plano Fundador" R$ 47/mês com preço travado para os 30 primeiros; preço de
-      tabela R$ 97 continua visível; Profissional com 2 pessoas; tirar o plano Briefing do lançamento.
+      troca de depoimento; "Plano Fundador" com preço travado para os 30 primeiros; preço de
+      tabela R$ 79 (Profissional) continua visível; Profissional com 2 pessoas; tirar o plano Briefing do lançamento.
 - [ ] **Sugestões a partir do concorrente COP** (análise em `docs/concorrentes/cop.md`, 03/10/2026).
       Decidir quais entram: calculadora de honorários na proposta; "saúde do projeto"; dados de exemplo
       no teste grátis; cobrança do cliente por Pix/boleto; importar clientes de planilha; preço do
