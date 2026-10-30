@@ -81,9 +81,14 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       projetos, não só o mais recente — isso era um bug separado, já resolvido.)
 
 ## A fazer
+- [x] **Assinatura testada de ponta a ponta em sandbox (29/10/2026):** escritório de teste local, login → Assinar
+      → fatura real gerada no Asaas sandbox (valor, plano e dados do comprador certos) → webhook simulado de
+      pagamento confirmado → plano liberou (trial → profissional) e `pago_ate` calculado certo, notificação no
+      sininho. Fluxo de código correto. Achado: `ASAAS_AMBIENTE=producao` já estava ligado na Vercel (cobrança
+      real já ativa, não precisa "ligar" nada). Achado 2: a chave sandbox do `.env.local` começa com `$` e o
+      `next dev` expandia como variável (virava vazio) — só acontecia local, não na Vercel; corrigido escapando
+      `\$` no `.env.local` (cada quem rodar local pode precisar do mesmo ajuste). Dados de teste apagados depois.
 - [ ] Asaas: concluir a aprovação dos documentos e da conta bancária no painel do Asaas (necessário para sacar).
-      Antes da 1ª cobrança real: testar uma assinatura de ponta a ponta (dá para usar um escritório de teste e
-      estornar).
 - [ ] **Nível 3, achado de 04/10/2026:** conta principal no CPF **não cria subcontas** no Asaas (exige CNPJ). Dois
       caminhos: (a) sem CNPJ: o arquiteto abre a própria conta Asaas e conecta ao NorteArq com a chave dele (sem
       permissão de saque), e cada cobrança leva o split para a carteira do NorteArq; (b) com CNPJ (ME Berriel Labs):
