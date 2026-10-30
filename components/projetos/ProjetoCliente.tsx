@@ -32,7 +32,11 @@ export async function ProjetoCliente({
   escritorioNome: string;
 }) {
   const supabase = (await criarClienteServidor())!;
-  const { data: bruto, error } = await supabase.rpc("projeto_publico", { p_token: token });
+  const [{ data: bruto, error }, { data: automatica }] = await Promise.all([
+    supabase.rpc("projeto_publico", { p_token: token }),
+    supabase.rpc("aprovacao_automatica", { p_token: token }), // RN-03.7: {etapa_id: quando aprova sozinha}
+  ]);
+  const aprovaSozinha = (automatica ?? {}) as Record<string, string>;
   if (error || !bruto) {
     console.error("[projeto] abrir", error?.message);
     return (
@@ -215,6 +219,11 @@ export async function ProjetoCliente({
                 </ul>
               )}
 
+              {ativo && e.status === "aguardando_aprovacao" && aprovaSozinha[e.id] && (
+                <p className="campo-ajuda">
+                  Sem resposta até <strong>{data.format(new Date(aprovaSozinha[e.id]))}</strong>, esta etapa será considerada aprovada.
+                </p>
+              )}
               {ativo && e.status === "aguardando_aprovacao" && (
                 <RespostaEtapa
                   token={token}

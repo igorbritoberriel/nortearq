@@ -367,9 +367,28 @@ export function FormBriefing({
 
 export function FormProjetos({ escritorio }: { escritorio: Escritorio }) {
   const [estado, enviar, enviando] = useActionState(salvarProjetos, inicial);
+  const v = estado.valores ?? {};
   return (
     <form action={enviar} noValidate>
       <Mensagem estado={estado} />
+      <Campo
+        id="aprovacao_tacita_dias"
+        rotulo="Aprovar a etapa sozinha depois de quantos dias sem resposta?"
+        opcional
+        ajuda="De 5 a 60 dias. Em branco, desliga: a etapa espera o cliente responder. O cliente vê a data no link e nos lembretes por e-mail. Recomendado deixar combinado no contrato."
+        erro={estado.erros?.aprovacao_tacita_dias}
+      >
+        <input
+          id="aprovacao_tacita_dias"
+          name="aprovacao_tacita_dias"
+          type="number"
+          inputMode="numeric"
+          min={5}
+          max={60}
+          placeholder="Desligado"
+          defaultValue={v.aprovacao_tacita_dias ?? escritorio.aprovacao_tacita_dias ?? ""}
+        />
+      </Campo>
       <label className="checagem">
         <input type="checkbox" name="travar_etapa_atraso" defaultChecked={escritorio.travar_etapa_atraso} />
         <span>

@@ -82,7 +82,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [x] Liberar a próxima etapa só depois do pagamento (RN-01.17): feito em 30/10/2026 (migração 0060). Aviso
       sempre que há parcela em atraso; com "Segurar a próxima etapa" ligado em Configurações > Projetos e
       aprovações, só envia marcando "Enviar mesmo assim".
-- [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
+- [x] Aprovação tácita (RN-03.7): feita em 30/10/2026 (migração 0061). Configurações > Projetos e aprovações;
+      escritórios que já existiam (inclusive o da Débora) ficaram **desligados**, novos começam com 7 dias.
+      Pendente: incluir cláusula de aprovação tácita no contrato padrão (revisão do advogado).
 - [x] **Financeiro somado** feito em 30/10/2026: linha "Financeiro" na ficha do cliente (contratado, pago, falta,
       em atraso), só para Dono e Administrador; portal continua por projeto.
       **Financeiro somado quando o cliente tem mais de um projeto** (a partir da reclamação da Débora sobre o

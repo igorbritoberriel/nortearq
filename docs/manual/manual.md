@@ -74,7 +74,7 @@ No fim aparece o **link do escritório** para copiar ou mandar.
 **Configurações** (menu): link do formulário, Equipe (só o Dono), marca, serviços, faixa de preço e agenda,
 **Parcelamento** (entrada em %, até quantas vezes, desconto à vista de até 30%; vale para as próximas
 propostas), briefing, **Projetos e aprovações** (segurar a próxima etapa quando houver parcela em atraso,
-desligado por padrão) e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
+desligado por padrão; aprovação automática da etapa depois de X dias sem resposta) e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
 proposta e de contrato e, para o Dono, o plano).
 
 **Link do formulário:** fica no primeiro cartão de Configurações, com **Copiar link** e **Enviar no WhatsApp**.
@@ -483,6 +483,11 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
 **Lembretes e revisões**
 - Etapa esperando aprovação: o cliente recebe e-mail com 3 e com 7 dias. No de 7 dias, o escritório também é
   avisado no sininho. Reenviar a etapa recomeça a contagem.
+- **Aprovação automática** (Configurações > Projetos e aprovações): sem resposta do cliente em X dias (5 a 60;
+  em branco, desligada), a etapa vira aprovada sozinha no dia seguinte ao prazo. O cliente vê a data no link e nos
+  lembretes; no fim, o escritório é avisado no sininho e o cliente por e-mail. No histórico aparece "Aprovada
+  automaticamente". Escritórios novos começam com 7 dias; os que já existiam em 30/10/2026 começam desligados.
+  Vale deixar combinado no contrato.
 - Quando o cliente usa a última revisão incluída, ou passa do limite, os dois lados são avisados. Revisão
   além do limite: o escritório escolhe **Conceder como cortesia** (pede confirmação) ou **Cobrar como aditivo**.
 

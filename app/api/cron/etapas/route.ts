@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { avisarEtapaParada, avisarParcela } from "@/lib/avisos";
+import { avisarAprovacaoTacita, avisarEtapaParada, avisarParcela } from "@/lib/avisos";
 import { gerarCobranca } from "@/lib/cobranca";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 
@@ -15,6 +15,11 @@ export async function GET(request: NextRequest) {
   }
   const admin = criarClienteAdmin();
   if (!admin) return NextResponse.json({ erro: "servidor sem chave" }, { status: 500 });
+
+  // RN-03.7: primeiro aprova as etapas que passaram do prazo do escritório (assim não sai lembrete delas).
+  const { data: tacitas, error: erroTacita } = await admin.rpc("aprovar_etapas_tacitas");
+  if (erroTacita) console.error("[cron] aprovação tácita", erroTacita.message);
+  for (const id of (tacitas ?? []) as string[]) await avisarAprovacaoTacita(id);
 
   const { data: etapas, error } = await admin
     .from("etapas")
@@ -93,5 +98,5 @@ export async function GET(request: NextRequest) {
       parcelas += 1;
     }
   }
-  return NextResponse.json({ ok: true, enviados, parcelas, cobrancas });
+  return NextResponse.json({ ok: true, enviados, parcelas, cobrancas, aprovadasTacitas: tacitas?.length ?? 0 });
 }

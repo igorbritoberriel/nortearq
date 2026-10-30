@@ -234,9 +234,15 @@ export async function salvarProjetos(_anterior: EstadoFormulario, formData: Form
   const valores = valoresDe(formData);
   const ctx = await contexto();
   if (!ctx) return { ...SEM_SUPABASE, valores };
+  // RN-03.7: vazio desliga a aprovação automática.
+  const texto = String(formData.get("aprovacao_tacita_dias") ?? "").trim();
+  const dias = texto ? Number(texto) : null;
+  if (dias !== null && (!Number.isInteger(dias) || dias < 5 || dias > 60)) {
+    return { status: "erro", mensagem: "Confira o formulário.", erros: { aprovacao_tacita_dias: "De 5 a 60 dias, ou deixe em branco." }, valores };
+  }
   const { error } = await ctx.supabase
     .from("escritorios")
-    .update({ travar_etapa_atraso: formData.get("travar_etapa_atraso") === "on" })
+    .update({ travar_etapa_atraso: formData.get("travar_etapa_atraso") === "on", aprovacao_tacita_dias: dias })
     .eq("id", ctx.sessao.escritorio.id);
   if (error) {
     console.error("[projetos]", error.message);

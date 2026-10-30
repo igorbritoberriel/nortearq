@@ -402,7 +402,7 @@ export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
   if (!admin) return;
   const { data: e } = await admin
     .from("etapas")
-    .select("nome, projeto_id, projeto:projetos!inner(nome, status, escritorio_id, cliente_id, cliente:clientes(nome, email), escritorio:escritorios(nome))")
+    .select("nome, projeto_id, enviada_em, projeto:projetos!inner(nome, status, escritorio_id, cliente_id, cliente:clientes(nome, email), escritorio:escritorios(nome, aprovacao_tacita_dias))")
     .eq("projeto.status", "ativo")
     .eq("id", etapaId)
     .maybeSingle();
@@ -411,11 +411,19 @@ export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
     escritorio_id: string;
     cliente_id: string;
     cliente: { nome: string; email: string | null } | null;
-    escritorio: { nome: string } | null;
+    escritorio: { nome: string; aprovacao_tacita_dias: number | null } | null;
   } | null;
   if (!e || !projeto) return;
   const escritorio = projeto.escritorio?.nome ?? "O escritório";
   const email = projeto.cliente?.email;
+  // RN-03.7: avisa o cliente da data em que a etapa vira aprovada sozinha.
+  const tacita = projeto.escritorio?.aprovacao_tacita_dias;
+  const prazoTacita =
+    tacita && e.enviada_em
+      ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit", timeZone: "America/Sao_Paulo" }).format(
+          new Date(new Date(e.enviada_em as string).getTime() + tacita * 24 * 60 * 60 * 1000),
+        )
+      : null;
 
   if (email) {
     const token = await tokenDoProjeto(admin, e.projeto_id, projeto.escritorio_id, projeto.cliente_id);
@@ -430,10 +438,11 @@ export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
           linhas: [
             `Olá, ${primeiro}! O ${escaparHtml(escritorio)} enviou a etapa <strong>${escaparHtml(e.nome)}</strong> do projeto ${escaparHtml(projeto.nome)} há ${dias} dias.`,
             "Quando puder, veja os arquivos e aprove ou peça revisão. O projeto segue para a próxima etapa depois da sua resposta.",
+            ...(prazoTacita ? [`<strong>Sem resposta até ${prazoTacita}, a etapa será considerada aprovada.</strong>`] : []),
           ],
           botao: { texto: "Ver a etapa", url: link },
         }),
-        texto: `A etapa "${e.nome}" do projeto ${projeto.nome} espera a sua aprovação há ${dias} dias: ${link}`,
+        texto: `A etapa "${e.nome}" do projeto ${projeto.nome} espera a sua aprovação há ${dias} dias: ${link}${prazoTacita ? `\nSem resposta até ${prazoTacita}, a etapa será considerada aprovada.` : ""}`,
       });
     }
   }
@@ -448,6 +457,48 @@ export async function avisarEtapaParada(etapaId: string, dias: 3 | 7) {
       link: `/app/projetos/${e.projeto_id}`,
     });
   }
+}
+
+// Etapa aprovada sozinha pelo prazo do escritório (RN-03.7): sininho para o arquiteto e e-mail para o cliente.
+export async function avisarAprovacaoTacita(etapaId: string) {
+  const admin = criarClienteAdmin();
+  if (!admin) return;
+  const { data: e } = await admin
+    .from("etapas")
+    .select("nome, projeto_id, projeto:projetos!inner(nome, escritorio_id, cliente:clientes(nome, email), escritorio:escritorios(nome, aprovacao_tacita_dias))")
+    .eq("id", etapaId)
+    .maybeSingle();
+  const projeto = e?.projeto as unknown as {
+    nome: string;
+    escritorio_id: string;
+    cliente: { nome: string; email: string | null } | null;
+    escritorio: { nome: string; aprovacao_tacita_dias: number | null } | null;
+  } | null;
+  if (!e || !projeto) return;
+  const dias = projeto.escritorio?.aprovacao_tacita_dias ?? 0;
+
+  await notificar(admin, projeto.escritorio_id, {
+    tipo: "etapa",
+    titulo: `"${e.nome}" aprovada automaticamente`,
+    texto: `${projeto.cliente?.nome ?? "O cliente"} não respondeu em ${dias} dias. A etapa foi aprovada pelo prazo do escritório.`,
+    link: `/app/projetos/${e.projeto_id}`,
+  });
+
+  const email = projeto.cliente?.email;
+  if (!email) return;
+  const escritorio = projeto.escritorio?.nome ?? "O escritório";
+  await enviarEmail({
+    para: email,
+    assunto: `Etapa "${e.nome}" aprovada automaticamente`,
+    html: modeloEmail({
+      titulo: `A etapa "${e.nome}" foi aprovada`,
+      linhas: [
+        `Olá, ${escaparHtml(projeto.cliente!.nome.split(" ")[0])}! A etapa <strong>${escaparHtml(e.nome)}</strong> do projeto ${escaparHtml(projeto.nome)} ficou ${dias} dias sem resposta e foi considerada aprovada, como combinado com o ${escaparHtml(escritorio)}.`,
+        "Se quiser alguma mudança, fale com o escritório.",
+      ],
+    }),
+    texto: `A etapa "${e.nome}" do projeto ${projeto.nome} ficou ${dias} dias sem resposta e foi considerada aprovada. Se quiser alguma mudança, fale com o ${escritorio}.`,
+  });
 }
 
 // Link do projeto que ainda vale; se todos venceram, cria um novo (90 dias), como o botão do arquiteto.

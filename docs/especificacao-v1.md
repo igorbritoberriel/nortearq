@@ -313,8 +313,9 @@ prefeitura) → Projeto executivo → Entrega.
 - **RN-03.5** ✅ Etapa aprovada não volta. Mudança depois da aprovação vira **aditivo**.
 - **RN-03.6** ✅ Lembretes ao cliente com etapa aguardando aprovação: e-mail depois de 3 e de 7 dias (sem
   repetir; reenviar a etapa recomeça a contagem). No de 7 dias, o arquiteto também é avisado no sininho.
-- **RN-03.7** ❓ Aprovação tácita (aprovar sozinho depois de X dias sem resposta)? Pode dar problema
-  jurídico. Sugestão: só se estiver no contrato, e fora da V1.
+- **RN-03.7** ✅ Aprovação tácita configurável por escritório (5 a 60 dias; em branco, desligada; novos começam
+  com 7). O cliente vê a data no link e nos lembretes; o cron diário aprova e avisa os dois lados. Recomendado
+  constar no contrato (cuidado jurídico).
 
 **Regras: controle de revisões**
 - **RN-03.8** ✅ Cada pedido de revisão consome 1 revisão do total contratado.
