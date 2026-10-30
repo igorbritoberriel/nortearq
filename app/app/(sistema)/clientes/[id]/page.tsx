@@ -8,6 +8,7 @@ import { EnviarLinkAcao } from "@/components/EnviarLinkAcao";
 import { EnviarBriefing } from "@/components/briefing/EnviarBriefing";
 import { RemoverCliente } from "@/components/clientes/RemoverCliente";
 import { pode } from "@/lib/permissoes";
+import { hojeBrasilia } from "@/lib/assinatura";
 import { ClientesParecidos } from "@/components/clientes/ClientesParecidos";
 import { Aviso } from "@/components/Campo";
 import { STATUS_BRIEFING, type StatusBriefing } from "@/lib/briefing";
@@ -92,7 +93,7 @@ export default async function ClientePage({
       });
   const parecidos = (parecidosBrutos ?? []) as { id: string; nome: string; motivo: string }[];
 
-  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: listaProjetos }] =
+  const [servicos, { data: links }, { data: contato }, { data: briefing }, { data: listaPropostas }, { data: listaContratos }, { data: listaProjetos }, { data: parcelas }] =
     await Promise.all([
     listarServicos(),
     supabase
@@ -131,7 +132,26 @@ export default async function ClientePage({
       .select("id, nome, etapas(status, nome, aprovada_em)")
       .eq("cliente_id", id)
       .order("criado_em", { ascending: false }),
+    // Total do cliente somando os contratos assinados de todos os projetos (pedido da Débora, caso Manoel).
+    pode(sessao.membro.papel, "ver_valores")
+      ? supabase
+          .from("pagamentos")
+          .select("valor, vencimento, pago_em, contrato:contratos!inner(status, cliente_id)")
+          .eq("contrato.cliente_id", id)
+          .eq("contrato.status", "assinado")
+      : Promise.resolve({ data: [] }),
   ]);
+  const hoje = hojeBrasilia();
+  const financeiro = ((parcelas ?? []) as { valor: number; vencimento: string | null; pago_em: string | null }[]).reduce(
+    (s, p) => {
+      const valor = Number(p.valor);
+      s.total += valor;
+      if (p.pago_em) s.pago += valor;
+      else if (p.vencimento && p.vencimento < hoje) s.atrasado += valor;
+      return s;
+    },
+    { total: 0, pago: 0, atrasado: 0 },
+  );
   type ProjetoComEtapas = { id: string; nome: string; etapas: { status: string; nome: string; aprovada_em: string | null }[] };
   // Um cliente pode ter mais de um projeto (ex.: arquitetura e interiores). Mostra todos na ficha;
   // o "próximo passo" segue o que estiver esperando o cliente, senão o mais recente.
@@ -413,6 +433,17 @@ export default async function ClientePage({
                 )}
               </div>
             </div>
+            {financeiro.total > 0 && (
+              <div className="ficha-link">
+                <div>
+                  <strong>Financeiro {contratos.filter((c) => c.status === "assinado").length > 1 && "(todos os contratos)"}</strong>
+                  <p className="campo-ajuda">
+                    Contratado {reais(financeiro.total)} · pago {reais(financeiro.pago)} · falta {reais(financeiro.total - financeiro.pago)}
+                    {financeiro.atrasado > 0 && <strong className="botao-texto-perigo"> · {reais(financeiro.atrasado)} em atraso</strong>}
+                  </p>
+                </div>
+              </div>
+            )}
               </>
             )}
           </section>

@@ -181,7 +181,10 @@ terminou a configuração inicial.
 **Ficha do cliente**
 - No topo, o **próximo passo** da jornada com o botão certo: montar a proposta, gerar o contrato, enviar o
   briefing, revisar o Perfil do Cliente, abrir o projeto. Em cinza quando está esperando o cliente.
-- Seção **Projeto** com as etapas aprovadas e o link (depois do contrato assinado).
+- Seção **Projeto** com as etapas aprovadas e o link (depois do contrato assinado). Cliente com mais de um
+  projeto mostra todos.
+- **Financeiro** (Dono e Administrador): soma as parcelas de todos os contratos assinados do cliente:
+  contratado, pago, quanto falta e quanto está em atraso. O cliente final continua vendo por projeto no portal.
 - "Arquivar ou excluir" fica por último na coluna da direita.
 - A **linha do tempo** mostra pedido, cadastro, propostas enviadas e respondidas, briefing, contrato assinado,
   etapas aprovadas e os links gerados.

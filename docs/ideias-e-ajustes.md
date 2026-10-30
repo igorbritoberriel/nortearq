@@ -81,7 +81,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Banco de imagens padrão do quiz: comprar licença ou usar fotos próprias/de parceiros (direitos autorais).
 - [ ] Liberar a próxima etapa só depois do pagamento? (RN-01.17; hoje só avisa)
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
-- [ ] **Financeiro somado quando o cliente tem mais de um projeto** (a partir da reclamação da Débora sobre o
+- [x] **Financeiro somado** feito em 30/10/2026: linha "Financeiro" na ficha do cliente (contratado, pago, falta,
+      em atraso), só para Dono e Administrador; portal continua por projeto.
+      **Financeiro somado quando o cliente tem mais de um projeto** (a partir da reclamação da Débora sobre o
       Manoel, 13/10/2026): hoje cada projeto tem seu próprio contrato e parcelamento, mostrado separado na ficha do
       cliente e no portal (correto, porque os contratos são diferentes), mas não existe um "total que este cliente
       deve" somando os projetos dele na mesma tela. Vale a pena somar? Onde: na ficha do cliente (para a arquiteta),
