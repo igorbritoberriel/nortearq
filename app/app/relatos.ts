@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { adminsNorteArq, ehAdminNorteArq } from "@/lib/admin-nortearq";
+import { hojeBrasilia, somarDias } from "@/lib/assinatura";
 import { enviarEmail, escaparHtml, modeloEmail } from "@/lib/email";
 import { obterSessaoArquiteto, urlDoSite } from "@/lib/escritorio";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
@@ -79,6 +80,19 @@ export async function mudarSituacaoRelato(id: string, situacao: "visto" | "resol
   const admin = criarClienteAdmin();
   if (!admin || !(await ehEmailAdminLogado()) || !z.uuid().safeParse(id).success) return false;
   const { error } = await admin.from("relatos").update({ situacao, atualizado_em: new Date().toISOString() }).eq("id", id);
+  return !error;
+}
+
+// Fase B do lançamento: 90 dias do plano Escritório sem cobrança. Usa pago_ate sem assinatura no Asaas,
+// então no fim segue o caminho normal (tolerância → leitura) até o arquiteto assinar.
+export async function patrocinarEscritorio(id: string): Promise<boolean> {
+  const admin = criarClienteAdmin();
+  if (!admin || !(await ehEmailAdminLogado()) || !z.uuid().safeParse(id).success) return false;
+  const { error } = await admin
+    .from("escritorios")
+    .update({ plano: "escritorio", plano_escolhido: "escritorio", pago_ate: somarDias(hojeBrasilia(), 89) })
+    .eq("id", id)
+    .is("asaas_assinatura_id", null);
   return !error;
 }
 

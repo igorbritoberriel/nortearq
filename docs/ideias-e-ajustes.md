@@ -36,6 +36,13 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Revisão por advogado: Termos de uso, Política de privacidade e o modelo de contrato padrão.
 
 ## Para conversar / decidir
+- [ ] **Decisões do Igor em 30/10/2026 (a construir):** (1) conta patrocinada (90 dias sem cobrança, marcada no
+      Painel interno); (2) total que o cliente deve somando os projetos, **só na ficha do cliente** (portal continua
+      por projeto); (3) travar a próxima etapa até a parcela ser paga (RN-01.17); (4) aprovação tácita depois de X
+      dias (RN-03.7); (5) importar clientes de planilha; (6) dados de exemplo no teste grátis. Preço de lançamento:
+      deixado para depois. Detalhes: tácita configurável por escritório (padrão 7 dias, pode desligar, aviso ao
+      cliente antes de vencer); trava configurável por escritório (desligada por padrão, arquiteta libera na mão).
+      Ordem: patrocinada → total na ficha → trava → tácita → planilha → dados de exemplo (commit e deploy a cada uma).
 - [ ] **Estratégia de lançamento** (decidida pelo Igor em 03/10/2026: não abrir agora). Proposta em 3 fases,
       aguardando aprovação dos detalhes:
       A) piloto fechado com a esposa até cumprir o "critério de pronto";
@@ -44,7 +51,8 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
       C) abertura ao mercado com os casos de sucesso.
       Para a fase B o sistema precisa de: conta patrocinada (90 dias, sem cobrança), botão "relatar
       problema ou sugestão" (feito), aviso automático de erros (feito) e um painel interno de uso
-      (feito em 11/10/2026: "Visão de negócio" no Painel interno). Falta só a conta patrocinada.
+      (feito em 11/10/2026: "Visão de negócio" no Painel interno). Conta patrocinada feita em 30/10/2026
+      (botão "Patrocinar 90 dias" no Painel interno, plano Escritório sem cobrança).
 - [ ] **Agente de parcerias (marketing do NorteArq)** (ideia do Igor, 03/10/2026), para a fase B:
       1) o assistente define os perfis ideais de arquiteto patrocinado e monta a lista de candidatos;
       2) um agente com todo o conhecimento do NorteArq conversa com cada um como o marketing da empresa,

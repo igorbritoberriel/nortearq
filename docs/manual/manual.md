@@ -560,7 +560,12 @@ Os links de briefing, proposta e contrato não saem por e-mail: o escritório ma
 - Dentro do sistema, há também o botão "Contar o que eu estava fazendo".
 
 <!-- suporte -->
-**Painel interno** (`/app/interno`, só para quem administra o NorteArq)
+**Painel interno** (`/admin`, só para quem administra o NorteArq)
+- **Visão de negócio:** todos os escritórios, situação, receita mensal estimada. **Patrocinar 90 dias** (para
+  escritórios sem assinatura no Asaas): libera o plano Escritório por 90 dias sem cobrança; clicar de novo
+  renova a contagem a partir de hoje. O escritório patrocinado aparece com "patrocinado até" e não entra na receita. No
+  fim, segue o caminho normal (7 dias de tolerância, depois modo leitura) até o arquiteto assinar; se assinar
+  antes, a primeira cobrança vence no dia seguinte ao fim do patrocínio.
 - **Relatos:** de quem, de qual escritório, página e texto. Botões Responder (abre o e-mail), Marcar como
   visto e Resolvido.
 - **Erros automáticos** dos últimos 30 dias: página, quantas vezes aconteceu, escritório e detalhes técnicos.

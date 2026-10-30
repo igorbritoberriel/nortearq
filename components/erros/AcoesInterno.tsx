@@ -2,8 +2,9 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Eye, Mail } from "lucide-react";
-import { marcarErroResolvido, mudarSituacaoRelato } from "@/app/app/relatos";
+import { Check, Eye, Gift, Mail } from "lucide-react";
+import { Confirmar } from "@/components/Confirmar";
+import { marcarErroResolvido, mudarSituacaoRelato, patrocinarEscritorio } from "@/app/app/relatos";
 
 // Botões do painel interno: marcar relato como visto/resolvido e erro como resolvido.
 export function AcoesRelato({ id, situacao, email }: { id: string; situacao: "novo" | "visto"; email: string | null }) {
@@ -50,5 +51,22 @@ export function AcoesErro({ id }: { id: string }) {
         <Check size={14} aria-hidden="true" /> Marcar como resolvido
       </button>
     </div>
+  );
+}
+
+export function PatrocinarEscritorio({ id, nome }: { id: string; nome: string }) {
+  const router = useRouter();
+  return (
+    <Confirmar
+      rotulo="Patrocinar 90 dias"
+      classe="botao botao-secundario botao-pequeno"
+      icone={<Gift size={14} aria-hidden="true" />}
+      aviso={`${nome} fica 90 dias no plano Escritório sem cobrança. Depois disso, precisa assinar para continuar criando.`}
+      confirmar="Patrocinar"
+      acao={async () => {
+        if (!(await patrocinarEscritorio(id))) return { erro: "Não foi possível patrocinar. Tente de novo." };
+        router.refresh();
+      }}
+    />
   );
 }

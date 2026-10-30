@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Bug, MessageSquareWarning } from "lucide-react";
-import { AcoesErro, AcoesRelato } from "@/components/erros/AcoesInterno";
+import { AcoesErro, AcoesRelato, PatrocinarEscritorio } from "@/components/erros/AcoesInterno";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { NOME_SITUACAO, type SituacaoEscritorio } from "@/lib/assinatura";
 import { PLANOS } from "@/lib/modulos";
@@ -20,6 +20,7 @@ type Erro = { id: string; origem: string; mensagem: string; caminho: string | nu
 type EscritorioBruto = {
   id: string; nome: string; plano: string; plano_escolhido: string | null; periodo: string | null;
   trial_ate: string | null; pago_ate: string | null; assinatura_cancelada_em: string | null; criado_em: string;
+  asaas_assinatura_id: string | null;
 };
 
 export default async function AdminPage() {
@@ -35,7 +36,7 @@ export default async function AdminPage() {
   const [{ data: escritoriosBrutos }, { count: deTeste }] = await Promise.all([
     admin
       .from("escritorios")
-      .select("id, nome, plano, plano_escolhido, periodo, trial_ate, pago_ate, assinatura_cancelada_em, criado_em")
+      .select("id, nome, plano, plano_escolhido, periodo, trial_ate, pago_ate, assinatura_cancelada_em, criado_em, asaas_assinatura_id")
       .eq("teste", false)
       .order("criado_em", { ascending: false }),
     admin.from("escritorios").select("id", { count: "exact", head: true }).eq("teste", true),
@@ -52,7 +53,9 @@ export default async function AdminPage() {
     clientes: contagemClientes[i].count ?? 0,
     projetosAtivos: contagemProjetos[i].count ?? 0,
   }));
-  const pagando = linhas.filter((l) => l.situacao === "ativo" || l.situacao === "tolerancia");
+  // Patrocinado = período liberado sem assinatura no Asaas (patrocinarEscritorio); não entra na receita.
+  const patrocinado = (l: (typeof linhas)[number]) => !!l.pago_ate && !l.asaas_assinatura_id;
+  const pagando = linhas.filter((l) => (l.situacao === "ativo" || l.situacao === "tolerancia") && !patrocinado(l));
   const emTeste = linhas.filter((l) => l.situacao === "teste").length;
   const parados = linhas.filter((l) => l.situacao === "leitura" || l.situacao === "suspenso").length;
   const mrr = pagando.reduce((soma, l) => soma + (PLANOS.find((p) => p.id === l.plano_escolhido)?.preco ?? 0), 0);
@@ -135,6 +138,7 @@ export default async function AdminPage() {
                   <th>Clientes</th>
                   <th>Projetos ativos</th>
                   <th>Desde</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -146,6 +150,7 @@ export default async function AdminPage() {
                       <td>
                         {plano?.nome ?? "Teste"}
                         {plano && l.periodo === "anual" ? " · anual" : ""}
+                        {patrocinado(l) ? ` · patrocinado até ${quandoData.format(new Date(`${l.pago_ate}T12:00:00`))}` : ""}
                       </td>
                       <td>
                         <span className={`selo-status interno-situacao-${l.situacao}`}>{NOME_SITUACAO[l.situacao]}</span>
@@ -153,6 +158,7 @@ export default async function AdminPage() {
                       <td>{l.clientes}</td>
                       <td>{l.projetosAtivos}</td>
                       <td>{quandoData.format(new Date(l.criado_em))}</td>
+                      <td>{!l.asaas_assinatura_id && <PatrocinarEscritorio id={l.id} nome={l.nome} />}</td>
                     </tr>
                   );
                 })}

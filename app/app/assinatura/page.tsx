@@ -47,7 +47,9 @@ export default async function AssinaturaPage() {
 
   const detalhe = {
     teste: `Você está no teste grátis até ${dataCurta(e.trial_ate)}, com tudo do plano Profissional.`,
-    ativo: `${plano ? `Plano ${plano.nome}` : "Assinatura"}${e.periodo ? ` (${e.periodo})` : ""} em dia até ${dataCurta(e.pago_ate)}.${cancelada ? " A assinatura foi cancelada e não renova." : ""}`,
+    ativo: !e.asaas_assinatura_id
+      ? `Plano ${plano?.nome ?? "Escritório"} patrocinado, sem cobrança, até ${dataCurta(e.pago_ate)}. Escolha um plano antes disso para continuar sem parar: a primeira cobrança só vence depois dessa data.`
+      : `${plano ?`Plano ${plano.nome}` : "Assinatura"}${e.periodo ? ` (${e.periodo})` : ""} em dia até ${dataCurta(e.pago_ate)}.${cancelada ? " A assinatura foi cancelada e não renova." : ""}`,
     tolerancia: `O pagamento venceu em ${dataCurta(e.pago_ate)}. Regularize até ${dataCurta(e.pago_ate ? somarDias(e.pago_ate, 7) : null)} para não entrar em modo leitura.`,
     leitura: "Você vê tudo, mas não cria nada novo. Escolha um plano ou regularize o pagamento para voltar ao normal. Seus clientes continuam acessando os projetos.",
     suspenso: "A conta está suspensa. Seus dados estão guardados: escolha um plano para reativar. Seus clientes continuam acessando os projetos.",
