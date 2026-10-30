@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { Check, Copy, MessageCircle } from "lucide-react";
 import { Aviso, Campo } from "@/components/Campo";
-import { salvarBriefing, salvarMarca, salvarPrecoAgenda, salvarServicos } from "@/app/app/acoes";
+import { salvarBriefing, salvarMarca, salvarPrecoAgenda, salvarProjetos, salvarServicos } from "@/app/app/acoes";
 import type { EstadoFormulario } from "@/lib/formulario";
 import type { Escritorio, Servico } from "@/lib/escritorio";
 import { blocoDoServico } from "@/lib/briefing";
@@ -359,6 +359,28 @@ export function FormBriefing({
         visual de estilo. Dá para personalizar depois em Briefings.
       </p>
       <Rodape enviando={enviando} rotulo={rotuloBotao} voltar={voltar} />
+    </form>
+  );
+}
+
+// ---------- Projetos e aprovações ----------
+
+export function FormProjetos({ escritorio }: { escritorio: Escritorio }) {
+  const [estado, enviar, enviando] = useActionState(salvarProjetos, inicial);
+  return (
+    <form action={enviar} noValidate>
+      <Mensagem estado={estado} />
+      <label className="checagem">
+        <input type="checkbox" name="travar_etapa_atraso" defaultChecked={escritorio.travar_etapa_atraso} />
+        <span>
+          <strong>Segurar a próxima etapa quando houver parcela em atraso</strong>
+          <small className="campo-ajuda">
+            Ao enviar uma etapa, o sistema pede para você confirmar “Enviar mesmo assim” se o projeto tiver parcela
+            vencida sem pagamento. Desligado, só aparece o aviso.
+          </small>
+        </span>
+      </label>
+      <Rodape enviando={enviando} rotulo="Salvar" />
     </form>
   );
 }

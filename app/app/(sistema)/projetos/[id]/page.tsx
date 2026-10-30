@@ -17,6 +17,7 @@ import { NovaEtapa } from "@/components/projetos/NovaEtapa";
 import { obterSessaoArquiteto, pixDoEscritorio, urlDoSite } from "@/lib/escritorio";
 import { pode } from "@/lib/permissoes";
 import { carregarPagamentos } from "@/lib/pagamentos";
+import { parcelasEmAtraso } from "@/lib/financeiro-servidor";
 import { ETAPA_RENDERS, assinarCaminhos, formatarEspaco, formatoDe, type ArquivoVisivel, type Categoria } from "@/lib/arquivos";
 import { SituacaoProjeto, type EventoProjeto } from "@/components/projetos/SituacaoProjeto";
 import type { StatusProjeto, StatusEtapa } from "@/lib/projetos";
@@ -56,7 +57,7 @@ export default async function ProjetoPage({
   const { data: eventos } = await supabase.from("projeto_eventos").select("id, tipo, etapa_nome, antes, depois, motivo, membro_nome, criado_em").eq("projeto_id", id).order("criado_em", { ascending: false }).limit(100);
   const cliente = projeto.cliente as unknown as { id: string; nome: string; telefone: string | null };
 
-  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro, { data: espaco }] = await Promise.all([
+  const [{ data: etapasBrutas }, { data: arquivosBrutos }, { data: usadas }, financeiro, { data: espaco }, atrasadas] = await Promise.all([
     supabase.from("etapas").select("id, nome, ordem, status, prazo, enviada_em, aprovada_em").eq("projeto_id", id).order("ordem").order("id"),
     supabase
       .from("arquivos")
@@ -70,6 +71,7 @@ export default async function ProjetoPage({
       ? carregarPagamentos(supabase, projeto.contrato_id)
       : Promise.resolve({ pagamentos: [], eventos: [] }),
     supabase.rpc("meu_espaco"),
+    parcelasEmAtraso(projeto.contrato_id),
   ]);
   const etapas = (etapasBrutas ?? []) as Etapa[];
   const arquivos = arquivosBrutos ?? [];
@@ -296,6 +298,8 @@ export default async function ProjetoPage({
               arquivos={todos.filter((a) => a.etapa_id === e.id)}
               historico={historico.filter((h) => h.etapa_id === e.id)}
               podeCobrar={pode(sessao.membro.papel, "gerir_aditivos")}
+              parcelasAtrasadas={atrasadas}
+              trava={sessao.escritorio.travar_etapa_atraso}
               cliente={{ nome: cliente.nome, telefone: cliente.telefone, escritorio: sessao.escritorio.nome }}
             />
           ),

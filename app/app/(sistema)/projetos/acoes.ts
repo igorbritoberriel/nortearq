@@ -12,6 +12,7 @@ import { CATEGORIAS, nomeParaBaixar, type Categoria } from "@/lib/arquivos";
 import { TAMANHO_MAXIMO_ARQUIVO } from "@/lib/projetos";
 import { ehRepetido, mensagemNomeRepetido, nomeLivre } from "@/lib/nomes";
 import { criarClienteServidor } from "@/lib/supabase/server";
+import { parcelasEmAtraso } from "@/lib/financeiro-servidor";
 
 // Projeto (módulo 03). Aprovar é só do cliente: o banco barra o arquiteto (RN-03.4).
 
@@ -226,10 +227,18 @@ export async function excluirArquivo(projetoId: string, arquivoId: string): Prom
 }
 
 // Envia a etapa para aprovação e devolve o link do projeto para o WhatsApp (RN-03.2).
-export async function enviarEtapa(projetoId: string, etapaId: string): Promise<{ link: string } | { erro: string }> {
+export async function enviarEtapa(projetoId: string, etapaId: string, liberar = false): Promise<{ link: string } | { erro: string }> {
   const ctx = await contexto();
   if (!ctx) return { erro: SEM_SUPABASE.mensagem! };
   if (!UUID.test(etapaId)) return { erro: "Etapa não encontrada." };
+  // RN-01.17: com a trava ligada, parcela em atraso segura a etapa nova até a arquiteta liberar.
+  if (ctx.sessao.escritorio.travar_etapa_atraso && !liberar) {
+    const { data: etapa } = await ctx.supabase.from("etapas").select("status, projeto:projetos(contrato_id)").eq("id", etapaId).maybeSingle();
+    const contratoId = (etapa?.projeto as unknown as { contrato_id: string | null } | null)?.contrato_id ?? null;
+    if (etapa && etapa.status !== "aguardando_aprovacao" && (await parcelasEmAtraso(contratoId)) > 0) {
+      return { erro: "Este projeto tem parcela em atraso. Marque “Enviar mesmo assim” para liberar a etapa." };
+    }
+  }
   const { data, error } = await ctx.supabase.rpc("enviar_etapa", { p_etapa: etapaId });
   if (error || !data) {
     console.error("[projeto] enviar etapa", error?.message);

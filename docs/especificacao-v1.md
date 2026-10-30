@@ -237,8 +237,9 @@ ficha), configurações (marca, serviços, faixa de preço, contrato, avisos, pl
   com as revisões e visitas da proposta, e o cliente recebe o convite para criar a senha do portal.
 - **RN-01.16** 🟡 Na V1, o pagamento é **só controle**: o arquiteto marca "pago" ou "pendente". O NorteArq
   não cobra o cliente final.
-- **RN-01.17** ❓ A próxima etapa deve ser liberada só depois do pagamento? Sugestão para a V1: mostrar
-  aviso, sem bloquear.
+- **RN-01.17** ✅ Parcela em atraso no contrato do projeto: o envio de etapa nova sempre avisa. O escritório
+  pode ligar a trava (Configurações > Projetos e aprovações, desligada por padrão): aí só envia marcando
+  "Enviar mesmo assim".
 
 ### 02 · Briefing detalhado
 

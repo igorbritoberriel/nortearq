@@ -6,6 +6,17 @@ import { carregarFornecedores } from "./fornecedores-servidor";
 import { ambienteDaChave, decifrar } from "./cobranca";
 import { intervaloMes, somaValores, type Recebivel, type Despesa, type Entrada, type SaldoAsaas } from "./financeiro";
 
+// Trava de etapa (0060): parcelas vencidas sem pagamento do contrato. Usa a chave do servidor porque o
+// Colaborador não lê pagamentos; quem chama já conferiu o projeto pelo RLS.
+export async function parcelasEmAtraso(contratoId: string | null): Promise<number> {
+  const admin = criarClienteAdmin();
+  if (!contratoId || !admin) return 0;
+  const hoje = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }).format(new Date());
+  const { count } = await admin.from("pagamentos").select("id", { count: "exact", head: true })
+    .eq("contrato_id", contratoId).is("pago_em", null).lt("vencimento", hoje);
+  return count ?? 0;
+}
+
 // Nenhum dado nem credencial de outro escritório chega ao navegador.
 export async function carregarFinanceiro(db: SupabaseClient, escritorioId: string, inicio: string) {
   const pagamentos: Recebivel[] = [], despesas: Despesa[] = [];

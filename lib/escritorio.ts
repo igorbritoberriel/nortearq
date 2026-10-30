@@ -30,6 +30,7 @@ export type Escritorio = {
   parcelamento_entrada_pct: number;
   parcelamento_max: number;
   desconto_avista_pct: number; // 0021
+  travar_etapa_atraso: boolean; // 0060: RN-01.17
   // Assinatura (0020)
   plano_escolhido: "briefing" | "profissional" | "escritorio" | null;
   periodo: "mensal" | "anual" | null;

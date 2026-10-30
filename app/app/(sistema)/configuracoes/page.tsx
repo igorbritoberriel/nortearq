@@ -3,6 +3,7 @@ import Link from "next/link";
 import { EmConstrucao } from "@/components/EmConstrucao";
 import {
   FormBriefing,
+  FormProjetos,
   FormMarca,
   FormPrecoAgenda,
   FormServicos,
@@ -151,6 +152,11 @@ export default async function ConfiguracoesPage() {
       <section className="cartao secao-config" id="briefing">
         <h2>Briefing</h2>
         <FormBriefing escritorio={escritorio} />
+      </section>
+
+      <section className="cartao secao-config" id="projetos">
+        <h2>Projetos e aprovações</h2>
+        <FormProjetos escritorio={escritorio} />
       </section>
 
       <section className="cartao secao-config" id="modelos">

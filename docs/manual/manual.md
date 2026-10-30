@@ -73,7 +73,8 @@ No fim aparece o **link do escritório** para copiar ou mandar.
 
 **Configurações** (menu): link do formulário, Equipe (só o Dono), marca, serviços, faixa de preço e agenda,
 **Parcelamento** (entrada em %, até quantas vezes, desconto à vista de até 30%; vale para as próximas
-propostas), briefing e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
+propostas), briefing, **Projetos e aprovações** (segurar a próxima etapa quando houver parcela em atraso,
+desligado por padrão) e **Modelos e textos prontos** (atalhos para o editor de briefing, os modelos de
 proposta e de contrato e, para o Dono, o plano).
 
 **Link do formulário:** fica no primeiro cartão de Configurações, com **Copiar link** e **Enviar no WhatsApp**.
@@ -449,6 +450,9 @@ conta Asaas conectada. Na cobrança automática, há tarifas do Asaas e a taxa d
 - Adicionar, renomear, excluir e reordenar. Etapa aguardando o cliente ou aprovada não se move.
 - **Enviar para aprovação:** precisa de pelo menos 1 arquivo visível ao cliente. Pede confirmação dizendo
   quantos arquivos vão; gera o link do projeto para o WhatsApp, e o cliente também recebe e-mail.
+- **Parcela em atraso:** se o contrato do projeto tem parcela vencida sem pagamento, a confirmação avisa. Com
+  "Segurar a próxima etapa" ligado em Configurações, só envia marcando **Enviar mesmo assim**. Lembrar o
+  cliente de uma etapa já enviada nunca é travado.
 - O cliente **aprova** ou **pede revisão** (comentário obrigatório). A aprovação não se desfaz: mudança
   depois dela vira aditivo.
 - Contador visível para os dois lados: "2 de 3 revisões usadas".

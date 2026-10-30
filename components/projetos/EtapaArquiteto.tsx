@@ -52,6 +52,8 @@ export function EtapaArquiteto({
   podeCobrar = true,
   somenteLeitura = false,
   hoje,
+  parcelasAtrasadas = 0,
+  trava = false,
 }: {
   projetoId: string;
   somenteLeitura?: boolean;
@@ -61,7 +63,10 @@ export function EtapaArquiteto({
   historico: DecisaoArquiteto[];
   cliente: { nome: string; telefone: string | null; escritorio: string };
   podeCobrar?: boolean; // dono ou administrador (lib/permissoes.ts)
+  parcelasAtrasadas?: number; // RN-01.17: parcelas vencidas sem pagamento do contrato
+  trava?: boolean; // escritório trava a etapa nova enquanto houver atraso (0060)
 }) {
+  const [liberar, setLiberar] = useState(false);
   const [pendente, iniciar] = useTransition();
   const ordem = useOrdemEtapas();
   const [erro, setErro] = useState<string | null>(null);
@@ -362,21 +367,34 @@ export function EtapaArquiteto({
             <p className="campo-ajuda">Para enviar ao cliente, a etapa precisa de pelo menos 1 arquivo visível.</p>
           ) : (
             <EnviarLinkAcao
-              acao={enviarEtapa.bind(null, projetoId, etapa.id)}
+              acao={enviarEtapa.bind(null, projetoId, etapa.id, liberar)}
               destino="projeto"
               telefone={cliente.telefone}
               cliente={cliente.nome}
               escritorio={cliente.escritorio}
               confirmar={
                 etapa.status === "aguardando_aprovacao" ? undefined : (
-                  <p>
-                    <strong>
-                      Enviar “{etapa.nome}” com {atuais.filter((a) => a.visivel).length}{" "}
-                      {atuais.filter((a) => a.visivel).length === 1 ? "arquivo visível" : "arquivos visíveis"}?
-                    </strong>{" "}
-                    {cliente.nome.split(" ")[0]} recebe o link{cliente.telefone ? " no WhatsApp" : ""} e por e-mail. Depois
-                    do envio, esses arquivos não podem mais ser apagados (só ganhar versão nova).
-                  </p>
+                  <>
+                    <p>
+                      <strong>
+                        Enviar “{etapa.nome}” com {atuais.filter((a) => a.visivel).length}{" "}
+                        {atuais.filter((a) => a.visivel).length === 1 ? "arquivo visível" : "arquivos visíveis"}?
+                      </strong>{" "}
+                      {cliente.nome.split(" ")[0]} recebe o link{cliente.telefone ? " no WhatsApp" : ""} e por e-mail. Depois
+                      do envio, esses arquivos não podem mais ser apagados (só ganhar versão nova).
+                    </p>
+                    {parcelasAtrasadas > 0 && (
+                      <Aviso tipo="erro">
+                        {parcelasAtrasadas === 1 ? "Há 1 parcela" : `Há ${parcelasAtrasadas} parcelas`} deste projeto em atraso.
+                        {trava && (
+                          <label className="checagem">
+                            <input type="checkbox" checked={liberar} onChange={(e) => setLiberar(e.target.checked)} /> Enviar mesmo
+                            assim
+                          </label>
+                        )}
+                      </Aviso>
+                    )}
+                  </>
                 )
               }
               rotulo={

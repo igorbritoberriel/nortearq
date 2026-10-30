@@ -228,6 +228,23 @@ export async function salvarPrecoAgenda(_anterior: EstadoFormulario, formData: F
   return concluir(formData);
 }
 
+// ---------- Projetos e aprovações (RN-01.17) ----------
+
+export async function salvarProjetos(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {
+  const valores = valoresDe(formData);
+  const ctx = await contexto();
+  if (!ctx) return { ...SEM_SUPABASE, valores };
+  const { error } = await ctx.supabase
+    .from("escritorios")
+    .update({ travar_etapa_atraso: formData.get("travar_etapa_atraso") === "on" })
+    .eq("id", ctx.sessao.escritorio.id);
+  if (error) {
+    console.error("[projetos]", error.message);
+    return { status: "erro", mensagem: "Não foi possível salvar. Tente de novo.", valores };
+  }
+  return concluir(formData);
+}
+
 // ---------- Briefing (RN-02.2) e fim da configuração inicial (RN-00.3) ----------
 
 export async function salvarBriefing(_anterior: EstadoFormulario, formData: FormData): Promise<EstadoFormulario> {

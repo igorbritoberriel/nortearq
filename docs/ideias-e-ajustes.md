@@ -79,7 +79,9 @@ Visão geral por fase (mapa): **NorteArq-Plano-de-fases.pdf**, na pasta "app - a
 - [ ] Assinatura digital com validade extra (ICP-Brasil): comparar ZapSign × Clicksign por envelope.
       Hoje o aceite é feito no próprio sistema, com data, hora, IP e código de verificação.
 - [ ] Banco de imagens padrão do quiz: comprar licença ou usar fotos próprias/de parceiros (direitos autorais).
-- [ ] Liberar a próxima etapa só depois do pagamento? (RN-01.17; hoje só avisa)
+- [x] Liberar a próxima etapa só depois do pagamento (RN-01.17): feito em 30/10/2026 (migração 0060). Aviso
+      sempre que há parcela em atraso; com "Segurar a próxima etapa" ligado em Configurações > Projetos e
+      aprovações, só envia marcando "Enviar mesmo assim".
 - [ ] Aprovação tácita depois de X dias sem resposta? (RN-03.7; sugestão: não na V1)
 - [x] **Financeiro somado** feito em 30/10/2026: linha "Financeiro" na ficha do cliente (contratado, pago, falta,
       em atraso), só para Dono e Administrador; portal continua por projeto.
